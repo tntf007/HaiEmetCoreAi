@@ -35,15 +35,15 @@ if __name__ == "__main__":
 
 ---
 
-## **⚠️ זהירות:**
+## **בGitHub:**
 
-✅ **בGitHub עצמו בעריך**
-✅ **Delete את הכל**
-✅ **Paste את הקוד בלבד (ללא הוראות!)**
-✅ **Commit**
+1. **main.py** 
+2. **Delete הכל completely**
+3. **Paste את הקוד למעלה (רק זה!)**
+4. **Commit**
 
 ---
 
 ## **אחרי:**
 ```
-Manual Deploy → Clear build cache
+Manual Deploy
