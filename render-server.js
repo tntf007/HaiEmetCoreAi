@@ -20,19 +20,37 @@ app.get("/", (req, res) => {
 });
 
 app.all("/exec", async (req, res) => {
+  res.setTimeout(30000);
+  
   try {
     let message = req.query.msg || req.body.message || "";
-    if (!message) return res.status(400).json({ reply: "No message" });
+    
+    if (!message) {
+      return res.status(400).json({ reply: "No message" });
+    }
+    
+    console.log("📨 Message:", message);
+    console.log("🔐 Token:", CONFIG.CHAI_EMET_TOKEN ? "exists" : "missing");
     
     const gasResponse = await axios.post(CONFIG.GAS_URL, {
       message: message,
       token: CONFIG.CHAI_EMET_TOKEN
+    }, { 
+      timeout: 25000,
+      headers: { 'Content-Type': 'application/json' }
     });
     
-    res.json({ reply: gasResponse.data.reply || "Ok" });
+    console.log("📥 GAS Response:", gasResponse.data);
+    
+    const reply = gasResponse.data.reply || "Ok";
+    res.json({ reply: reply });
+    
   } catch (error) {
-    res.status(500).json({ reply: "Error" });
+    console.error("❌ Error:", error.message);
+    res.status(500).json({ reply: "Error: " + error.message });
   }
 });
 
-app.listen(CONFIG.PORT, () => console.log("Ready on", CONFIG.PORT));
+app.listen(CONFIG.PORT, () => {
+  console.log("🚀 Hai-Emet Server Ready on port", CONFIG.PORT);
+});
