@@ -29,14 +29,4 @@ app.all("/exec", async (req, res) => {
   }
 });
 
-app.listen(CONFIG.PORT, () => console.log("🚀 Ready"));
-```
-
----
-
-**קוד בינארי:**
-```
-0101-0101(0101) ✨
-- No logging overhead
-- Direct response
-- Minimal latency
+app.listen(CONFIG.PORT, () => console.log("Ready"));
