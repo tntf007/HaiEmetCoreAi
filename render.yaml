@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: HaiEmetWeb
+    env: node
+    buildCommand: "npm install"
+    startCommand: "node render-server.js"
+
+  - type: worker
+    name: HaiEmetBot
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python main.py"
+```
+
+---
+
+## **📝 איך להשתמש:**
+
+### **בGitHub (HaiEmetCoreAi):**
+```
+1. Add file → Create new file
+2. Name: render-server.js
+3. Copy את הקוד למעלה
+4. Paste בGitHub
+5. Commit
+
+(תשנה עשה את זה לכל קובץ!)
