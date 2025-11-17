@@ -31,19 +31,3 @@ async def main():
 if __name__ == "__main__":
     import asyncio
     asyncio.run(main())
-```
-
----
-
-## **בGitHub:**
-
-1. **main.py** 
-2. **Delete הכל completely**
-3. **Paste את הקוד למעלה (רק זה!)**
-4. **Commit**
-
----
-
-## **אחרי:**
-```
-Manual Deploy
