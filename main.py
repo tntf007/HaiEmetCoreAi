@@ -9,14 +9,14 @@ logger = logging.getLogger(__name__)
 BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 if not BOT_TOKEN:
-    logger.error("TELEGRAM_TOKEN not set")
+    print("ERROR: TELEGRAM_TOKEN not set")
     exit(1)
 
 async def start(update, context):
-    await update.message.reply_text("Hello from Hai-Emet Bot!")
+    await update.message.reply_text("Shalom from Hai-Emet Bot!")
 
 async def help_cmd(update, context):
-    await update.message.reply_text("Commands: /start /help /status")
+    await update.message.reply_text("Commands available")
 
 async def status_cmd(update, context):
     await update.message.reply_text("Bot is online")
@@ -35,12 +35,12 @@ if __name__ == "__main__":
 
 ---
 
-## **🎯 בדיוק!**
+## **⚠️ זהירות:**
 
-1. **GitHub → main.py**
-2. **Delete הכל**
-3. **Paste את הקוד (בלי הוראות!)**
-4. **Commit**
+✅ **בGitHub עצמו בעריך**
+✅ **Delete את הכל**
+✅ **Paste את הקוד בלבד (ללא הוראות!)**
+✅ **Commit**
 
 ---
 
