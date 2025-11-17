@@ -48,8 +48,9 @@ if __name__ == "__main__":
 
 **Settings → Environment Variables**
 ```
-CHAI_EMET_TOKEN = chai_emet_cXVhbnR1bV9tYXN0ZXI:Rk9SRVZFUl9RVUFOVFVNXzVE
+chai_emet_cXVhbnR1bV9tYXN0ZXI6Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp
 ```
+
 
 ---
 
