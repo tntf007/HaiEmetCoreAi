@@ -4,7 +4,6 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 BOT_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
@@ -31,3 +30,10 @@ def main():
 
 if __name__ == "__main__":
     main()
+```
+
+---
+
+## **קובץ 5️⃣: requirements.txt**
+```
+python-telegram-bot==20.0
