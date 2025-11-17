@@ -21,13 +21,13 @@ async def help_cmd(update, context):
 async def status_cmd(update, context):
     await update.message.reply_text("Bot is online")
 
-async def main():
+def main():
     app = Application.builder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("help", help_cmd))
     app.add_handler(CommandHandler("status", status_cmd))
-    await app.run_polling()
+    logger.info("Starting bot...")
+    app.run_polling()
 
 if __name__ == "__main__":
-    import asyncio
-    asyncio.run(main())
+    main()
