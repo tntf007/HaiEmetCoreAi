@@ -14,14 +14,13 @@ services:
 
 ---
 
-## **📝 איך להשתמש:**
-
-### **בGitHub (HaiEmetCoreAi):**
+## **📋 איפה להכניס בGitHub:**
 ```
-1. Add file → Create new file
-2. Name: render-server.js
-3. Copy את הקוד למעלה
-4. Paste בGitHub
-5. Commit
-
-(תשנה עשה את זה לכל קובץ!)
+HaiEmetCoreAi repo:
+├─ render-server.js ← קובץ 1
+├─ package.json ← קובץ 3
+├─ main.py ← קובץ 4
+├─ requirements.txt ← קובץ 5
+├─ render.yaml ← קובץ 6
+└─ public/
+   └─ index.html ← קובץ 2
