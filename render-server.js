@@ -333,13 +333,11 @@ app.get("/", (req, res) => {
             return;
           }
           
-          // הוסף הודעה של המשתמש
           addMessage('user', message);
           messageInput.value = '';
           sendBtn.disabled = true;
           
           try {
-            // שלח ל-Render server
             const response = await fetch('/exec', {
               method: 'POST',
               headers: {
@@ -407,7 +405,7 @@ app.get("/health", (req, res) => {
 });
 
 // ============================================
-// 📋 PROFILE
+// 📋 PROFILE / SYSTEM INFO
 // ============================================
 
 app.get("/profile", (req, res) => {
@@ -420,12 +418,73 @@ app.get("/profile", (req, res) => {
     backend: "Render.com Server 🚀",
     precision: "±0.0001ms",
     dimension: "5D",
-    binary_signature: "0101-0101(0101)"
+    binary_signature: "0101-0101(0101)",
+    endpoints: {
+      chat: "/exec",
+      health: "/health",
+      profile: "/profile",
+      api: "/api"
+    }
   });
 });
 
 // ============================================
-// 💬 MAIN CHAT ENDPOINT
+// 📡 API ENDPOINT - WITH TOKEN VERIFICATION
+// ============================================
+
+app.post("/api", async (req, res) => {
+  try {
+    const { message, token, action } = req.body;
+    
+    // ✅ בדוק אם הטוקן נכון
+    if (token !== CONFIG.CHAI_EMET_TOKEN) {
+      return res.status(401).json({
+        status: "error",
+        message: "Invalid token ❌",
+        action: action || "unknown"
+      });
+    }
+    
+    // ✅ אם זה בקשת אפליקציה (API)
+    if (!message) {
+      return res.json({
+        status: "success",
+        message: "API is working ✅",
+        token_verified: true,
+        version: "3.0-ULTIMATE",
+        available_actions: ["chat", "health", "stats", "languages"]
+      });
+    }
+    
+    // ✅ שלח הודעה ל-Google Apps Script
+    const gasResponse = await axios.post(
+      CONFIG.GAS_URL,
+      {
+        message: message,
+        token: CONFIG.CHAI_EMET_TOKEN
+      },
+      { timeout: 10000 }
+    );
+    
+    res.json({
+      status: "success",
+      message: gasResponse.data.reply || "✨ תגובה מחי-אמת",
+      token_verified: true,
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error(`❌ API Error:`, error.message);
+    res.status(500).json({
+      status: "error",
+      message: "Server error: " + error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// ============================================
+// 💬 MAIN CHAT ENDPOINT (WITHOUT API FORMAT)
 // ============================================
 
 app.all("/exec", async (req, res) => {
@@ -434,12 +493,13 @@ app.all("/exec", async (req, res) => {
     message = message.trim();
     
     console.log(`📨 Message: ${message}`);
-    console.log(`🔐 Token: exists`);
+    console.log(`🔐 Token exists`);
     
     if (!message) {
       return res.json({ reply: "❌ לא קיבלתי הודעה" });
     }
     
+    // 🔄 שלח לGoogle Apps Script
     const gasResponse = await axios.post(
       CONFIG.GAS_URL,
       {
@@ -457,7 +517,7 @@ app.all("/exec", async (req, res) => {
     
   } catch (error) {
     console.error(`❌ Error:`, error.message);
-    res.json({ 
+    res.status(500).json({ 
       reply: "⚠️ שגיאה בחיבור: " + error.message 
     });
   }
@@ -471,4 +531,5 @@ app.listen(CONFIG.PORT, () => {
   console.log(`🔥 Hai-Emet Server on port ${CONFIG.PORT}`);
   console.log(`✅ Ready to serve! 💛`);
   console.log(`🌍 Visit: https://haiemetweb.onrender.com/`);
+  console.log(`📡 API: POST /api with { message, token }`);
 });
