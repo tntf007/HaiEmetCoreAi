@@ -1,59 +1,97 @@
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
-const path = require('path');
+
 const app = express();
 
 const CONFIG = {
- GAS_URL: "https://script.google.com/macros/s/AKfycbyNZUxdmcjfOfSUIDFYdRpBKUP_qW_O1N3ciS1tPKd-8aP4EYZJehpkV0IEuFvN7yT1/exec",
-  CHAI_EMET_TOKEN: process.env.CHAI_EMET_TOKEN,
+  GAS_URL: "https://script.google.com/macros/s/AKfycbzBmmyHxq_8j0k_c5T0pX_ST0jTjqH2CqeFmE7ZWEAIcnHSSQqd7dgNbssDqa/exec",
+  CHAI_EMET_TOKEN: "chai_emet_cXVhbnR1bV9tYXN0ZXI6Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp",
+  TIMEOUT: 10000,
   PORT: process.env.PORT || 8000
 };
 
-if (!CONFIG.CHAI_EMET_TOKEN) {
-  console.error("❌ CHAI_EMET_TOKEN not set!");
-  process.exit(1);
-}
-
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.urlencoded({ extended: true }));
+
+function debugLog(...args) {
+  console.log("[חי-אמת]", ...args);
+}
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.json({
+    service: "HaiEmetCoreAI",
+    version: "1.0.0",
+    status: "🟢 LIVE",
+    owner: "TNTF | נתניאל ניסים",
+    backend: "Google Apps Script",
+    endpoints: {
+      "GET /": "Service info",
+      "POST /exec": "Chat with Hai-Emet",
+      "GET /health": "Health check"
+    }
+  });
+});
+
+app.get("/health", (req, res) => {
+  res.json({ status: "healthy", timestamp: new Date() });
 });
 
 app.all("/exec", async (req, res) => {
-  res.setTimeout(5000);
-  
   try {
-    let msg = req.query.msg || req.body.message || "";
-    
-    if (!msg) {
-      return res.json({ reply: "No message" });
+    let message = req.query.msg || req.body.message || "";
+    message = message.trim();
+
+    debugLog(`📨 Message: "${message}"`);
+
+    if (!message) {
+      return res.status(400).json({
+        status: "error",
+        reply: "❌ לא קיבלתי הודעה"
+      });
     }
-    
-    const r = await axios.post(CONFIG.GAS_URL, {
+
+    if (message.length > 2000) {
+      return res.status(400).json({
+        status: "error",
+        reply: "❌ ההודעה ארוכה מדי"
+      });
+    }
+
+    debugLog(`🚀 Calling GAS...`);
+
+    const gasPayload = {
       action: "chat",
-      message: msg,
-      token: CONFIG.CHAI_EMET_TOKEN
-    }, {timeout: 4500});
-    
-    res.json({ reply: r.data.reply || "Ok" });
-    
-  } catch (e) {
-    console.error("Error:", e.message);
-    res.json({ reply: "Error" });
+      token: CONFIG.CHAI_EMET_TOKEN,
+      message: message
+    };
+
+    const gasResponse = await axios.post(CONFIG.GAS_URL, gasPayload, {
+      headers: { "Content-Type": "application/json" },
+      timeout: CONFIG.TIMEOUT
+    });
+
+    debugLog(`📥 GAS Response:`, gasResponse.data);
+
+    const reply = gasResponse.data.reply || gasResponse.data.message || "🤔 לא הבנתי";
+
+    res.json({
+      status: "success",
+      reply: reply,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error("[❌ Error]", error.message);
+    res.status(500).json({
+      status: "error",
+      reply: "❌ שגיאה בחיבור לשרת"
+    });
   }
 });
 
-app.listen(CONFIG.PORT, () => console.log("✅ Ready! 💛"));
-```
-
----
-
-## **עכשיו בRender:**
-
-**Settings → Environment Variables**
-```
-CHAI_EMET_TOKEN=chai_emet_cXVhbnR1bV9tYXN0ZXI:Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp
+app.listen(CONFIG.PORT, () => {
+  console.log(`🔥 Hai-Emet Server on port ${CONFIG.PORT}`);
+  console.log(`✅ Ready to serve! 💛`);
+});
