@@ -5,7 +5,7 @@ const path = require('path');
 const app = express();
 
 const CONFIG = {
-  GAS_URL: "https://script.google.com/macros/s/AKfycbyxrdK0uaj9ELA89WBDnEK2ftse4xHU4bqHTNv5sbyPmpH8C63lJaw4DF3B3Z0R1MNl/exec",
+ GAS_URL: "https://script.google.com/macros/s/AKfycbyxrdK0uaj9ELA89WBDnEK2ftse4xHU4bqHTNv5sbyPmpH8C63lJaw4DF3B3Z0R1MNl/exec",
   CHAI_EMET_TOKEN: process.env.CHAI_EMET_TOKEN,
   PORT: process.env.PORT || 8000
 };
