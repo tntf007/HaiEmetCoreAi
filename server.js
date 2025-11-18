@@ -3,7 +3,7 @@ const cors = require('cors');
 const axios = require('axios');
 const app = express();
 const CONFIG = {
-  GAS_URL: "https://script.google.com/macros/s/AKfycbyNITTtnyq_i51pkgsr7uo2X_w_D7ZPGQeE6XEH3CIx_8YkrghKKGAo7AZTHIfAF2LU/exec",
+  GAS_URL: GAS_URL: "https://script.google.com/macros/s/AKfycbyxrdK0uaj9ELA89WBDnEK2ftse4xHU4bqHTNv5sbyPmpH8C63lJaw4DF3B3Z0R1MNl/exec",
   CHAI_EMET_TOKEN: "chai_emet_cXVhbnR1bV9tYXN0ZXI6Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp",
   TIMEOUT: 10000,
   PORT: process.env.PORT || 8000
