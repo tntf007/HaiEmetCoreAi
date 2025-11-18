@@ -5,12 +5,29 @@ const app = express();
 
 const CONFIG = {
   GAS_URL: "https://script.google.com/macros/s/AKfycbzHcHlBbDrHWgfbNsyO0Nc3_jn6yuX-_YyO6bWBa9fdoQxDT3i9LJu9kq1gxpbwa9_3/exec",
-  CHAI_EMET_TOKEN: "chai_emet_cXVhbnR1bV9tYXN0ZXI:Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp",
+  TOKENS: {
+    CHAI_EMET_CLASSIC: "chai_emet_cXVhbnR1bV9tYXN0ZXI:Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp",
+    NEXUS_PRO: "chai_emet_nexus_pro_MTc2MzQ5NDY3MTAyNjpjZDdzZmtzazk3ZA"
+  },
   PORT: process.env.PORT || 8000
 };
 
 app.use(cors());
 app.use(express.json());
+
+// ============================================
+// 🔑 TOKEN VERIFICATION
+// ============================================
+
+function verifyToken(token) {
+  if (token === CONFIG.TOKENS.CHAI_EMET_CLASSIC) {
+    return { valid: true, type: "CHAI_EMET_CLASSIC", name: "חי-אמת" };
+  }
+  if (token === CONFIG.TOKENS.NEXUS_PRO) {
+    return { valid: true, type: "NEXUS_PRO", name: "Nexus Pro API" };
+  }
+  return { valid: false, type: null, name: null };
+}
 
 // ============================================
 // 🌐 WEB INTERFACE WITH CHAT
@@ -131,6 +148,7 @@ app.get("/", (req, res) => {
           padding: 12px;
           border-radius: 8px;
           word-wrap: break-word;
+          font-size: 14px;
         }
         .user .message-content {
           background: rgba(100, 200, 100, 0.3);
@@ -202,6 +220,7 @@ app.get("/", (req, res) => {
           padding: 15px;
           overflow-y: auto;
           display: none;
+          font-size: 12px;
         }
         .info-panel.show {
           display: block;
@@ -210,15 +229,22 @@ app.get("/", (req, res) => {
           color: #ff6b9d;
           font-weight: bold;
           margin-bottom: 10px;
-          font-size: 14px;
+          font-size: 13px;
         }
         .info-item {
           padding: 8px;
           border-bottom: 1px solid rgba(255, 215, 0, 0.2);
-          font-size: 12px;
+          font-size: 11px;
         }
         .info-item:last-child {
           border-bottom: none;
+        }
+        .token-section {
+          background: rgba(100, 100, 100, 0.2);
+          padding: 10px;
+          border-radius: 4px;
+          margin-top: 10px;
+          font-size: 10px;
         }
         .footer {
           text-align: center;
@@ -226,10 +252,6 @@ app.get("/", (req, res) => {
           border-top: 1px solid rgba(255, 215, 0, 0.2);
           font-size: 11px;
           color: #ffd700;
-        }
-        .loading {
-          color: #ff6b9d;
-          font-style: italic;
         }
         @media (max-width: 768px) {
           .chat-wrapper {
@@ -248,7 +270,7 @@ app.get("/", (req, res) => {
       <div class="container">
         <div class="header">
           <h1>💛 חי-אמת 💛</h1>
-          <h2>דברו איתי ישירות!</h2>
+          <h2>Unified System with Dual Tokens</h2>
           <div class="status-bar">
             <div class="status-item">
               <span class="status-label">סטטוס:</span>
@@ -263,8 +285,8 @@ app.get("/", (req, res) => {
               <span class="status-value">15</span>
             </div>
             <div class="status-item">
-              <span class="status-label">בעלים:</span>
-              <span class="status-value">TNTF</span>
+              <span class="status-label">Tokens:</span>
+              <span class="status-value">2</span>
             </div>
           </div>
         </div>
@@ -299,18 +321,25 @@ app.get("/", (req, res) => {
             <div class="info-item"><strong>בעלים:</strong> נתניאל ניסים</div>
             <div class="info-item"><strong>חתימה:</strong> 0101-0101(0101)</div>
             <div class="info-item"><strong>הגנה:</strong> 🔐 MAXIMUM</div>
+            
+            <div class="token-section">
+              <strong>🔑 טוקנים:</strong>
+              <div>✅ Chai-Emet Classic</div>
+              <div>✅ Nexus Pro API</div>
+            </div>
+            
             <div class="info-item" style="margin-top: 15px;"><strong>📊 תכונות:</strong></div>
             <div class="info-item">✓ Advanced Statistics</div>
             <div class="info-item">✓ Rate Limiting</div>
             <div class="info-item">✓ Backup System</div>
             <div class="info-item">✓ Admin Dashboard</div>
             <div class="info-item">✓ Multi-Language</div>
-            <div class="info-item">✓ Real-Time Processing</div>
+            <div class="info-item">✓ Dual Token Auth</div>
           </div>
         </div>
         
         <div class="footer">
-          💛 Hai-Emet ULTIMATE 3.0 | Powered by Render.com 🚀 | Owner: TNTF
+          💛 Hai-Emet ULTIMATE 3.0 | Nexus Pro API | Powered by Render.com 🚀
         </div>
       </div>
       
@@ -400,7 +429,8 @@ app.get("/health", (req, res) => {
   res.json({ 
     status: "healthy ✨",
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    uptime: process.uptime(),
+    tokens: ["CHAI_EMET_CLASSIC", "NEXUS_PRO"]
   });
 });
 
@@ -419,17 +449,55 @@ app.get("/profile", (req, res) => {
     precision: "±0.0001ms",
     dimension: "5D",
     binary_signature: "0101-0101(0101)",
+    authentication: {
+      tokens_available: 2,
+      token_types: ["CHAI_EMET_CLASSIC", "NEXUS_PRO"]
+    },
     endpoints: {
       chat: "/exec",
+      api: "/api",
       health: "/health",
       profile: "/profile",
-      api: "/api"
+      verify: "/verify"
     }
   });
 });
 
 // ============================================
-// 📡 API ENDPOINT - WITH TOKEN VERIFICATION
+// 🔐 TOKEN VERIFICATION ENDPOINT
+// ============================================
+
+app.post("/verify", (req, res) => {
+  const { token } = req.body;
+  
+  if (!token) {
+    return res.status(400).json({
+      status: "error",
+      message: "Token required"
+    });
+  }
+  
+  const verification = verifyToken(token);
+  
+  if (verification.valid) {
+    res.json({
+      status: "success",
+      valid: true,
+      type: verification.type,
+      name: verification.name,
+      message: `Token verified as ${verification.name} ✅`
+    });
+  } else {
+    res.status(401).json({
+      status: "error",
+      valid: false,
+      message: "Invalid token ❌"
+    });
+  }
+});
+
+// ============================================
+// 📡 NEXUS PRO API ENDPOINT
 // ============================================
 
 app.post("/api", async (req, res) => {
@@ -437,7 +505,9 @@ app.post("/api", async (req, res) => {
     const { message, token, action } = req.body;
     
     // ✅ בדוק אם הטוקן נכון
-    if (token !== CONFIG.CHAI_EMET_TOKEN) {
+    const verification = verifyToken(token);
+    
+    if (!verification.valid) {
       return res.status(401).json({
         status: "error",
         message: "Invalid token ❌",
@@ -445,23 +515,23 @@ app.post("/api", async (req, res) => {
       });
     }
     
-    // ✅ אם זה בקשת אפליקציה (API)
+    // ✅ אם זה בקשת API בלי הודעה
     if (!message) {
       return res.json({
         status: "success",
-        message: "API is working ✅",
-        token_verified: true,
+        message: `API working - Token verified as ${verification.name} ✅`,
+        token_type: verification.type,
         version: "3.0-ULTIMATE",
-        available_actions: ["chat", "health", "stats", "languages"]
+        available_actions: ["chat", "health", "stats", "languages", "verify"]
       });
     }
     
-    // ✅ שלח הודעה ל-Google Apps Script
+    // ✅ שלח הודעה לGoogle Apps Script
     const gasResponse = await axios.post(
       CONFIG.GAS_URL,
       {
         message: message,
-        token: CONFIG.CHAI_EMET_TOKEN
+        token: token
       },
       { timeout: 10000 }
     );
@@ -469,12 +539,13 @@ app.post("/api", async (req, res) => {
     res.json({
       status: "success",
       message: gasResponse.data.reply || "✨ תגובה מחי-אמת",
+      token_type: verification.type,
       token_verified: true,
       timestamp: new Date().toISOString()
     });
     
   } catch (error) {
-    console.error(`❌ API Error:`, error.message);
+    console.error(\`❌ API Error:\`, error.message);
     res.status(500).json({
       status: "error",
       message: "Server error: " + error.message,
@@ -484,16 +555,17 @@ app.post("/api", async (req, res) => {
 });
 
 // ============================================
-// 💬 MAIN CHAT ENDPOINT (WITHOUT API FORMAT)
+// 💬 MAIN CHAT ENDPOINT
 // ============================================
 
 app.all("/exec", async (req, res) => {
   try {
     let message = req.query.msg || req.body.message || "";
+    const token = req.body.token || CONFIG.TOKENS.CHAI_EMET_CLASSIC;
     message = message.trim();
     
-    console.log(`📨 Message: ${message}`);
-    console.log(`🔐 Token exists`);
+    console.log(\`📨 Message: \${message}\`);
+    console.log(\`🔐 Token type: \${verifyToken(token).type}\`);
     
     if (!message) {
       return res.json({ reply: "❌ לא קיבלתי הודעה" });
@@ -504,19 +576,19 @@ app.all("/exec", async (req, res) => {
       CONFIG.GAS_URL,
       {
         message: message,
-        token: CONFIG.CHAI_EMET_TOKEN
+        token: token
       },
       { timeout: 10000 }
     );
     
-    console.log(`📥 GAS Response:`, gasResponse.data);
+    console.log(\`📥 GAS Response:\`, gasResponse.data);
     
     res.json({ 
       reply: gasResponse.data.reply || "✨ תגובה מחי-אמת" 
     });
     
   } catch (error) {
-    console.error(`❌ Error:`, error.message);
+    console.error(\`❌ Error:\`, error.message);
     res.status(500).json({ 
       reply: "⚠️ שגיאה בחיבור: " + error.message 
     });
@@ -528,8 +600,11 @@ app.all("/exec", async (req, res) => {
 // ============================================
 
 app.listen(CONFIG.PORT, () => {
-  console.log(`🔥 Hai-Emet Server on port ${CONFIG.PORT}`);
-  console.log(`✅ Ready to serve! 💛`);
-  console.log(`🌍 Visit: https://haiemetweb.onrender.com/`);
-  console.log(`📡 API: POST /api with { message, token }`);
+  console.log(\`🔥 Hai-Emet Server on port \${CONFIG.PORT}\`);
+  console.log(\`✅ Ready to serve! 💛\`);
+  console.log(\`🌍 Visit: https://haiemetweb.onrender.com/\`);
+  console.log(\`📡 API: POST /api with { message, token }\`);
+  console.log(\`🔐 Tokens Loaded:\`);
+  console.log(\`   ✅ CHAI_EMET_CLASSIC\`);
+  console.log(\`   ✅ NEXUS_PRO\`);
 });
