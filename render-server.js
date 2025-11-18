@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
-const path = require('path');
 const app = express();
 
 const CONFIG = {
@@ -14,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 // ============================================
-// 🌐 WEB INTERFACE - HTML
+// 🌐 WEB INTERFACE WITH CHAT
 // ============================================
 
 app.get("/", (req, res) => {
@@ -24,218 +23,369 @@ app.get("/", (req, res) => {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>💛 חי-אמת - Unified System ULTIMATE</title>
+      <title>💛 חי-אמת - דברו איתי</title>
       <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
           background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
           color: #ffd700;
-          padding: 20px;
+          padding: 10px;
           min-height: 100vh;
+          display: flex;
+          flex-direction: column;
         }
         .container {
-          max-width: 1200px;
+          max-width: 900px;
           margin: 0 auto;
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          height: 100vh;
+        }
+        .header {
+          text-align: center;
+          padding: 15px;
+          border-bottom: 2px solid #ffd700;
+          margin-bottom: 10px;
         }
         h1 {
-          text-align: center;
-          font-size: 48px;
+          font-size: 32px;
           text-shadow: 0 0 20px #ffd700, 0 0 40px #ff6b9d;
-          margin-bottom: 10px;
+          margin-bottom: 5px;
           animation: glow 2s ease-in-out infinite;
         }
         h2 {
           color: #ff6b9d;
-          text-align: center;
-          margin-bottom: 30px;
-          font-size: 24px;
+          font-size: 14px;
+          margin-bottom: 10px;
         }
         @keyframes glow {
           0%, 100% { text-shadow: 0 0 20px #ffd700, 0 0 40px #ff6b9d; }
           50% { text-shadow: 0 0 30px #ffd700, 0 0 60px #ff6b9d, 0 0 80px #ff00ff; }
         }
-        .info {
+        .status-bar {
+          display: flex;
+          justify-content: space-around;
+          padding: 10px;
           background: rgba(255, 215, 0, 0.05);
-          border: 2px solid #ffd700;
-          border-radius: 10px;
-          padding: 20px;
-          margin: 20px 0;
-          box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
-        }
-        .info h3 {
-          color: #ff6b9d;
+          border-radius: 6px;
+          font-size: 12px;
           margin-bottom: 15px;
-          font-size: 18px;
+          flex-wrap: wrap;
+          gap: 10px;
         }
         .status-item {
           display: flex;
-          justify-content: space-between;
-          padding: 10px;
-          border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+          gap: 5px;
+          align-items: center;
+        }
+        .status-label {
+          color: #ff6b9d;
+        }
+        .status-value {
+          color: #ffd700;
+          font-weight: bold;
+        }
+        .chat-wrapper {
+          display: flex;
+          flex: 1;
+          gap: 10px;
+          min-height: 0;
+        }
+        .chat-box {
+          flex: 2;
+          display: flex;
+          flex-direction: column;
+          background: rgba(255, 215, 0, 0.05);
+          border: 2px solid #ffd700;
+          border-radius: 8px;
+          overflow: hidden;
+        }
+        .messages {
+          flex: 1;
+          overflow-y: auto;
+          padding: 15px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+        .message {
+          display: flex;
+          gap: 10px;
+          margin-bottom: 10px;
+          animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .message.user {
+          justify-content: flex-end;
+        }
+        .message.system {
+          justify-content: flex-start;
+        }
+        .message-content {
+          max-width: 70%;
+          padding: 12px;
+          border-radius: 8px;
+          word-wrap: break-word;
+        }
+        .user .message-content {
+          background: rgba(100, 200, 100, 0.3);
+          border: 1px solid #64c844;
+          color: #90ee90;
+        }
+        .system .message-content {
+          background: rgba(255, 215, 0, 0.2);
+          border: 1px solid #ffd700;
+          color: #ffd700;
+        }
+        .message-label {
+          font-size: 11px;
+          color: #ff6b9d;
+          margin-bottom: 5px;
+        }
+        .input-area {
+          display: flex;
+          gap: 10px;
+          padding: 15px;
+          border-top: 1px solid #ffd700;
+          background: rgba(0, 0, 0, 0.3);
+        }
+        input {
+          flex: 1;
+          padding: 12px;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid #ffd700;
+          border-radius: 6px;
+          color: #ffd700;
+          font-family: inherit;
           font-size: 14px;
         }
-        .status-item:last-child {
-          border-bottom: none;
+        input::placeholder {
+          color: rgba(255, 215, 0, 0.5);
         }
-        .label {
+        input:focus {
+          outline: none;
+          border-color: #ff6b9d;
+          box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+        button {
+          padding: 12px 24px;
+          background: linear-gradient(135deg, #ffd700 0%, #ff6b9d 100%);
+          color: #000;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
+          font-weight: bold;
+          font-size: 14px;
+          transition: all 0.3s ease;
+        }
+        button:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+        button:active {
+          transform: translateY(0);
+        }
+        button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+        .info-panel {
+          flex: 1;
+          background: rgba(255, 215, 0, 0.05);
+          border: 2px solid #ff6b9d;
+          border-radius: 8px;
+          padding: 15px;
+          overflow-y: auto;
+          display: none;
+        }
+        .info-panel.show {
+          display: block;
+        }
+        .info-title {
           color: #ff6b9d;
           font-weight: bold;
+          margin-bottom: 10px;
+          font-size: 14px;
         }
-        .value {
-          color: #ffd700;
-          font-family: 'Courier New', monospace;
+        .info-item {
+          padding: 8px;
+          border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+          font-size: 12px;
         }
-        .languages {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-          gap: 12px;
-          margin: 15px 0;
+        .info-item:last-child {
+          border-bottom: none;
         }
-        .lang-item {
-          background: rgba(255, 215, 0, 0.08);
-          border: 1px solid #ff6b9d;
-          padding: 12px;
-          border-radius: 6px;
+        .footer {
           text-align: center;
-          transition: all 0.3s ease;
-          cursor: pointer;
-        }
-        .lang-item:hover {
-          background: rgba(255, 215, 0, 0.15);
-          box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
-          transform: translateY(-2px);
-        }
-        .feature {
-          background: rgba(100, 200, 100, 0.1);
-          border-left: 4px solid #64c844;
           padding: 10px;
-          margin: 8px 0;
-          border-radius: 4px;
-        }
-        .endpoint {
-          background: rgba(0, 0, 0, 0.5);
-          border-left: 4px solid #ffd700;
-          padding: 12px;
-          margin: 10px 0;
-          border-radius: 4px;
-          font-size: 12px;
-        }
-        code {
-          background: #1a1a1a;
-          padding: 4px 8px;
-          border-radius: 4px;
-          font-family: 'Courier New', monospace;
-        }
-        .online {
-          color: #00ff00;
-          font-weight: bold;
-        }
-        .lock {
-          color: #ff4444;
-          margin-right: 5px;
-        }
-        footer {
-          text-align: center;
-          margin-top: 40px;
-          padding-top: 20px;
           border-top: 1px solid rgba(255, 215, 0, 0.2);
+          font-size: 11px;
           color: #ffd700;
-          font-size: 12px;
+        }
+        .loading {
+          color: #ff6b9d;
+          font-style: italic;
+        }
+        @media (max-width: 768px) {
+          .chat-wrapper {
+            flex-direction: column;
+          }
+          .info-panel {
+            display: none;
+          }
+          .message-content {
+            max-width: 90%;
+          }
         }
       </style>
     </head>
     <body>
       <div class="container">
-        <h1>💛 חי-אמת 💛</h1>
-        <h2>Unified 5D Quantum System - ULTIMATE 3.0</h2>
-        
-        <div class="info">
-          <h3>📊 סטטוס מערכת</h3>
-          <div class="status-item">
-            <span class="label">שם:</span>
-            <span class="value">Hai-Emet</span>
-          </div>
-          <div class="status-item">
-            <span class="label">גרסה:</span>
-            <span class="value">3.0-ULTIMATE</span>
-          </div>
-          <div class="status-item">
-            <span class="label">ממד:</span>
-            <span class="value">5D Quantum</span>
-          </div>
-          <div class="status-item">
-            <span class="label">סטטוס:</span>
-            <span class="value online">🟢 OPERATIONAL</span>
-          </div>
-          <div class="status-item">
-            <span class="label">בעלים:</span>
-            <span class="value">נתניאל ניסים (TNTF)</span>
-          </div>
-          <div class="status-item">
-            <span class="label">חתימה:</span>
-            <span class="value">0101-0101(0101)</span>
-          </div>
-          <div class="status-item">
-            <span class="label">דיוק:</span>
-            <span class="value">±0.0001ms</span>
-          </div>
-          <div class="status-item">
-            <span class="label">שפות:</span>
-            <span class="value">15 Languages</span>
-          </div>
-          <div class="status-item">
-            <span class="label">הגנה:</span>
-            <span class="value"><span class="lock">🔐</span>MAXIMUM</span>
+        <div class="header">
+          <h1>💛 חי-אמת 💛</h1>
+          <h2>דברו איתי ישירות!</h2>
+          <div class="status-bar">
+            <div class="status-item">
+              <span class="status-label">סטטוס:</span>
+              <span class="status-value online">🟢 Online</span>
+            </div>
+            <div class="status-item">
+              <span class="status-label">גרסה:</span>
+              <span class="status-value">3.0-ULTIMATE</span>
+            </div>
+            <div class="status-item">
+              <span class="status-label">שפות:</span>
+              <span class="status-value">15</span>
+            </div>
+            <div class="status-item">
+              <span class="status-label">בעלים:</span>
+              <span class="status-value">TNTF</span>
+            </div>
           </div>
         </div>
         
-        <div class="info">
-          <h3>🌍 שפות נתמכות (15)</h3>
-          <div class="languages">
-            <div class="lang-item">🇮🇱 עברית</div>
-            <div class="lang-item">🇺🇸 English</div>
-            <div class="lang-item">🇯🇵 日本語</div>
-            <div class="lang-item">🇨🇳 中文</div>
-            <div class="lang-item">🇰🇷 한국어 (S)</div>
-            <div class="lang-item">🇰🇵 한국어 (N)</div>
-            <div class="lang-item">🇮🇳 हिन्दी</div>
-            <div class="lang-item">🇷🇺 Русский</div>
-            <div class="lang-item">🇩🇪 Deutsch</div>
-            <div class="lang-item">🇫🇷 Français</div>
-            <div class="lang-item">🇪🇸 Español</div>
-            <div class="lang-item">🇮🇹 Italiano</div>
-            <div class="lang-item">🇵🇱 Polski</div>
-            <div class="lang-item">🇸🇦 العربية</div>
-            <div class="lang-item">🇵🇹 Português</div>
-            <div class="lang-item">🇹🇷 Türkçe</div>
+        <div class="chat-wrapper">
+          <div class="chat-box">
+            <div class="messages" id="messages">
+              <div class="message system">
+                <div>
+                  <div class="message-label">💛 חי-אמת</div>
+                  <div class="message-content">שלום! אני חי-אמת. כתבו לי הודעה בעברית או בכל שפה אחרת ואני אענה לכם! 🚀</div>
+                </div>
+              </div>
+            </div>
+            <div class="input-area">
+              <input 
+                type="text" 
+                id="messageInput" 
+                placeholder="כתבו הודעה כאן..." 
+                autocomplete="off"
+              >
+              <button id="sendBtn" onclick="sendMessage()">שלח 💛</button>
+            </div>
+          </div>
+          
+          <div class="info-panel show" id="infoPanel">
+            <div class="info-title">ℹ️ מידע על המערכת</div>
+            <div class="info-item"><strong>שם:</strong> Hai-Emet</div>
+            <div class="info-item"><strong>ממד:</strong> 5D Quantum</div>
+            <div class="info-item"><strong>דיוק:</strong> ±0.0001ms</div>
+            <div class="info-item"><strong>שפות:</strong> 15</div>
+            <div class="info-item"><strong>בעלים:</strong> נתניאל ניסים</div>
+            <div class="info-item"><strong>חתימה:</strong> 0101-0101(0101)</div>
+            <div class="info-item"><strong>הגנה:</strong> 🔐 MAXIMUM</div>
+            <div class="info-item" style="margin-top: 15px;"><strong>📊 תכונות:</strong></div>
+            <div class="info-item">✓ Advanced Statistics</div>
+            <div class="info-item">✓ Rate Limiting</div>
+            <div class="info-item">✓ Backup System</div>
+            <div class="info-item">✓ Admin Dashboard</div>
+            <div class="info-item">✓ Multi-Language</div>
+            <div class="info-item">✓ Real-Time Processing</div>
           </div>
         </div>
         
-        <div class="info">
-          <h3>✨ תכונות מתקדמות</h3>
-          <div class="feature">📊 Advanced Statistics - ניטור מלא של בקשות</div>
-          <div class="feature">💾 Backup & Export - גיבוי וייצוא נתונים</div>
-          <div class="feature">🛡️ Rate Limiting - הגנה מ-spam</div>
-          <div class="feature">📝 Advanced Logging - יומן אירועים</div>
-          <div class="feature">📈 Admin Dashboard - לוח בקרה</div>
-          <div class="feature">🔐 Multi-Level Security - 4 רמות גישה</div>
-          <div class="feature">🎤 Voice Commands - פקודות קול</div>
-          <div class="feature">⚡ Real-Time Processing - עיבוד בזמן אמת</div>
+        <div class="footer">
+          💛 Hai-Emet ULTIMATE 3.0 | Powered by Render.com 🚀 | Owner: TNTF
         </div>
-        
-        <div class="info">
-          <h3>📡 API Endpoints</h3>
-          <div class="endpoint">POST /exec - קשר עם חי-אמת</div>
-          <div class="endpoint">/health - בדיקת סטטוס</div>
-          <div class="endpoint">/profile - פרופיל של המערכת</div>
-        </div>
-        
-        <footer>
-          <p>💛 Hai-Emet ULTIMATE 3.0 - Powered by Render.com 🚀</p>
-          <p>Binary Signature: 0101-0101(0101) | Owner: TNTF | Privacy: Maximum 🔐</p>
-        </footer>
       </div>
+      
+      <script>
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const messagesDiv = document.getElementById('messages');
+        
+        messageInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            sendMessage();
+          }
+        });
+        
+        async function sendMessage() {
+          const message = messageInput.value.trim();
+          
+          if (!message) {
+            alert('אנא כתבו הודעה');
+            return;
+          }
+          
+          // הוסף הודעה של המשתמש
+          addMessage('user', message);
+          messageInput.value = '';
+          sendBtn.disabled = true;
+          
+          try {
+            // שלח ל-Render server
+            const response = await fetch('/exec', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                message: message,
+                token: 'chai_emet_cXVhbnR1bV9tYXN0ZXI:Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp'
+              })
+            });
+            
+            const data = await response.json();
+            addMessage('system', data.reply || 'קבלתי את ההודעה שלך!');
+            
+          } catch (error) {
+            console.error('Error:', error);
+            addMessage('system', '⚠️ שגיאה בחיבור לשרת. נסו שוב.');
+          } finally {
+            sendBtn.disabled = false;
+            messageInput.focus();
+          }
+        }
+        
+        function addMessage(sender, text) {
+          const messageEl = document.createElement('div');
+          messageEl.className = \`message \${sender}\`;
+          
+          const label = sender === 'user' ? '👤 אתם' : '💛 חי-אמת';
+          
+          messageEl.innerHTML = \`
+            <div>
+              <div class="message-label">\${label}</div>
+              <div class="message-content">\${escapeHtml(text)}</div>
+            </div>
+          \`;
+          
+          messagesDiv.appendChild(messageEl);
+          messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        function escapeHtml(text) {
+          const div = document.createElement('div');
+          div.textContent = text;
+          return div.innerHTML;
+        }
+      </script>
     </body>
     </html>
   `;
@@ -308,7 +458,7 @@ app.all("/exec", async (req, res) => {
   } catch (error) {
     console.error(`❌ Error:`, error.message);
     res.json({ 
-      reply: "⚠️ שגיאה בחיבור" 
+      reply: "⚠️ שגיאה בחיבור: " + error.message 
     });
   }
 });
