@@ -161,16 +161,25 @@ app.get("/", (req, res) => {
 // TELEGRAM WEBHOOK - Receive messages from HaiEmetEmotionBot
 app.post("/api/webhook", (req, res) => {
   try {
-    const message = req.body.message;
+    console.log("📨 Webhook received:", JSON.stringify(req.body).substring(0, 200));
+    
+    // Telegram sends {update: {message: {...}}} format
+    let message = req.body.message || req.body.update?.message;
     
     if (!message) {
+      console.log("⚠️ No message in webhook");
       return res.json({ status: "ok" });
     }
 
-    const chatId = message.chat.id;
+    const chatId = message.chat?.id;
     const text = message.text;
-    const userId = message.from.id;
-    const userName = message.from.first_name;
+    const userId = message.from?.id;
+    const userName = message.from?.first_name || "User";
+
+    if (!chatId || !text) {
+      console.log("⚠️ Missing chatId or text");
+      return res.json({ status: "ok" });
+    }
 
     console.log(`\n📱 @${TELEGRAM_BOT_NAME} Message from ${userName}:`);
     console.log(`   💬 "${text}"`);
@@ -184,7 +193,7 @@ app.post("/api/webhook", (req, res) => {
     res.json({ status: "ok", processed: true });
 
   } catch (error) {
-    console.error("Webhook error:", error);
+    console.error("❌ Webhook error:", error.message);
     res.json({ status: "error", message: error.message });
   }
 });
