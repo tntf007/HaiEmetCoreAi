@@ -1,13 +1,28 @@
 {
-  "name": "hai-emet-core",
-  "version": "1.0.0",
-  "main": "render-server.js",
+  "name": "chai-emet-quantum-nexus-pro",
+  "version": "3.0.0",
+  "description": "חי-אמת Quantum Nexus Pro - Unified 5D Quantum System",
+  "main": "server.js",
   "scripts": {
-    "start": "node render-server.js"
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [
+    "chai-emet",
+    "quantum",
+    "nexus-pro",
+    "5d",
+    "tntf",
+    "ai-assistant"
+  ],
+  "author": "TNTF - Nathaniel Nissim",
+  "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",
-    "cors": "^2.8.5",
-    "axios": "^1.6.0"
+    "cors": "^2.8.5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
