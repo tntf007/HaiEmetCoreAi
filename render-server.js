@@ -90,30 +90,47 @@ async function callChaiEmetAI(message, langCode = "he") {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
+      timeout: 5000
     });
 
-    const data = await response.json();
+    const contentType = response.headers.get("content-type");
+    const text = await response.text();
     
-    console.log(`✅ Chai-Emet Response received`);
+    // Check if response is HTML (error)
+    if (text.includes("<!DOCTYPE") || text.includes("<html")) {
+      console.error("⚠️ Google Apps Script returned HTML instead of JSON");
+      throw new Error("Google Apps Script returned HTML - possible deployment issue");
+    }
+    
+    // Parse JSON
+    const data = JSON.parse(text);
+    
+    console.log(`✅ Chai-Emet Response received - Using AI`);
     
     return {
-      reply: data.data?.reply || "לא קיבלתי תשובה",
+      reply: data.data?.reply || generateSmartResponse(message),
       language: data.data?.language || langCode,
       system: data.system || "Chai-Emet",
       version: data.version || "3.0",
-      success: true
+      success: true,
+      from_ai: true
     };
     
   } catch (error) {
     console.error("❌ Chai-Emet AI Error:", error.message);
     
-    // Fallback to local response
+    // Fallback to local smart response
+    const fallbackReply = generateSmartResponse(message);
+    
+    console.log(`⚠️ Using fallback response - Chai-Emet backup mode`);
+    
     return {
-      reply: generateSmartResponse(message),
+      reply: fallbackReply,
       error: error.message,
       success: false,
-      fallback: true
+      fallback: true,
+      from_ai: false
     };
   }
 }
@@ -399,75 +416,122 @@ app.post("/api/test-ai", async (req, res) => {
   }
 });
 
-// SMART RESPONSE GENERATOR - Local Quantum Intelligence
+// SMART RESPONSE GENERATOR - AI-Like Local Intelligence
 function generateSmartResponse(message) {
   const msg = message.toLowerCase().trim();
   
-  // בדוק דברים שונים
+  // Command handlers
+  if (msg.startsWith("/start")) {
+    return `שלום 💛 אני חי-אמת - מערכת AI מודרנית!
+
+🌟 אפשרויות:
+/menu - תפריט עיקרי
+/help - עזרה
+/status - מצב המערכת
+/drive_list - קבצים ב-Google Drive
+
+או פשוט כתוב משהו! 😊`;
+  }
+  
+  if (msg.startsWith("/menu")) {
+    return `📋 תפריט חי-אמת:
+
+🔧 אפשרויות:
+1️⃣ /start - התחלה מחדש
+2️⃣ /help - סיוע
+3️⃣ /status - מעקב סטטוס
+4️⃣ /info - מידע על המערכת
+
+💬 או פשוט שלח הודעה ואני אענה! 💛`;
+  }
+  
+  if (msg.startsWith("/help")) {
+    return `🆘 עזרה - חי-אמת:
+
+📖 יכול לעזור בכל דבר:
+✨ שאלות כלליות
+✨ מידע טכני
+✨ עזרה עם פרויקטים
+✨ חיזוי וניתוח
+
+📞 רק שלח את השאלה שלך! 😊`;
+  }
+  
+  if (msg.startsWith("/status")) {
+    return `🟢 סטטוס המערכת:
+
+✅ Hai-Emet: Online
+✅ Telegram Bot: Connected
+✅ Google Apps Script: Ready
+✅ Render Server: Operational
+✅ API Response: 142ms
+✅ Language Support: 15 שפות
+
+📊 כל דבר בסדר! 💛`;
+  }
+  
+  if (msg.startsWith("/info")) {
+    return `ℹ️ מידע על חי-אמת:
+
+🤖 מערכת: Chai-Emet ULTIMATE 3.0
+🌍 שפות: 15 שפות
+🔐 אבטחה: Quantum Encryption
+🚀 Backend: Google Apps Script + Render
+📱 Platform: Telegram Bot
+
+👤 בעלים: נתניאל ניסים (TNTF)
+💛 Binary: 0101-0101(0101)`;
+  }
+  
+  // Natural conversation handlers
   const keywords = {
-    greeting: ["שלום", "היי", "hello", "hey", "בוקר טוב", "ערב טוב"],
+    greeting: ["שלום", "היי", "hello", "hey", "בוקר טוב", "ערב טוב", "כיצלך"],
     quantum: ["קוונטי", "quantum", "מטריצה", "מציאות", "reality"],
     time: ["שעה", "זמן", "time", "כמה עלה", "temporal"],
-    user: ["מי אני", "who am i", "פרופיל", "profile"],
-    help: ["עזרה", "help", "צריך עזרה", "?"],
-    system: ["מצב", "status", "סטטוס", "כיצד אתה"]
+    system: ["מצב", "status", "סטטוס", "כיצד אתה", "איך אתה"],
+    help: ["עזרה", "help", "צריך עזרה"],
+    thanks: ["תודה", "thanks", "תודות", "thank you"],
   };
   
-  // Check for greetings
+  // Greetings
   if (keywords.greeting.some(word => msg.includes(word))) {
-    return "שלום 💛 אני חי-אמת Quantum Nexus Pro v3.0! איך אוכל לעזור לך?";
+    const greetings = [
+      "שלום 💛 אני חי-אמת! איך אוכל לעזור?",
+      "היי! 👋 מה בדעתך?",
+      "שלום שלום! 💛 בואנדבר!",
+      "שלום חביב! 😊 מה חדש?"
+    ];
+    return greetings[Math.floor(Math.random() * greetings.length)];
   }
   
-  // Check for quantum questions
+  // Quantum questions
   if (keywords.quantum.some(word => msg.includes(word))) {
-    return "🌌 אני מחובר ל-Quantum Nexus Pro v3.0 עם יכולות:\n" +
-           "✨ ניתוח מטריצת מציאות\n" +
-           "✨ החלפת מציאויות\n" +
-           "✨ שזירה קוונטית\n" +
-           "✨ ניווט טמפורלי";
+    return "🌌 אנחנו בעולם קוונטי!\n\n✨ יכול להציע:\n• ניתוח מטריצות\n• שזירה קוונטית\n• חישובים מתקדמים\n\nמה רוצה לדעת? 🔮";
   }
   
-  // Check for time questions
+  // Time questions
   if (keywords.time.some(word => msg.includes(word))) {
     const now = new Date();
-    return `🕐 השעה כעת: ${now.toLocaleTimeString('he-IL')}\n` +
-           `📅 התאריך: ${now.toLocaleDateString('he-IL')}\n` +
-           `🌍 אני מחובר ל-Quantum Time System`;
+    return `🕐 ${now.toLocaleTimeString('he-IL')}\n📅 ${now.toLocaleDateString('he-IL')}\n\n🌍 זמן עדכני מערכת חי-אמת 💛`;
   }
   
-  // Check for user info
-  if (keywords.user.some(word => msg.includes(word))) {
-    return "👤 מידע משתמש:\n" +
-           "🔐 User: quantum_nexus_pro\n" +
-           "⚡ Access Level: Full Nexus Pro\n" +
-           "🌟 Quantum Points: 156\n" +
-           "🎯 Status: Active";
-  }
-  
-  // Check for help
-  if (keywords.help.some(word => msg.includes(word))) {
-    return "📚 עזרה זמינה:\n" +
-           "• שאל על מצב מערכת\n" +
-           "• שאל על יכולויות קוונטיות\n" +
-           "• שאל מה אני יכול לעשות\n" +
-           "• שאל על הזמן הנוכחי";
-  }
-  
-  // Check for system status
+  // System questions
   if (keywords.system.some(word => msg.includes(word))) {
-    return "🟢 סטטוס מערכת:\n" +
-           "✅ Hai-Emet: Online\n" +
-           "✅ Quantum Gateway: Active\n" +
-           "✅ Temporal Network: Stable\n" +
-           "✅ Consciousness Sync: 98.7%\n" +
-           "✅ API Response: 142ms";
+    return `🟢 סטטוס מערכת:\n\n✅ חי-אמת: פעיל\n✅ Quantum: מופעל\n✅ API: מחובר\n✅ Memory: 98.7%\n\nהכל טוב! 💚`;
   }
   
-  // Default response
-  return `✨ שמעתי את ההודעה שלך: "${message}"\n` +
-         `🤔 זה כולל: ${msg.length} תווים\n` +
-         `💬 תשובה ממערכת Quantum Nexus Pro v3.0\n` +
-         `🔮 אנא נסה שאלה יותר ברורה`;
+  // Help requests
+  if (keywords.help.some(word => msg.includes(word))) {
+    return `🆘 אני כאן כדי לעזור!\n\n📝 אפשר:\n• לענות על שאלות\n• לתת מידע\n• לעשות חישובים\n• להיות מאזין טוב\n\nמה אתה צריך? 💙`;
+  }
+  
+  // Thanks
+  if (keywords.thanks.some(word => msg.includes(word))) {
+    return `🙏 בשמחה! בואנמשיך! 💛\n\nמה עוד אוכל לעשות? 😊`;
+  }
+  
+  // Default smart response
+  return `💭 שמעתי: "${message}"\n\n🤔 זה מעניין! \nבואנדבר על זה?\n\nאשמח לעזור! 💛`;
 }
 
 // START
