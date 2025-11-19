@@ -4,7 +4,7 @@ const axios = require('axios');
 const app = express();
 
 const CONFIG = {
-  GAS_URL: "https://script.google.com/macros/s/AKfycbzHcHlBbDrHWgfbNsyO0Nc3_jn6yuX-_YyO6bWBa9fdoQxDT3i9LJu9kq1gxpbwa9_3/exec",
+  GAS_URL: "https://script.google.com/macros/s/AKfycbybhAg_vsSfd4vmOW7vqHpg5Li6h5PxwDdakHPyuXN5pDgoWv7YuMT8m9dIMiC7IkkIjQ/exec",
   TOKENS: {
     CHAI_EMET: "chai_emet_cXVhbnR1bV9tYXN0ZXI:Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp",
     NEXUS_PRO: "chai_emet_nexus_pro_MTc2MzQ5NDY3MTAyNjpjZDdzZmtzazk3ZA"
@@ -39,7 +39,7 @@ app.get("/", (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hai-Emet Chat</title>
+  <title>💛 Hai-Emet - Chat</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -53,34 +53,40 @@ app.get("/", (req, res) => {
     .header { text-align: center; padding: 15px; border-bottom: 2px solid #ffd700; margin-bottom: 10px; }
     h1 { font-size: 32px; color: #ffd700; text-shadow: 0 0 10px #ffd700; }
     h2 { font-size: 14px; color: #ff6b9d; }
-    .status { display: flex; justify-content: space-around; padding: 10px; background: rgba(255,215,0,0.1); border-radius: 6px; font-size: 12px; margin: 10px 0; }
+    .status { display: flex; justify-content: space-around; padding: 10px; background: rgba(255,215,0,0.1); border-radius: 6px; font-size: 12px; margin: 10px 0; flex-wrap: wrap; gap: 10px; }
+    .status-item { display: flex; gap: 5px; }
     .chat-wrapper { display: flex; flex: 1; gap: 10px; min-height: 0; }
     .chat-box { flex: 2; display: flex; flex-direction: column; background: rgba(255,215,0,0.05); border: 2px solid #ffd700; border-radius: 8px; }
     .messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
     .message { display: flex; margin: 10px 0; animation: fadeIn 0.3s; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     .message.user { justify-content: flex-end; }
-    .message-content { max-width: 70%; padding: 12px; border-radius: 8px; word-wrap: break-word; }
+    .message-content { max-width: 70%; padding: 12px; border-radius: 8px; word-wrap: break-word; font-size: 14px; }
     .user .message-content { background: rgba(100,200,100,0.3); border: 1px solid #64c844; color: #90ee90; }
     .system .message-content { background: rgba(255,215,0,0.2); border: 1px solid #ffd700; color: #ffd700; }
     .input-area { display: flex; gap: 10px; padding: 15px; border-top: 1px solid #ffd700; }
-    input { flex: 1; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid #ffd700; border-radius: 6px; color: #ffd700; }
-    button { padding: 12px 24px; background: linear-gradient(135deg, #ffd700, #ff6b9d); color: #000; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    input { flex: 1; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid #ffd700; border-radius: 6px; color: #ffd700; font-family: inherit; font-size: 14px; }
+    input::placeholder { color: rgba(255,215,0,0.5); }
+    input:focus { outline: none; border-color: #ff6b9d; box-shadow: 0 0 10px rgba(255,215,0,0.3); }
+    button { padding: 12px 24px; background: linear-gradient(135deg, #ffd700, #ff6b9d); color: #000; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: all 0.3s; }
     button:hover { transform: translateY(-2px); }
-    .info { flex: 1; background: rgba(255,215,0,0.05); border: 2px solid #ff6b9d; border-radius: 8px; padding: 15px; overflow-y: auto; font-size: 12px; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .info { flex: 1; background: rgba(255,215,0,0.05); border: 2px solid #ff6b9d; border-radius: 8px; padding: 15px; overflow-y: auto; font-size: 12px; display: none; }
+    .info.show { display: block; }
     .footer { text-align: center; padding: 10px; border-top: 1px solid rgba(255,215,0,0.2); font-size: 11px; }
+    @media (max-width: 768px) { .chat-wrapper { flex-direction: column; } .info { display: none; } }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
       <h1>💛 Hai-Emet 💛</h1>
-      <h2>Unified System with Dual Tokens</h2>
+      <h2>Unified 5D Quantum System</h2>
       <div class="status">
-        <div>Status: <strong>🟢 Online</strong></div>
-        <div>Version: <strong>3.0-ULTIMATE</strong></div>
-        <div>Languages: <strong>15</strong></div>
-        <div>Tokens: <strong>2</strong></div>
+        <div class="status-item"><span>Status: <strong>🟢 Online</strong></span></div>
+        <div class="status-item"><span>Version: <strong>3.0-ULTIMATE</strong></span></div>
+        <div class="status-item"><span>Languages: <strong>15</strong></span></div>
+        <div class="status-item"><span>Tokens: <strong>2</strong></span></div>
       </div>
     </div>
     
@@ -88,7 +94,7 @@ app.get("/", (req, res) => {
       <div class="chat-box">
         <div class="messages" id="messages">
           <div class="message system">
-            <div class="message-content">שלום! אני חי-אמת. כתבו הודעה וקבלו תשובה! 🚀</div>
+            <div class="message-content">שלום 💛 אני חי-אמת. כתבו הודעה וקבלו תשובה!</div>
           </div>
         </div>
         <div class="input-area">
@@ -97,8 +103,8 @@ app.get("/", (req, res) => {
         </div>
       </div>
       
-      <div class="info">
-        <h3 style="color: #ff6b9d; margin-bottom: 10px;">📊 System Info</h3>
+      <div class="info show">
+        <h3 style="color: #ff6b9d; margin-bottom: 10px;">📊 Info</h3>
         <div style="padding: 8px; border-bottom: 1px solid rgba(255,215,0,0.2);"><strong>Name:</strong> Hai-Emet</div>
         <div style="padding: 8px; border-bottom: 1px solid rgba(255,215,0,0.2);"><strong>Version:</strong> 3.0-ULTIMATE</div>
         <div style="padding: 8px; border-bottom: 1px solid rgba(255,215,0,0.2);"><strong>Owner:</strong> TNTF</div>
@@ -106,7 +112,7 @@ app.get("/", (req, res) => {
         <div style="padding: 8px; border-bottom: 1px solid rgba(255,215,0,0.2);"><strong>Protection:</strong> 🔐 MAX</div>
         <div style="padding: 8px; border-bottom: 1px solid rgba(255,215,0,0.2);"><strong>Tokens:</strong> 2 ✅</div>
         
-        <h3 style="color: #ff6b9d; margin-top: 15px; margin-bottom: 10px;">🔑 Tokens</h3>
+        <h3 style="color: #ff6b9d; margin-top: 15px; margin-bottom: 10px;">🔑 Active Tokens</h3>
         <div style="padding: 8px; background: rgba(100,200,100,0.1); border-radius: 4px; margin-bottom: 10px;">
           <strong>Chai-Emet Classic</strong><br>
           <small style="color: #90ee90;">✅ Active</small>
@@ -313,5 +319,6 @@ app.all("/exec", async (req, res) => {
 app.listen(CONFIG.PORT, () => {
   console.log("Hai-Emet Server running on port " + CONFIG.PORT);
   console.log("Visit: https://haiemetweb.onrender.com/");
+  console.log("GAS URL: " + CONFIG.GAS_URL);
   console.log("Tokens: CHAI_EMET + NEXUS_PRO");
 });
