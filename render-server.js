@@ -4,7 +4,7 @@ const axios = require('axios');
 const app = express();
 
 const CONFIG = {
-  GAS_URL: "https://script.google.com/macros/s/AKfycbzrzzspL5kt1APXg7YnwAMVms5pNqJbxuUG_uJRBoN75-WkQmG3aoez7btYQY_90Trf/exec",
+  GAS_URL: "https://script.google.com/macros/s/AKfycbzKt-ZyFP0fSXK8QydroMbKlTHN7M5sTeSe7ean_31ANP0fMGrqrlHirO2P7c2wiUzs/exec",
   TOKENS: {
     CHAI_EMET: "chai_emet_cXVhbnR1bV9tYXN0ZXI:Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp",
     NEXUS_PRO: "chai_emet_nexus_pro_MTc2MzQ5NDY3MTAyNjpjZDdzZmtzazk3ZA"
@@ -112,8 +112,6 @@ app.get("/", (req, res) => {
       msgInput.value = '';
       
       const token = 'chai_emet_cXVhbnR1bV9tYXN0ZXI:Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp';
-      console.log("BROWSER: Sending token:", token);
-      console.log("BROWSER: Sending message:", msg);
       
       try {
         const payload = {
@@ -121,26 +119,13 @@ app.get("/", (req, res) => {
           token: token
         };
         
-        console.log("BROWSER: Full payload:", JSON.stringify(payload));
-        
         const res = await fetch('/exec', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
         const data = await res.json();
-        
-        // בTEST MODE - הצג את כל התגובה
-        console.log("GAS Response:", JSON.stringify(data));
-        
-        // הדפס בצ'ט את התגובה המלאה לדיבוג
-        if (data.test_info) {
-          addMsg('system', "🧪 TEST MODE - " + data.test_info);
-          addMsg('system', "Token received: " + (data.token_received ? "✅ YES" : "❌ NO"));
-          addMsg('system', "Message received: " + (data.has_message ? "✅ YES" : "❌ NO"));
-        } else {
-          addMsg('system', data.reply || JSON.stringify(data));
-        }
+        addMsg('system', data.reply || 'OK');
       } catch (e) {
         addMsg('system', 'Error: ' + e.message);
       }
@@ -170,44 +155,22 @@ app.get("/health", (req, res) => {
 });
 
 // ============================================
-// 💬 CHAT ENDPOINT - WITH DETAILED LOGGING
+// 💬 CHAT ENDPOINT
 // ============================================
 
 app.all("/exec", async (req, res) => {
   try {
-    console.log("\n========== RENDER RECEIVED REQUEST ==========");
-    console.log("Timestamp:", new Date().toISOString());
-    console.log("Method:", req.method);
-    console.log("Full req.body:", JSON.stringify(req.body));
-    console.log("Full req.query:", JSON.stringify(req.query));
-    
     const message = req.body.message || req.query.message || "";
     const token = req.body.token || req.query.token || "";
     
-    console.log("\n--- EXTRACTED VALUES ---");
-    console.log("Message:", message);
-    console.log("Token:", token);
-    console.log("Token type:", typeof token);
-    console.log("Token length:", token ? token.length : "N/A");
-    
     if (!message.trim()) {
-      console.log("ERROR: No message");
       return res.json({ reply: "No message received" });
-    }
-    
-    if (!token) {
-      console.log("ERROR: No token!");
-      return res.json({ reply: "⚠️ No token provided!" });
     }
     
     const payload = {
       message: message,
       token: token
     };
-    
-    console.log("\n--- SENDING TO GAS ---");
-    console.log("Payload:", JSON.stringify(payload));
-    console.log("GAS_URL:", CONFIG.GAS_URL);
     
     const gasRes = await axios.post(
       CONFIG.GAS_URL,
@@ -221,23 +184,12 @@ app.all("/exec", async (req, res) => {
       }
     );
     
-    console.log("\n--- GAS RESPONSE ---");
-    console.log("Status:", gasRes.status);
-    console.log("Data:", JSON.stringify(gasRes.data));
-    
     res.json({
-      reply: gasRes.data.reply || "Response from Hai-Emet",
-      test_info: gasRes.data.test_info,
-      token_received: gasRes.data.token_received,
-      has_message: gasRes.data.has_message,
-      has_token: gasRes.data.has_token,
-      message_received: gasRes.data.message_received
+      reply: gasRes.data.reply || "Response from Hai-Emet"
     });
     
   } catch (error) {
-    console.error("\n========== ERROR ==========");
-    console.error("Error message:", error.message);
-    console.error("Error response:", error.response?.data);
+    console.error("Error:", error.message);
     res.json({
       reply: "Error: " + error.message
     });
