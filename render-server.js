@@ -4,7 +4,7 @@ const axios = require('axios');
 const app = express();
 
 const CONFIG = {
-  GAS_URL: "https://script.google.com/macros/s/AKfycbyHL8_iyZm-YCvPmatFSaDUg4ada-ml2kA6oG2W298/exec",
+  GAS_URL: "https://script.google.com/macros/s/AKfycbzrzzspL5kt1APXg7YnwAMVms5pNqJbxuUG_uJRBoN75-WkQmG3aoez7btYQY_90Trf/exec",
   TOKENS: {
     CHAI_EMET: "chai_emet_cXVhbnR1bV9tYXN0ZXI:Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp",
     NEXUS_PRO: "chai_emet_nexus_pro_MTc2MzQ5NDY3MTAyNjpjZDdzZmtzazk3ZA"
@@ -129,7 +129,18 @@ app.get("/", (req, res) => {
           body: JSON.stringify(payload)
         });
         const data = await res.json();
-        addMsg('system', data.reply || 'OK');
+        
+        // בTEST MODE - הצג את כל התגובה
+        console.log("GAS Response:", JSON.stringify(data));
+        
+        // הדפס בצ'ט את התגובה המלאה לדיבוג
+        if (data.test_info) {
+          addMsg('system', "🧪 TEST MODE - " + data.test_info);
+          addMsg('system', "Token received: " + (data.token_received ? "✅ YES" : "❌ NO"));
+          addMsg('system', "Message received: " + (data.has_message ? "✅ YES" : "❌ NO"));
+        } else {
+          addMsg('system', data.reply || JSON.stringify(data));
+        }
       } catch (e) {
         addMsg('system', 'Error: ' + e.message);
       }
@@ -215,7 +226,12 @@ app.all("/exec", async (req, res) => {
     console.log("Data:", JSON.stringify(gasRes.data));
     
     res.json({
-      reply: gasRes.data.reply || "Response from Hai-Emet"
+      reply: gasRes.data.reply || "Response from Hai-Emet",
+      test_info: gasRes.data.test_info,
+      token_received: gasRes.data.token_received,
+      has_message: gasRes.data.has_message,
+      has_token: gasRes.data.has_token,
+      message_received: gasRes.data.message_received
     });
     
   } catch (error) {
