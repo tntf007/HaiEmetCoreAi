@@ -4,7 +4,7 @@ const axios = require('axios');
 const app = express();
 
 const CONFIG = {
-  GAS_URL: "https://script.google.com/macros/s/AKfycbxhu_DG6YXxHqRWe0kYyg2pba1Zf_w83GtZ3IiZLHcoGYia6cpCSd33oHKW4nXsD-la/exec",
+  GAS_URL: "https://script.google.com/macros/s/AKfycby04wNnpQNl2TZA-hvgDWXDTh45pfRbUfs9KsPahVY6QJEzBRiSyiWcHYOl-i0Y8uRL/exec",
   TOKENS: {
     CHAI_EMET: "chai_emet_cXVhbnR1bV9tYXN0ZXI:Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp",
     NEXUS_PRO: "chai_emet_nexus_pro_MTc2MzQ5NDY3MTAyNjpjZDdzZmtzazk3ZA"
@@ -111,14 +111,22 @@ app.get("/", (req, res) => {
       addMsg('user', msg);
       msgInput.value = '';
       
+      const token = 'chai_emet_cXVhbnR1bV9tYXN0ZXI:Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp';
+      console.log("BROWSER: Sending token:", token);
+      console.log("BROWSER: Sending message:", msg);
+      
       try {
+        const payload = {
+          message: msg,
+          token: token
+        };
+        
+        console.log("BROWSER: Full payload:", JSON.stringify(payload));
+        
         const res = await fetch('/exec', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: msg,
-            token: 'chai_emet_cXVhbnR1bV9tYXN0ZXI:Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp'
-          })
+          body: JSON.stringify(payload)
         });
         const data = await res.json();
         addMsg('system', data.reply || 'OK');
@@ -151,36 +159,45 @@ app.get("/health", (req, res) => {
 });
 
 // ============================================
-// 💬 CHAT ENDPOINT - FIXED
+// 💬 CHAT ENDPOINT - WITH DETAILED LOGGING
 // ============================================
 
 app.all("/exec", async (req, res) => {
   try {
-    console.log("=== RENDER REQUEST ===");
+    console.log("\n========== RENDER RECEIVED REQUEST ==========");
+    console.log("Timestamp:", new Date().toISOString());
     console.log("Method:", req.method);
-    console.log("Body:", JSON.stringify(req.body));
-    console.log("Query:", JSON.stringify(req.query));
+    console.log("Full req.body:", JSON.stringify(req.body));
+    console.log("Full req.query:", JSON.stringify(req.query));
     
-    // Get message and token from body or query
     const message = req.body.message || req.query.message || "";
     const token = req.body.token || req.query.token || "";
     
+    console.log("\n--- EXTRACTED VALUES ---");
     console.log("Message:", message);
     console.log("Token:", token);
+    console.log("Token type:", typeof token);
+    console.log("Token length:", token ? token.length : "N/A");
     
     if (!message.trim()) {
+      console.log("ERROR: No message");
       return res.json({ reply: "No message received" });
     }
     
-    // Create payload for GAS
+    if (!token) {
+      console.log("ERROR: No token!");
+      return res.json({ reply: "⚠️ No token provided!" });
+    }
+    
     const payload = {
       message: message,
       token: token
     };
     
-    console.log("Sending to GAS:", JSON.stringify(payload));
+    console.log("\n--- SENDING TO GAS ---");
+    console.log("Payload:", JSON.stringify(payload));
+    console.log("GAS_URL:", CONFIG.GAS_URL);
     
-    // Send to Google Apps Script with proper headers
     const gasRes = await axios.post(
       CONFIG.GAS_URL,
       JSON.stringify(payload),
@@ -193,14 +210,18 @@ app.all("/exec", async (req, res) => {
       }
     );
     
-    console.log("GAS Response:", JSON.stringify(gasRes.data));
+    console.log("\n--- GAS RESPONSE ---");
+    console.log("Status:", gasRes.status);
+    console.log("Data:", JSON.stringify(gasRes.data));
     
     res.json({
       reply: gasRes.data.reply || "Response from Hai-Emet"
     });
     
   } catch (error) {
-    console.error("Chat Error:", error.message);
+    console.error("\n========== ERROR ==========");
+    console.error("Error message:", error.message);
+    console.error("Error response:", error.response?.data);
     res.json({
       reply: "Error: " + error.message
     });
