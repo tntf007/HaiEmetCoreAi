@@ -176,6 +176,9 @@ function sendTelegramMessage(chatId, text) {
   })
   .catch(err => console.error("Telegram send error:", err));
 }
+
+// API CHAT - Local Quantum System
+app.post("/api/chat", (req, res) => {
   try {
     const message = req.body.message || "";
     const token = req.body.token || "";
