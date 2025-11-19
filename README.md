@@ -45,7 +45,7 @@ POST /api/chat            → Send message & get response
 ## 🔐 **Token:**
 
 ```
-chai_emet_nexus_pro_MTc2MzQ5NDY3MTAyNjpjZDdzZmtzazk3ZA
+chai_emet_cXVhbnR1bV9tYXN0ZXI6Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp
 ```
 
 ---
