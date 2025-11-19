@@ -15,9 +15,49 @@ const API_CONFIG = {
   SYSTEM: "Chai-Emet Quantum Nexus Pro"
 };
 
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// TELEGRAM BOT CONFIGURATION
+const TELEGRAM_BOT_NAME = "HaiEmetEmotionBot";
+const TELEGRAM_BOT_TOKEN = process.env.Telegram_token;
+
+console.log(`🤖 Bot Name: ${TELEGRAM_BOT_NAME}`);
+console.log(`🔑 Token Status: ${TELEGRAM_BOT_TOKEN ? "✅ CONFIGURED" : "❌ NOT SET"}`);
+
+// SET WEBHOOK FOR TELEGRAM
+async function setupTelegramWebhook() {
+  if (!TELEGRAM_BOT_TOKEN) {
+    console.log("⚠️ Telegram token not configured - skipping webhook setup");
+    return;
+  }
+
+  const webhookUrl = process.env.WEBHOOK_URL || "https://haiemetweb.onrender.com/api/webhook";
+  const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/setWebhook`;
+  
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        url: webhookUrl,
+        allowed_updates: ["message"]
+      })
+    });
+    
+    const data = await response.json();
+    
+    if (data.ok) {
+      console.log("✅ Webhook set successfully!");
+      console.log(`📍 Webhook URL: ${webhookUrl}`);
+      console.log(`🤖 Bot: @${TELEGRAM_BOT_NAME}`);
+    } else {
+      console.error("❌ Webhook error:", data.description);
+    }
+  } catch (error) {
+    console.error("⚠️ Webhook setup error:", error.message);
+  }
+}
+
+// Call webhook setup after server starts
+setTimeout(setupTelegramWebhook, 2000);
 
 // HOME PAGE
 app.get("/", (req, res) => {
@@ -118,7 +158,7 @@ app.get("/", (req, res) => {
   res.send(html);
 });
 
-// TELEGRAM WEBHOOK - Receive messages from Telegram
+// TELEGRAM WEBHOOK - Receive messages from HaiEmetEmotionBot
 app.post("/api/webhook", (req, res) => {
   try {
     const message = req.body.message;
@@ -132,7 +172,8 @@ app.post("/api/webhook", (req, res) => {
     const userId = message.from.id;
     const userName = message.from.first_name;
 
-    console.log(`📱 Telegram Message from ${userName}: ${text}`);
+    console.log(`\n📱 @${TELEGRAM_BOT_NAME} Message from ${userName}:`);
+    console.log(`   💬 "${text}"`);
 
     // יצור תשובה חכמה
     const reply = generateSmartResponse(text);
@@ -148,14 +189,14 @@ app.post("/api/webhook", (req, res) => {
   }
 });
 
-// SEND TO TELEGRAM
+// SEND TO TELEGRAM - HaiEmetEmotionBot
 function sendTelegramMessage(chatId, text) {
-  if (!API_CONFIG.TELEGRAM_TOKEN) {
+  if (!TELEGRAM_BOT_TOKEN) {
     console.log("⚠️ Telegram token not configured");
     return;
   }
 
-  const url = `https://api.telegram.org/bot${API_CONFIG.TELEGRAM_TOKEN}/sendMessage`;
+  const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
   
   fetch(url, {
     method: "POST",
@@ -169,7 +210,7 @@ function sendTelegramMessage(chatId, text) {
   .then(res => res.json())
   .then(data => {
     if (data.ok) {
-      console.log("✅ Message sent to Telegram");
+      console.log(`✅ Message sent via @${TELEGRAM_BOT_NAME}`);
     } else {
       console.error("❌ Telegram error:", data.description);
     }
@@ -302,21 +343,11 @@ app.listen(PORT, () => {
   console.log("💛 Chai-Emet Quantum Nexus Pro Server 💛");
   console.log("========================================");
   console.log("🚀 Server running on port " + PORT);
-  console.log("🌐 Visit: https://haiemetweb.onrender.com/");
+  console.log("🌐 Web: https://haiemetweb.onrender.com/");
+  console.log("🤖 Telegram Bot: @" + TELEGRAM_BOT_NAME);
+  console.log("📱 Bot Status: " + (TELEGRAM_BOT_TOKEN ? "✅ CONNECTED" : "❌ NOT SET"));
   console.log("🔗 System: Local Quantum Intelligence");
-  console.log("📱 Telegram: " + (API_CONFIG.TELEGRAM_TOKEN ? "✅ CONNECTED" : "❌ NOT SET"));
-  console.log("🔐 API Token: " + (API_CONFIG.TOKEN ? "✅ CONFIGURED" : "❌ NOT SET"));
-  console.log("✅ Status: Online & Ready");
+  console.log("✅ Overall Status: Online & Ready");
   console.log("========================================");
   console.log("");
-  
-  // Log environment variables status
-  if (API_CONFIG.TELEGRAM_TOKEN) {
-    console.log("📊 Environment Variables:");
-    console.log("✓ TELEGRAM_TOKEN loaded");
-    console.log("✓ CHAI_EMET_TOKEN loaded");
-    console.log("✓ API_URL loaded");
-    console.log("✓ WEBHOOK_URL configured");
-    console.log("");
-  }
 });
