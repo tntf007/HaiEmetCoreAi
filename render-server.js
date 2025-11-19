@@ -4,7 +4,7 @@ const axios = require('axios');
 const app = express();
 
 const CONFIG = {
-  GAS_URL: "https://script.google.com/macros/s/AKfycbzmO1zxytDyq5p02hBfbv1xDKnesGI_fzZb0AiusTg8LFLDwqdig9AV-ks5UvUWww7lpw/exec",
+  GAS_URL: "https://script.google.com/macros/s/AKfycbwRNjW5aUmwyeE2gkKCYZD5otPMVKgO1D4vXVpU05uH97dWwGsHcHphvC25EwgdyR3d_Q/exec",
   TOKENS: {
     CHAI_EMET: "chai_emet_cXVhbnR1bV9tYXN0ZXI:Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp",
     NEXUS_PRO: "chai_emet_nexus_pro_MTc2MzQ5NDY3MTAyNjpjZDdzZmtzazk3ZA"
