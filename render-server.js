@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 3000;
 // API Configuration - Local Quantum System
 const API_CONFIG = {
   BASE_URL: "http://localhost:3000",
-  TOKEN: "chai_emet_nexus_pro_MTc2MzQ5NDY3MTAyNjpjZDdzZmtzazk3ZA",
+  TOKEN: "chai_emet_cXVhbnR1bV9tYXN0ZXI6Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp",
   VERSION: "3.0.0",
   SYSTEM: "Chai-Emet Quantum Nexus Pro"
 };
