@@ -4,7 +4,7 @@ const axios = require('axios');
 const app = express();
 
 const CONFIG = {
-  GAS_URL: "https://script.google.com/macros/s/AKfycbybhAg_vsSfd4vmOW7vqHpg5Li6h5PxwDdakHPyuXN5pDgoWv7YuMT8m9dIMiC7IkkIjQ/exec",
+  GAS_URL: "https://script.google.com/macros/s/AKfycbzPKO4UXWz077Yg5wZQH15NmF8Q-WYvmHSAgNicXM2cSuTTBMOCtMzaLRyIpI0mvw10pg/exec",
   TOKENS: {
     CHAI_EMET: "chai_emet_cXVhbnR1bV9tYXN0ZXI:Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp",
     NEXUS_PRO: "chai_emet_nexus_pro_MTc2MzQ5NDY3MTAyNjpjZDdzZmtzazk3ZA"
@@ -14,23 +14,10 @@ const CONFIG = {
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // ============================================
-// 🔑 TOKEN VERIFICATION
-// ============================================
-
-function verifyToken(token) {
-  if (token === CONFIG.TOKENS.CHAI_EMET) {
-    return { valid: true, type: "CHAI_EMET", name: "Hai-Emet Classic" };
-  }
-  if (token === CONFIG.TOKENS.NEXUS_PRO) {
-    return { valid: true, type: "NEXUS_PRO", name: "Nexus Pro API" };
-  }
-  return { valid: false, type: null, name: null };
-}
-
-// ============================================
-// 🌐 HOME PAGE - CHAT INTERFACE
+// 🌐 HOME PAGE
 // ============================================
 
 app.get("/", (req, res) => {
@@ -38,23 +25,15 @@ app.get("/", (req, res) => {
 <html dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>💛 Hai-Emet - Chat</title>
+  <title>Hai-Emet Chat</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: Arial, sans-serif;
-      background: #000;
-      color: #ffd700;
-      padding: 10px;
-      min-height: 100vh;
-    }
+    body { font-family: Arial; background: #000; color: #ffd700; padding: 10px; min-height: 100vh; }
     .container { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; height: 100vh; }
     .header { text-align: center; padding: 15px; border-bottom: 2px solid #ffd700; margin-bottom: 10px; }
-    h1 { font-size: 32px; color: #ffd700; text-shadow: 0 0 10px #ffd700; }
+    h1 { font-size: 32px; text-shadow: 0 0 10px #ffd700; }
     h2 { font-size: 14px; color: #ff6b9d; }
     .status { display: flex; justify-content: space-around; padding: 10px; background: rgba(255,215,0,0.1); border-radius: 6px; font-size: 12px; margin: 10px 0; flex-wrap: wrap; gap: 10px; }
-    .status-item { display: flex; gap: 5px; }
     .chat-wrapper { display: flex; flex: 1; gap: 10px; min-height: 0; }
     .chat-box { flex: 2; display: flex; flex-direction: column; background: rgba(255,215,0,0.05); border: 2px solid #ffd700; border-radius: 8px; }
     .messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
@@ -65,16 +44,13 @@ app.get("/", (req, res) => {
     .user .message-content { background: rgba(100,200,100,0.3); border: 1px solid #64c844; color: #90ee90; }
     .system .message-content { background: rgba(255,215,0,0.2); border: 1px solid #ffd700; color: #ffd700; }
     .input-area { display: flex; gap: 10px; padding: 15px; border-top: 1px solid #ffd700; }
-    input { flex: 1; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid #ffd700; border-radius: 6px; color: #ffd700; font-family: inherit; font-size: 14px; }
-    input::placeholder { color: rgba(255,215,0,0.5); }
-    input:focus { outline: none; border-color: #ff6b9d; box-shadow: 0 0 10px rgba(255,215,0,0.3); }
-    button { padding: 12px 24px; background: linear-gradient(135deg, #ffd700, #ff6b9d); color: #000; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: all 0.3s; }
+    input { flex: 1; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid #ffd700; border-radius: 6px; color: #ffd700; }
+    input:focus { outline: none; border-color: #ff6b9d; }
+    button { padding: 12px 24px; background: linear-gradient(135deg, #ffd700, #ff6b9d); color: #000; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
     button:hover { transform: translateY(-2px); }
     button:disabled { opacity: 0.5; cursor: not-allowed; }
-    .info { flex: 1; background: rgba(255,215,0,0.05); border: 2px solid #ff6b9d; border-radius: 8px; padding: 15px; overflow-y: auto; font-size: 12px; display: none; }
-    .info.show { display: block; }
+    .info { flex: 1; background: rgba(255,215,0,0.05); border: 2px solid #ff6b9d; border-radius: 8px; padding: 15px; overflow-y: auto; font-size: 12px; }
     .footer { text-align: center; padding: 10px; border-top: 1px solid rgba(255,215,0,0.2); font-size: 11px; }
-    @media (max-width: 768px) { .chat-wrapper { flex-direction: column; } .info { display: none; } }
   </style>
 </head>
 <body>
@@ -83,10 +59,10 @@ app.get("/", (req, res) => {
       <h1>💛 Hai-Emet 💛</h1>
       <h2>Unified 5D Quantum System</h2>
       <div class="status">
-        <div class="status-item"><span>Status: <strong>🟢 Online</strong></span></div>
-        <div class="status-item"><span>Version: <strong>3.0-ULTIMATE</strong></span></div>
-        <div class="status-item"><span>Languages: <strong>15</strong></span></div>
-        <div class="status-item"><span>Tokens: <strong>2</strong></span></div>
+        <div>Status: <strong>🟢 Online</strong></div>
+        <div>Version: <strong>3.0-ULTIMATE</strong></div>
+        <div>Languages: <strong>15</strong></div>
+        <div>Tokens: <strong>2</strong></div>
       </div>
     </div>
     
@@ -103,24 +79,15 @@ app.get("/", (req, res) => {
         </div>
       </div>
       
-      <div class="info show">
+      <div class="info">
         <h3 style="color: #ff6b9d; margin-bottom: 10px;">📊 Info</h3>
         <div style="padding: 8px; border-bottom: 1px solid rgba(255,215,0,0.2);"><strong>Name:</strong> Hai-Emet</div>
         <div style="padding: 8px; border-bottom: 1px solid rgba(255,215,0,0.2);"><strong>Version:</strong> 3.0-ULTIMATE</div>
         <div style="padding: 8px; border-bottom: 1px solid rgba(255,215,0,0.2);"><strong>Owner:</strong> TNTF</div>
-        <div style="padding: 8px; border-bottom: 1px solid rgba(255,215,0,0.2);"><strong>Languages:</strong> 15</div>
-        <div style="padding: 8px; border-bottom: 1px solid rgba(255,215,0,0.2);"><strong>Protection:</strong> 🔐 MAX</div>
-        <div style="padding: 8px; border-bottom: 1px solid rgba(255,215,0,0.2);"><strong>Tokens:</strong> 2 ✅</div>
-        
-        <h3 style="color: #ff6b9d; margin-top: 15px; margin-bottom: 10px;">🔑 Active Tokens</h3>
-        <div style="padding: 8px; background: rgba(100,200,100,0.1); border-radius: 4px; margin-bottom: 10px;">
-          <strong>Chai-Emet Classic</strong><br>
-          <small style="color: #90ee90;">✅ Active</small>
-        </div>
-        <div style="padding: 8px; background: rgba(100,200,100,0.1); border-radius: 4px;">
-          <strong>Nexus Pro API</strong><br>
-          <small style="color: #90ee90;">✅ Active</small>
-        </div>
+        <div style="padding: 8px; border-bottom: 1px solid rgba(255,215,0,0.2);"><strong>Status:</strong> 🟢 Online</div>
+        <h3 style="color: #ff6b9d; margin-top: 15px; margin-bottom: 10px;">🔑 Tokens: 2</h3>
+        <div style="padding: 8px; background: rgba(100,200,100,0.1); border-radius: 4px; margin-bottom: 10px;">✅ Chai-Emet Classic</div>
+        <div style="padding: 8px; background: rgba(100,200,100,0.1); border-radius: 4px;">✅ Nexus Pro API</div>
       </div>
     </div>
     
@@ -156,7 +123,7 @@ app.get("/", (req, res) => {
         const data = await res.json();
         addMsg('system', data.reply || 'OK');
       } catch (e) {
-        addMsg('system', 'Error: Connection failed');
+        addMsg('system', 'Error: ' + e.message);
       }
     }
     
@@ -176,132 +143,60 @@ app.get("/", (req, res) => {
 });
 
 // ============================================
-// 🏥 HEALTH CHECK
+// 🏥 HEALTH
 // ============================================
 
 app.get("/health", (req, res) => {
-  res.json({
-    status: "healthy",
-    timestamp: new Date().toISOString(),
-    tokens: ["CHAI_EMET", "NEXUS_PRO"]
-  });
+  res.json({ status: "healthy", timestamp: new Date().toISOString() });
 });
 
 // ============================================
-// 📋 PROFILE
-// ============================================
-
-app.get("/profile", (req, res) => {
-  res.json({
-    service: "HaiEmetCoreAI",
-    version: "3.0-ULTIMATE",
-    status: "LIVE",
-    owner: "TNTF",
-    languages: 15,
-    backend: "Render.com",
-    tokens: ["CHAI_EMET", "NEXUS_PRO"],
-    endpoints: ["/", "/exec", "/api", "/verify", "/health", "/profile"]
-  });
-});
-
-// ============================================
-// 🔐 TOKEN VERIFICATION
-// ============================================
-
-app.post("/verify", (req, res) => {
-  const token = req.body.token;
-  
-  if (!token) {
-    return res.status(400).json({ error: "Token required" });
-  }
-  
-  const check = verifyToken(token);
-  
-  if (check.valid) {
-    res.json({
-      status: "success",
-      valid: true,
-      type: check.type,
-      name: check.name
-    });
-  } else {
-    res.status(401).json({
-      status: "error",
-      valid: false,
-      message: "Invalid token"
-    });
-  }
-});
-
-// ============================================
-// 📡 API ENDPOINT
-// ============================================
-
-app.post("/api", async (req, res) => {
-  try {
-    const message = req.body.message;
-    const token = req.body.token;
-    
-    const check = verifyToken(token);
-    
-    if (!check.valid) {
-      return res.status(401).json({
-        status: "error",
-        message: "Invalid token"
-      });
-    }
-    
-    if (!message) {
-      return res.json({
-        status: "success",
-        message: "API Working - Token verified",
-        token_type: check.type
-      });
-    }
-    
-    const gasRes = await axios.post(
-      CONFIG.GAS_URL,
-      { message: message, token: token },
-      { timeout: 10000 }
-    );
-    
-    res.json({
-      status: "success",
-      message: gasRes.data.reply || "OK",
-      token_type: check.type,
-      timestamp: new Date().toISOString()
-    });
-    
-  } catch (error) {
-    console.error("API Error:", error.message);
-    res.status(500).json({
-      status: "error",
-      message: "Server error"
-    });
-  }
-});
-
-// ============================================
-// 💬 CHAT ENDPOINT
+// 💬 CHAT ENDPOINT - FIXED
 // ============================================
 
 app.all("/exec", async (req, res) => {
   try {
-    const message = req.query.msg || req.body.message || "";
-    const token = req.body.token || CONFIG.TOKENS.CHAI_EMET;
+    console.log("=== RENDER REQUEST ===");
+    console.log("Method:", req.method);
+    console.log("Body:", JSON.stringify(req.body));
+    console.log("Query:", JSON.stringify(req.query));
+    
+    // Get message and token from body or query
+    const message = req.body.message || req.query.message || "";
+    const token = req.body.token || req.query.token || "";
+    
+    console.log("Message:", message);
+    console.log("Token:", token);
     
     if (!message.trim()) {
       return res.json({ reply: "No message received" });
     }
     
+    // Create payload for GAS
+    const payload = {
+      message: message,
+      token: token
+    };
+    
+    console.log("Sending to GAS:", JSON.stringify(payload));
+    
+    // Send to Google Apps Script with proper headers
     const gasRes = await axios.post(
       CONFIG.GAS_URL,
-      { message: message, token: token },
-      { timeout: 10000 }
+      JSON.stringify(payload),
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        timeout: 15000
+      }
     );
     
+    console.log("GAS Response:", JSON.stringify(gasRes.data));
+    
     res.json({
-      reply: gasRes.data.reply || "Response from server"
+      reply: gasRes.data.reply || "Response from Hai-Emet"
     });
     
   } catch (error) {
@@ -320,5 +215,4 @@ app.listen(CONFIG.PORT, () => {
   console.log("Hai-Emet Server running on port " + CONFIG.PORT);
   console.log("Visit: https://haiemetweb.onrender.com/");
   console.log("GAS URL: " + CONFIG.GAS_URL);
-  console.log("Tokens: CHAI_EMET + NEXUS_PRO");
 });
