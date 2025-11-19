@@ -4,10 +4,13 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-// API Configuration - Local Quantum System
+// API Configuration - Reading from Render Environment Variables
 const API_CONFIG = {
-  BASE_URL: "http://localhost:3000",
-  TOKEN: "chai_emet_cXVhbnR1bV9tYXN0ZXI6Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp",
+  BASE_URL: process.env.API_URL || "https://api.chai-emet.quantum/v3",
+  TOKEN: process.env.CHAI_EMET_TOKEN || "chai_emet_cXVhbnR1bV9tYXN0ZXI:Rk9SRVZFUl9RVUFOVFVNXzVE",
+  API_KEY: process.env.API_KEY,
+  TELEGRAM_TOKEN: process.env.Telegram_token,
+  WEBHOOK_URL: process.env.WEBHOOK_URL || "https://haiemetweb.onrender.com/api/webhook",
   VERSION: "3.0.0",
   SYSTEM: "Chai-Emet Quantum Nexus Pro"
 };
@@ -115,8 +118,64 @@ app.get("/", (req, res) => {
   res.send(html);
 });
 
-// API CHAT - Local Quantum System
-app.post("/api/chat", (req, res) => {
+// TELEGRAM WEBHOOK - Receive messages from Telegram
+app.post("/api/webhook", (req, res) => {
+  try {
+    const message = req.body.message;
+    
+    if (!message) {
+      return res.json({ status: "ok" });
+    }
+
+    const chatId = message.chat.id;
+    const text = message.text;
+    const userId = message.from.id;
+    const userName = message.from.first_name;
+
+    console.log(`📱 Telegram Message from ${userName}: ${text}`);
+
+    // יצור תשובה חכמה
+    const reply = generateSmartResponse(text);
+
+    // שלח חזרה ל-Telegram
+    sendTelegramMessage(chatId, reply);
+
+    res.json({ status: "ok", processed: true });
+
+  } catch (error) {
+    console.error("Webhook error:", error);
+    res.json({ status: "error", message: error.message });
+  }
+});
+
+// SEND TO TELEGRAM
+function sendTelegramMessage(chatId, text) {
+  if (!API_CONFIG.TELEGRAM_TOKEN) {
+    console.log("⚠️ Telegram token not configured");
+    return;
+  }
+
+  const url = `https://api.telegram.org/bot${API_CONFIG.TELEGRAM_TOKEN}/sendMessage`;
+  
+  fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chat_id: chatId,
+      text: text,
+      parse_mode: "HTML"
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.ok) {
+      console.log("✅ Message sent to Telegram");
+    } else {
+      console.error("❌ Telegram error:", data.description);
+    }
+  })
+  .catch(err => console.error("Telegram send error:", err));
+}
   try {
     const message = req.body.message || "";
     const token = req.body.token || "";
@@ -242,7 +301,19 @@ app.listen(PORT, () => {
   console.log("🚀 Server running on port " + PORT);
   console.log("🌐 Visit: https://haiemetweb.onrender.com/");
   console.log("🔗 System: Local Quantum Intelligence");
+  console.log("📱 Telegram: " + (API_CONFIG.TELEGRAM_TOKEN ? "✅ CONNECTED" : "❌ NOT SET"));
+  console.log("🔐 API Token: " + (API_CONFIG.TOKEN ? "✅ CONFIGURED" : "❌ NOT SET"));
   console.log("✅ Status: Online & Ready");
   console.log("========================================");
   console.log("");
+  
+  // Log environment variables status
+  if (API_CONFIG.TELEGRAM_TOKEN) {
+    console.log("📊 Environment Variables:");
+    console.log("✓ TELEGRAM_TOKEN loaded");
+    console.log("✓ CHAI_EMET_TOKEN loaded");
+    console.log("✓ API_URL loaded");
+    console.log("✓ WEBHOOK_URL configured");
+    console.log("");
+  }
 });
