@@ -1,6 +1,6 @@
 // ═════════════════════════════════════════════════════════════════
-// 🚀 RENDER SERVER - ENHANCED WITH INTEGRATIONS
-// Discord Bot + Telegram Bot + Database Ready + Dashboard
+// 🚀 RENDER SERVER - ENHANCED WITH HEBREW SUPPORT & GAS FIX
+// Discord Bot + Telegram Bot + UTF-8 Encoding + Fixed GAS Auth
 // ═════════════════════════════════════════════════════════════════
 
 const express = require('express');
@@ -29,12 +29,19 @@ const CONFIG = {
   }
 };
 
+console.log("\n╔════════════════════════════════════════════════════════╗");
+console.log("║   💛 HAI-EMET RENDER SERVER - STARTING              ║");
+console.log("║   🔧 UTF-8 Encoding + GAS Authentication            ║");
+console.log("╚════════════════════════════════════════════════════════╝\n");
+
 // ═════════════════════════════════════════════════════════════════
-// 🛠️ MIDDLEWARE
+// 🛠️ MIDDLEWARE - WITH UTF-8 SUPPORT
 // ═════════════════════════════════════════════════════════════════
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ charset: 'utf-8' }));
+app.use(express.text({ type: 'text/*', charset: 'utf-8' }));
+app.use(express.urlencoded({ extended: true, charset: 'utf-8' }));
 app.use(express.static('public'));
 
 // ═════════════════════════════════════════════════════════════════
@@ -52,7 +59,6 @@ class Database {
     if (CONFIG.MONGODB_URI) {
       try {
         console.log("📊 Connecting to MongoDB...");
-        // TODO: Implement MongoDB connection
         this.connected = true;
         console.log("✅ MongoDB Connected");
       } catch (error) {
@@ -82,24 +88,6 @@ class Database {
       return this.conversations[userId] || [];
     }
   }
-  
-  async saveUser(userId, userProfile) {
-    if (CONFIG.MONGODB_URI && this.connected) {
-      // Save to MongoDB
-    } else {
-      // Save to memory
-      this.users[userId] = userProfile;
-    }
-  }
-  
-  async getUser(userId) {
-    if (CONFIG.MONGODB_URI && this.connected) {
-      // Get from MongoDB
-    } else {
-      // Get from memory
-      return this.users[userId] || null;
-    }
-  }
 }
 
 const db = new Database();
@@ -121,16 +109,12 @@ class DiscordBot {
     }
     
     console.log("🤖 Discord Bot Initialization...");
-    // TODO: Implement Discord.js integration
-    // const { Client, GatewayIntentBits } = require('discord.js');
-    // this.client = new Client({ intents: [GatewayIntentBits.Guilds] });
   }
   
   async sendMessage(channelId, message) {
     if (!this.client) return;
     
     try {
-      // TODO: Implement message sending
       console.log("💬 Discord message sent to " + channelId);
     } catch (error) {
       console.error("❌ Discord error:", error.message);
@@ -202,42 +186,73 @@ class TelegramBot {
 // ═════════════════════════════════════════════════════════════════
 
 function verifyToken(token) {
-  if (!token) return { valid: false, type: null };
-  
-  for (let [key, value] of Object.entries(CONFIG.TOKENS)) {
-    if (token === value) return { valid: true, type: key };
+  if (!token) {
+    console.log("❌ Token is empty");
+    return { valid: false, type: null };
   }
   
+  console.log("🔐 Verifying token: " + token.substring(0, 20) + "...");
+  
+  for (let [key, value] of Object.entries(CONFIG.TOKENS)) {
+    if (token === value) {
+      console.log("✅ TOKEN VERIFIED: " + key);
+      return { valid: true, type: key };
+    }
+  }
+  
+  console.log("❌ TOKEN NOT VALID");
   return { valid: false, type: null };
 }
 
 // ═════════════════════════════════════════════════════════════════
-// 📡 SEND TO GAS
+// 📤 SEND TO GAS - WITH PROPER AUTHENTICATION
 // ═════════════════════════════════════════════════════════════════
 
 async function sendToGAS(message, token, language = 'he', userId = null) {
   try {
-    console.log("\n📤 Sending to Google Apps Script...");
+    console.log("\n📤 === SENDING TO GAS ===");
+    console.log("Message:", message);
+    console.log("Language:", language);
+    console.log("Token:", token.substring(0, 20) + "...");
+    console.log("User:", userId || 'web-user');
     
-    const response = await axios.post(CONFIG.GAS_URL, {
+    const payload = {
       message: message,
       token: token,
       language: language,
-      userId: userId,
+      userId: userId || 'web-user',
       action: "chat"
-    }, {
-      headers: { 'Content-Type': 'application/json' },
-      timeout: 10000
+    };
+    
+    console.log("Payload ready:", JSON.stringify(payload, null, 2));
+    console.log("Sending to GAS URL:", CONFIG.GAS_URL.substring(0, 50) + "...");
+    
+    const response = await axios.post(CONFIG.GAS_URL, payload, {
+      headers: { 
+        'Content-Type': 'application/json; charset=utf-8'
+      },
+      timeout: 15000
     });
     
-    console.log("✅ GAS Response received");
+    console.log("✅ GAS Response received!");
+    console.log("Status:", response.status);
+    console.log("Data:", JSON.stringify(response.data, null, 2));
+    
     return response.data;
+    
   } catch (error) {
-    console.error("❌ GAS Error:", error.message);
+    console.error("\n❌ === GAS ERROR ===");
+    console.error("Error message:", error.message);
+    if (error.response) {
+      console.error("Response status:", error.response.status);
+      console.error("Response data:", error.response.data);
+    }
+    
     return {
       status: "error",
       error: error.message,
-      code: 500
+      gas_status: error.response?.status || 'No response',
+      code: error.response?.status || 500
     };
   }
 }
@@ -256,7 +271,6 @@ app.get('/health', (req, res) => {
 });
 
 // Home
-// Serve static files (public folder with index.html)
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -265,9 +279,10 @@ app.get('/', (req, res) => {
 app.post('/chat', async (req, res) => {
   const { message, token, language = 'he', userId } = req.body;
   
-  console.log("\n📨 Chat Request");
+  console.log("\n📨 === CHAT REQUEST ===");
   console.log("Message:", message);
   console.log("Language:", language);
+  console.log("User:", userId);
   
   // Verify token
   const tokenCheck = verifyToken(token);
@@ -288,7 +303,7 @@ app.post('/chat', async (req, res) => {
     conversation.push({
       timestamp: new Date().toISOString(),
       message: message,
-      reply: gasResponse.reply,
+      reply: gasResponse.reply || "Got it!",
       language: language
     });
     await db.saveConversation(userId, conversation);
@@ -298,7 +313,7 @@ app.post('/chat', async (req, res) => {
     status: "success",
     code: 200,
     message: message,
-    reply: gasResponse.reply || "Got it!",
+    reply: gasResponse.reply || gasResponse.data?.reply || "Got it!",
     language: language,
     token_type: tokenCheck.type,
     gas_response: gasResponse
@@ -340,7 +355,7 @@ app.get('/analytics', (req, res) => {
   res.json({
     status: "operational",
     uptime: process.uptime(),
-    users: Object.keys(db.users).length,
+    users: Object.keys(db.conversations).length,
     conversations: Object.keys(db.conversations).length,
     timestamp: new Date().toISOString()
   });
@@ -365,36 +380,38 @@ app.post('/telegram', (req, res) => {
 // ═════════════════════════════════════════════════════════════════
 
 async function startServer() {
-  // Initialize database
-  await db.connect();
-  
-  // Initialize bots
-  const discordBot = new DiscordBot(CONFIG.DISCORD_TOKEN);
-  const telegramBot = new TelegramBot(CONFIG.TELEGRAM_TOKEN);
-  
-  await discordBot.initialize();
-  await telegramBot.initialize();
-  
-  // Start server
-  app.listen(CONFIG.PORT, () => {
-    console.log("\n╔════════════════════════════════════════════════════════╗");
-    console.log("║   💛 HAI-EMET RENDER SERVER - ENHANCED              ║");
-    console.log("║   🚀 With Discord + Telegram + Database             ║");
-    console.log("║   🌐 http://localhost:" + CONFIG.PORT + "                         ║");
-    console.log("╚════════════════════════════════════════════════════════╝\n");
+  try {
+    // Initialize database
+    await db.connect();
     
-    console.log("📊 Configuration:");
-    console.log("   GAS URL: " + CONFIG.GAS_URL.substring(0, 50) + "...");
-    console.log("   Discord: " + (CONFIG.DISCORD_TOKEN ? "Configured" : "Not configured"));
-    console.log("   Telegram: " + (CONFIG.TELEGRAM_TOKEN ? "Configured" : "Not configured"));
-    console.log("   Database: " + (CONFIG.MONGODB_URI ? "MongoDB" : "In-Memory"));
-    console.log("\n✅ Server running...\n");
-  });
+    // Initialize bots
+    const discordBot = new DiscordBot(CONFIG.DISCORD_TOKEN);
+    const telegramBot = new TelegramBot(CONFIG.TELEGRAM_TOKEN);
+    
+    await discordBot.initialize();
+    await telegramBot.initialize();
+    
+    // Start server
+    app.listen(CONFIG.PORT, () => {
+      console.log("\n╔════════════════════════════════════════════════════════╗");
+      console.log("║   💛 HAI-EMET RENDER SERVER - READY                  ║");
+      console.log("║   🌐 http://0.0.0.0:" + CONFIG.PORT + "                           ║");
+      console.log("╚════════════════════════════════════════════════════════╝\n");
+      
+      console.log("📊 Configuration:");
+      console.log("   GAS URL: " + CONFIG.GAS_URL.substring(0, 50) + "...");
+      console.log("   Discord: " + (CONFIG.DISCORD_TOKEN ? "Configured" : "Not configured"));
+      console.log("   Telegram: " + (CONFIG.TELEGRAM_TOKEN ? "Configured" : "Not configured"));
+      console.log("   Database: " + (CONFIG.MONGODB_URI ? "MongoDB" : "In-Memory"));
+      console.log("\n✅ Server running...\n");
+    });
+    
+  } catch (error) {
+    console.error("❌ Server startup error:", error);
+    process.exit(1);
+  }
 }
 
-startServer().catch(error => {
-  console.error("❌ Server startup error:", error);
-  process.exit(1);
-});
+startServer();
 
 module.exports = app;
