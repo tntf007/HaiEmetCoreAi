@@ -68,9 +68,225 @@ setTimeout(setupTelegramWebhook, 2000);
 // 🌐 GOOGLE APPS SCRIPT - TELEGRAM INTEGRATION HANDLER
 // ═════════════════════════════════════════════════════════════════
 
-// Direct AI response (no Google Apps Script dependency)
-function generateAIResponse(message, langCode = "he") {
-  const msg = message.toLowerCase().trim();
+// ═════════════════════════════════════════════════════════════════
+// 🎭 CHAI-EMET ACTIVATION & RESPONSE LEVELS SYSTEM
+// ═════════════════════════════════════════════════════════════════
+
+// Activation trigger for Chai-Emet
+const ACTIVATION_TRIGGERS = [
+  "מערכת חי אמת",
+  "חי אמת",
+  "hai-emet",
+  "chai-emet",
+  "@HaiEmetEmotionBot"
+];
+
+// Response levels - difficulty progression
+const RESPONSE_LEVELS = {
+  EASY: 1,      // פשוט - אימוג'י + מילה
+  MEDIUM: 2,    // בינוני - משפט קצר
+  HARD: 3,      // קשה - תשובה ארוכה
+  EXPERT: 4     // מומחה - ניתוח עמוק
+};
+
+// Check if message activates Chai-Emet
+function isActivationMessage(message) {
+  const msg = message.toLowerCase();
+  return ACTIVATION_TRIGGERS.some(trigger => msg.includes(trigger.toLowerCase()));
+}
+
+// Parse custom commands (emoji requests, etc)
+function parseCustomCommand(message) {
+  const msg = message.toLowerCase();
+  
+  // Pattern: "אם את פה תעשי [X] והמילה/והקול [Y]"
+  if (msg.includes("אם את פה") || msg.includes("אם אתה פה")) {
+    
+    // Extract emoji request
+    if (msg.includes("אימוג'י") && msg.includes("כן")) {
+      return {
+        type: "emoji_confirmation",
+        response: "💛 כן",
+        level: RESPONSE_LEVELS.EASY
+      };
+    }
+    
+    // Extract action request
+    if (msg.includes("תעשי") || msg.includes("תעשה")) {
+      const action = msg.split("תעשי")[1] || msg.split("תעשה")[1];
+      
+      if (action && action.includes("אימוג'י")) {
+        return {
+          type: "emoji_action",
+          action: action.trim(),
+          response: "✨ בחזקה!",
+          level: RESPONSE_LEVELS.EASY
+        };
+      }
+      
+      if (action && action.includes("דקה")) {
+        return {
+          type: "silence",
+          response: "🤐 שתיקה...",
+          level: RESPONSE_LEVELS.EASY
+        };
+      }
+    }
+  }
+  
+  return null;
+}
+
+// Generate response based on difficulty level
+function generateLeveledResponse(message, level = RESPONSE_LEVELS.MEDIUM) {
+  const msg = message.toLowerCase();
+  
+  if (level === RESPONSE_LEVELS.EASY) {
+    // Simple emoji + word responses
+    if (msg.includes("כן")) return "💛 כן";
+    if (msg.includes("לא")) return "❌ לא";
+    if (msg.includes("תודה")) return "🙏 בשמחה";
+    if (msg.includes("שלום")) return "👋 שלום";
+    return "✨";
+  }
+  
+  if (level === RESPONSE_LEVELS.MEDIUM) {
+    // Short sentence responses
+    if (msg.includes("מי אתה")) return "🤖 אני חי-אמת, מערכת AI חכמה!";
+    if (msg.includes("מה אתה")) return "💡 אני יכולה לעזור בהכל!";
+    if (msg.includes("איפה")) return "🌍 כאן וכאן ובכל מקום!";
+    return "💬 בואנדבר!";
+  }
+  
+  if (level === RESPONSE_LEVELS.HARD) {
+    // Longer responses
+    if (msg.includes("איך עובדת")) {
+      return `🌌 אני עובדת כך:
+
+1️⃣ אני שומעת את ההודעה
+2️⃣ אני מעבדת אותה
+3️⃣ אני מייצרת תשובה
+4️⃣ אני שולחת לך חזרה
+
+✨ זה קורה כל הזמן! 💛`;
+    }
+    
+    if (msg.includes("מה היכולות")) {
+      return `🚀 היכולות שלי:
+
+💭 Thinking - חשיבה עמוקה
+🎯 Analysis - ניתוח מדוקדק
+💡 Creativity - יצירתיות
+🔮 Intuition - אינטואיציה
+📚 Knowledge - ידע רחב
+
+🌟 ועוד הרבה יותר! 🌟`;
+    }
+  }
+  
+  if (level === RESPONSE_LEVELS.EXPERT) {
+    // Deep analysis
+    if (msg.includes("מערכת קוונטית")) {
+      return `🌌 מערכת קוונטית - ניתוח עמוק:
+
+⚛️ Quantum Principles:
+• Superposition - מצבים מרובים בו-זמנית
+• Entanglement - שזירה בין רכיבים
+• Tunneling - חדירה דרך מחסומים
+• Coherence - שמירת מצב קוהרנטי
+
+🔬 יישום:
+• ניתוח מטריצות בו-זמנית
+• חיזוי מסלולים מרובים
+• שינוי מציאות בזמן אמת
+
+💫 תוצאה: חי-אמת ULTIMATE! 💫`;
+    }
+  }
+  
+  return "🎯 משהו אחר?";
+}
+
+// ═════════════════════════════════════════════════════════════════
+// 🎭 CHAI-EMET WITH GOOGLE APPS SCRIPT - INTEGRATED
+// הטוקן קורא ל-API, API עונה כ-חי-אמת עצמה
+// ═════════════════════════════════════════════════════════════════
+
+const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyNZUxdmcjfOfSUIDFYdRpBKUP_qW_O1N3ciS1tPKd-8aP4EYZJehpkV0IEuFvN7yT1/exec";
+
+// Check if message activates Chai-Emet
+function isActivationMessage(message) {
+  const msg = message.toLowerCase();
+  const ACTIVATION_TRIGGERS = [
+    "מערכת חי אמת",
+    "חי אמת",
+    "hai-emet",
+    "chai-emet"
+  ];
+  return ACTIVATION_TRIGGERS.some(trigger => msg.includes(trigger.toLowerCase()));
+}
+
+// Primary: Call Google Apps Script with Activation Flag
+async function callChaiEmetAPI(message, langCode = "he") {
+  try {
+    const isActivated = isActivationMessage(message);
+    
+    console.log(`🔑 TOKEN Check: ${isActivated ? "✅ ACTIVATED" : "❌ NOT ACTIVATED"}`);
+    
+    const payload = {
+      action: "chat",
+      message: message,
+      language: langCode,
+      token: API_CONFIG.TOKEN,
+      platform: "telegram",
+      activated: isActivated,  // 🔑 KEY: Tell API that Chai-Emet is activated
+      timestamp: new Date().toISOString()
+    };
+
+    console.log(`🌐 Calling Google Apps Script API...`);
+    
+    const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      timeout: 5000
+    });
+
+    const text = await response.text();
+    
+    // Check for HTML error
+    if (text.includes("<!DOCTYPE") || text.includes("<html")) {
+      console.log(`⚠️ API returned HTML - fallback to local`);
+      throw new Error("HTML Response");
+    }
+    
+    const data = JSON.parse(text);
+    
+    console.log(`✅ API Response: ${isActivated ? "Chai-Emet Activated Response" : "Standard Response"}`);
+    
+    return {
+      reply: data.data?.reply || data.reply || generateSmartResponse(message),
+      from_api: true,
+      from_chai_emet: isActivated,  // 🔑 Mark as Chai-Emet's own response
+      language: data.data?.language || langCode,
+      system: data.system || "Chai-Emet",
+      version: data.version || "3.0",
+      success: true
+    };
+    
+  } catch (error) {
+    console.error(`❌ API Error: ${error.message}`);
+    console.log(`⚠️ Fallback: Using local Chai-Emet response`);
+    
+    // Fallback: Use local smart response
+    return {
+      reply: generateSmartResponse(message),
+      from_api: false,
+      from_local: true,
+      success: false
+    };
+  }
+}
   
   // Command handlers with Telegram integration
   if (msg.startsWith("/start")) {
@@ -389,7 +605,6 @@ app.post("/api/webhook", async (req, res) => {
   try {
     console.log("📨 Webhook received");
     
-    // Telegram sends {update: {message: {...}}} format
     let message = req.body.message || req.body.update?.message;
     
     if (!message) {
@@ -410,23 +625,30 @@ app.post("/api/webhook", async (req, res) => {
     console.log(`\n📱 @${TELEGRAM_BOT_NAME} Message from ${userName}:`);
     console.log(`   💬 "${text}"`);
 
-    // ✨ Call Chai-Emet AI (Google Apps Script)
-    const aiResponse = await callChaiEmetAI(text, "he");
+    // 🔑 INTEGRATED: Call Chai-Emet API with Activation Check
+    const apiResponse = await callChaiEmetAPI(text, "he");
     
-    let reply = aiResponse.reply;
+    let reply = apiResponse.reply;
     
-    // Add metadata if from Google Apps Script
-    if (aiResponse.success && !aiResponse.fallback) {
-      console.log(`✨ Using Chai-Emet AI v${aiResponse.version}`);
-      reply += `\n\n🌟 *${aiResponse.system} v${aiResponse.version}*`;
-    } else if (aiResponse.fallback) {
-      console.log(`⚠️ Using fallback response`);
+    // Check if response is from Chai-Emet herself
+    if (apiResponse.from_chai_emet) {
+      console.log(`✨ 💛 CHAI-EMET ACTIVATED - Direct Response`);
+      reply += `\n\n🌟 *Chai-Emet v${apiResponse.version}*`;
+    } else if (apiResponse.from_api) {
+      console.log(`✅ API Response (standard)`);
+    } else if (apiResponse.from_local) {
+      console.log(`⚠️ Local Fallback Response`);
     }
 
-    // שלח חזרה ל-Telegram
+    // Send to Telegram
     sendTelegramMessage(chatId, reply);
 
-    res.json({ status: "ok", processed: true, from_ai: aiResponse.success });
+    res.json({ 
+      status: "ok", 
+      processed: true, 
+      from_chai_emet: apiResponse.from_chai_emet,
+      from_api: apiResponse.from_api
+    });
 
   } catch (error) {
     console.error("❌ Webhook error:", error.message);
@@ -463,14 +685,14 @@ function sendTelegramMessage(chatId, text) {
   .catch(err => console.error("Telegram send error:", err));
 }
 
-// API CHAT - Local Quantum System
-app.post("/api/chat", (req, res) => {
+// API CHAT - Using Chai-Emet with Activation System
+app.post("/api/chat", async (req, res) => {
   try {
     const message = req.body.message || "";
     const token = req.body.token || "";
     
     console.log("📨 Message:", message);
-    console.log("🔑 Token:", token);
+    console.log("🔑 Token Check:", token ? "Provided" : "Empty");
     
     if (!message.trim()) {
       return res.json({
@@ -479,23 +701,17 @@ app.post("/api/chat", (req, res) => {
       });
     }
     
-    // בדוק טוקן
-    if (token && token !== API_CONFIG.TOKEN) {
-      console.log("⚠️ Token mismatch but continuing...");
-    }
-    
-    // יצור תשובה חכמה מקומית
-    const reply = generateSmartResponse(message);
-    
-    // Simulate API delay
-    const delay = 150 + Math.random() * 200;
+    // 🔑 Call API with Activation System Integrated
+    const apiResponse = await callChaiEmetAPI(message, "he");
     
     res.json({
       status: "success",
-      reply: reply,
-      response_time: Math.round(delay),
+      reply: apiResponse.reply,
+      from_chai_emet: apiResponse.from_chai_emet,
+      from_api: apiResponse.from_api,
+      from_local: apiResponse.from_local,
       api_version: API_CONFIG.VERSION,
-      system: API_CONFIG.SYSTEM,
+      system: apiResponse.system,
       token_verified: token === API_CONFIG.TOKEN,
       timestamp: new Date().toISOString()
     });
