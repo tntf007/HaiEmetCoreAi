@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💛 חי-אמת | Hai-Emet AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💛 חי-אמת</h1>
+            <p>Hai-Emet AI Assistant - 15 Languages</p>
+        </div>
+        
+        <div class="chat-area" id="chatArea">
+            <div class="message assistant">
+                <div class="message-content">
+                    שלום! 💛 אני חי-אמת. בואנדבר!
+                </div>
+                <div class="message-time">עכשיו</div>
+            </div>
+        </div>
+        
+        <div class="input-area">
+            <div class="status">
+                <span id="status">✅ Connected</span>
+            </div>
+            <div class="input-wrapper">
+                <input 
+                    type="text" 
+                    id="messageInput" 
+                    placeholder="כתוב הודעה... (עברית או English)"
+                    autocomplete="off"
+                />
+                <button class="send-btn" id="sendBtn">✉️ שלח</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
