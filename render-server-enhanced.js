@@ -272,7 +272,11 @@ app.get('/health', (req, res) => {
 
 // Home
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  try {
+    res.sendFile(path.join(process.cwd(), 'public', 'index.html'));
+  } catch (error) {
+    res.status(404).send('Home page not found');
+  }
 });
 
 // Chat
