@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>💛 חי-אמת - Hai-Emet AI</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 { 
+            font-size: 36px; 
+            font-weight: 700; 
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header p { 
+            font-size: 14px; 
+            opacity: 0.9; 
+            margin-top: 8px; 
+        }
+        
+        .status {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .content { 
+            padding: 30px; 
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .chat-history {
+            margin-bottom: 20px;
+            min-height: 200px;
+        }
+        
+        .message {
+            margin-bottom: 16px;
+            display: flex;
+            gap: 12px;
+        }
+        
+        .message.user {
+            justify-content: flex-end;
+        }
+        
+        .message.assistant {
+            justify-content: flex-start;
+        }
+        
+        .message-bubble {
+            max-width: 80%;
+            padding: 14px 18px;
+            border-radius: 14px;
+            word-wrap: break-word;
+        }
+        
+        .message.user .message-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .message.assistant .message-bubble {
+            background: #f0f0f0;
+            color: #333;
+            border-bottom-left-radius: 4px;
+        }
+        
+        .input-section {
+            border-top: 1px solid #e0e0e0;
+            padding: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        input { 
+            flex: 1; 
+            padding: 14px 16px; 
+            border: 2px solid #e0e0e0; 
+            border-radius: 10px; 
+            font-size: 16px;
+            font-family: inherit;
+        }
+        
+        input:focus { 
+            outline: none; 
+            border-color: #667eea; 
+            background: #f8f9ff;
+        }
+        
+        button { 
+            padding: 14px 28px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        button:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3); 
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .loading { 
+            display: none; 
+            text-align: center; 
+            color: #667eea;
+            padding: 16px;
+        }
+        
+        .loading span {
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .info-section {
+            background: #f8f9ff;
+            border-top: 1px solid #e0e0e0;
+            padding: 20px;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .info-section strong {
+            color: #667eea;
+        }
+        
+        .error {
+            background: #ffe0e0;
+            color: #c00;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #c00;
+            margin-bottom: 16px;
+        }
+        
+        .success {
+            background: #e0ffe0;
+            color: #0a0;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid #0a0;
+            margin-bottom: 16px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💛 חי-אמת</h1>
+            <p>Hai-Emet - Hebrew AI Assistant</p>
+            <div class="status">
+                🟢 <span id="status-text">Online</span>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div id="error-message" class="error hidden"></div>
+            <div id="success-message" class="success hidden"></div>
+            <div class="chat-history" id="chat-history">
+                <div class="message assistant">
+                    <div class="message-bubble">
+                        שלום! 👋 אני חי-אמת, עוזרת AI בעברית. איך אני יכולה לעזור לך?
+                    </div>
+                </div>
+            </div>
+            <div class="loading" id="loading">⏳ <span>⌛</span> חוכה...</div>
+        </div>
+        
+        <div class="input-section">
+            <input 
+                type="text" 
+                id="message" 
+                placeholder="כתוב הודעה..." 
+                autocomplete="off"
+            />
+            <button onclick="sendMessage()">שלח</button>
+        </div>
+        
+        <div class="info-section">
+            <strong>מידע:</strong> Version 4.0 | 15 Languages | Token: CHAI_EMET ✅
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+        const TOKEN = "chai_emet_cXVhbnR1bV9tYXN0ZXI:Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp";
+        const LANGUAGE = "he";
+        
+        // Show/hide messages
+        function showError(msg) {
+            const el = document.getElementById('error-message');
+            el.textContent = msg;
+            el.classList.remove('hidden');
+            setTimeout(() => el.classList.add('hidden'), 5000);
+        }
+        
+        function showSuccess(msg) {
+            const el = document.getElementById('success-message');
+            el.textContent = msg;
+            el.classList.remove('hidden');
+            setTimeout(() => el.classList.add('hidden'), 3000);
+        }
+        
+        // Add message to chat
+        function addMessage(text, isUser) {
+            const history = document.getElementById('chat-history');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ' + (isUser ? 'user' : 'assistant');
+            
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble';
+            bubble.textContent = text;
+            
+            messageDiv.appendChild(bubble);
+            history.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            history.scrollTop = history.scrollHeight;
+        }
+        
+        // Send message
+        async function sendMessage() {
+            const msg = document.getElementById('message').value.trim();
+            if (!msg) return;
+            
+            // Add user message
+            addMessage(msg, true);
+            document.getElementById('message').value = '';
+            document.getElementById('message').focus();
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            
+            try {
+                const response = await fetch(`${API_URL}/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: msg,
+                        token: TOKEN,
+                        language: LANGUAGE,
+                        userId: 'web-user'
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.status === 'success' || data.data?.status === 'success') {
+                    const reply = data.reply || data.data?.reply || 'בוצע!';
+                    addMessage(reply, false);
+                    showSuccess('✅ התשובה התקבלה');
+                } else {
+                    throw new Error(data.message || 'שגיאה בתשובה');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('❌ שגיאה: ' + error.message, false);
+                showError('שגיאה בשליחת ההודעה. בדוק את החיבור.');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+        
+        // Enter key to send
+        document.getElementById('message').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+        
+        // Check server status
+        async function checkStatus() {
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                if (response.ok) {
+                    document.getElementById('status-text').textContent = 'Online';
+                } else {
+                    document.getElementById('status-text').textContent = 'Offline';
+                }
+            } catch (error) {
+                document.getElementById('status-text').textContent = 'Offline';
+            }
+        }
+        
+        // Check status on load and periodically
+        checkStatus();
+        setInterval(checkStatus, 30000);
+        
+        // Focus input on load
+        window.addEventListener('load', () => {
+            document.getElementById('message').focus();
+        });
+    </script>
+</body>
+</html>

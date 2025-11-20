@@ -1,0 +1,54 @@
+# ═════════════════════════════════════════════════════════════════
+# RENDER.COM DEPLOYMENT CONFIGURATION
+# ═════════════════════════════════════════════════════════════════
+
+services:
+  - type: web
+    name: hai-emet-render-server
+    env: node
+    region: ohio
+    plan: starter
+    
+    # Build Command
+    buildCommand: npm install
+    
+    # Start Command
+    startCommand: npm start
+    
+    # Port
+    port: 3000
+    
+    # Environment Variables
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: NODE_ENV
+        value: production
+      - key: GAS_URL
+        value: https://script.google.com/macros/s/AKfycbwZiiY0LpkGmPWj6FQ6cuMyKSGHMvKHAY75wWCWyXmZ7zEW7cyz5SK1DlLrrjosOVbk/exec
+      
+      # Add your tokens here (get from .env)
+      - key: DISCORD_TOKEN
+        sync: false
+      - key: TELEGRAM_TOKEN
+        sync: false
+      - key: MONGODB_URI
+        sync: false
+    
+    # Health Check
+    healthCheckPath: /health
+    healthCheckInterval: 30
+    healthCheckTimeout: 10
+    
+    # Auto-Deploy from GitHub
+    repo: https://github.com/tntf007/HaiEmetCoreAi
+    branch: main
+    
+    # Logs
+    preDeployCommand: echo "Deploying Hai-Emet Render Server..."
+    
+    # Disk Size (if needed)
+    disk:
+      name: data
+      mountPath: /data
+      sizeGB: 1
