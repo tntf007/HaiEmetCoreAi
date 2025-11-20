@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>💛 חי-אמת | Hai-Emet AI</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
     <div class="container">
@@ -38,6 +38,137 @@
         </div>
     </div>
     
-    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script>
+        // ✅ Inline debug script
+        console.log('✅ HTML LOADED!');
+        
+        const API_URL = '/chat';
+        const TOKEN = 'chai_emet_cXVhbnR1bV9tYXN0ZXI:Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp';
+        
+        console.log('📍 Elements:');
+        const chatArea = document.getElementById('chatArea');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const statusEl = document.getElementById('status');
+        
+        console.log('chatArea:', chatArea);
+        console.log('messageInput:', messageInput);
+        console.log('sendBtn:', sendBtn);
+        console.log('statusEl:', statusEl);
+        
+        if (!chatArea || !messageInput || !sendBtn || !statusEl) {
+            console.error('❌ CRITICAL: Some elements not found!');
+        }
+        
+        function detectLanguage(text) {
+            const hebrewRegex = /[\u0590-\u05FF]/g;
+            const hebrewChars = text.match(hebrewRegex) || [];
+            return hebrewChars.length > text.length / 2 ? 'he' : 'en';
+        }
+        
+        function addMessage(text, isUser = false) {
+            console.log('📝 Adding message:', text, '| User:', isUser);
+            
+            const messageEl = document.createElement('div');
+            messageEl.className = `message ${isUser ? 'user' : 'assistant'}`;
+            
+            const contentEl = document.createElement('div');
+            contentEl.className = 'message-content';
+            contentEl.textContent = text;
+            
+            const timeEl = document.createElement('div');
+            timeEl.className = 'message-time';
+            const now = new Date();
+            timeEl.textContent = now.toLocaleTimeString('he-IL');
+            
+            messageEl.appendChild(contentEl);
+            messageEl.appendChild(timeEl);
+            
+            chatArea.appendChild(messageEl);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+        
+        async function sendMessage() {
+            console.log('🚀 sendMessage() called');
+            
+            const message = messageInput.value.trim();
+            console.log('📨 Message:', message);
+            
+            if (!message) {
+                console.log('⚠️ Empty message');
+                return;
+            }
+            
+            addMessage(message, true);
+            messageInput.value = '';
+            
+            statusEl.innerHTML = '<span class="loading"></span> שולח...';
+            
+            try {
+                const language = detectLanguage(message);
+                console.log('🌍 Language:', language);
+                
+                const payload = {
+                    message: message,
+                    token: TOKEN,
+                    language: language,
+                    userId: 'web-user-' + Date.now()
+                };
+                
+                console.log('📤 Sending:', payload);
+                
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                console.log('📡 Status:', response.status);
+                const data = await response.json();
+                console.log('📥 Response:', data);
+                
+                if (data.status === 'success') {
+                    addMessage(data.reply, false);
+                    statusEl.textContent = '✅ Connected';
+                } else {
+                    addMessage('❌ ' + (data.reply || 'שגיאה'), false);
+                    statusEl.textContent = '⚠️ Error';
+                }
+            } catch (error) {
+                console.error('❌ Error:', error);
+                addMessage('❌ ' + error.message, false);
+                statusEl.textContent = '❌ Disconnected';
+            }
+        }
+        
+        // ✅ Setup event listeners
+        console.log('🔘 Setting up listeners');
+        
+        if (sendBtn) {
+            sendBtn.addEventListener('click', function(e) {
+                console.log('🔘 Button clicked!');
+                e.preventDefault();
+                sendMessage();
+            });
+            console.log('✅ Button click listener added');
+        }
+        
+        if (messageInput) {
+            messageInput.addEventListener('keypress', function(e) {
+                console.log('⌨️ Key:', e.key);
+                if (e.key === 'Enter') {
+                    console.log('⌨️ Enter pressed');
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+            console.log('✅ Input keypress listener added');
+        }
+        
+        messageInput.focus();
+        console.log('✅ READY! Focus on input');
+    </script>
 </body>
 </html>
