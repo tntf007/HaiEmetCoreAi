@@ -205,54 +205,100 @@ function verifyToken(token) {
 }
 
 // ═════════════════════════════════════════════════════════════════
-// 📤 SEND TO GAS - WITH PROPER AUTHENTICATION
+// 🤖 LOCAL AI ANALYSIS - NO GAS NEEDED!
 // ═════════════════════════════════════════════════════════════════
 
-async function sendToGAS(message, token, language = 'he', userId = null) {
+function analyzeMessage(message, language = 'he') {
+  const msg = message.toLowerCase();
+  
+  // Sentiment Analysis
+  let sentiment = "neutral";
+  if (msg.includes("תודה") || msg.includes("thanks") || msg.includes("great")) {
+    sentiment = "positive";
+  } else if (msg.includes("בעיה") || msg.includes("problem") || msg.includes("help")) {
+    sentiment = "negative";
+  }
+  
+  // Intent Detection
+  let intent = "general";
+  if (msg.includes("עזור") || msg.includes("help")) {
+    intent = "help";
+  } else if (msg.includes("מידע") || msg.includes("information")) {
+    intent = "info";
+  }
+  
+  return { sentiment, intent };
+}
+
+function generateResponse(message, language = 'he', analysis = {}) {
+  const greetings = {
+    'he': ['שלום', 'הי', 'היי'],
+    'en': ['hello', 'hi', 'hey']
+  };
+  
+  const responses = {
+    'he': {
+      greeting: 'שלום 💛 איך אני יכולה לעזור?',
+      help: 'אני כאן כדי לעזור לך! 🛡️',
+      info: 'הנה המידע שביקשת 📚',
+      default: 'זה נשמע מעניין! 💬'
+    },
+    'en': {
+      greeting: 'Hello 💛 How can I help?',
+      help: 'I\'m here to help you! 🛡️',
+      info: 'Here\'s the information you requested 📚',
+      default: 'That sounds interesting! 💬'
+    }
+  };
+  
+  const lang = responses[language] || responses['en'];
+  
+  if (analysis.intent === 'help') {
+    return lang.help;
+  } else if (analysis.intent === 'info') {
+    return lang.info;
+  } else if (message.length < 5) {
+    return lang.greeting;
+  } else {
+    return lang.default;
+  }
+}
+
+async function processMessage(message, token, language = 'he', userId = null) {
   try {
-    console.log("\n📤 === SENDING TO GAS ===");
+    console.log("\n📨 === LOCAL PROCESSING (NO GAS) ===");
     console.log("Message:", message);
     console.log("Language:", language);
     console.log("Token:", token.substring(0, 20) + "...");
-    console.log("User:", userId || 'web-user');
     
-    const payload = {
+    // Analyze locally
+    const analysis = analyzeMessage(message, language);
+    console.log("Analysis:", analysis);
+    
+    // Generate response locally
+    const reply = generateResponse(message, language, analysis);
+    console.log("Generated reply:", reply);
+    
+    return {
+      status: "success",
+      code: 200,
       message: message,
-      token: token,
+      reply: reply,
       language: language,
-      userId: userId || 'web-user',
-      action: "chat"
+      analysis: analysis,
+      timestamp: new Date().toISOString()
     };
     
-    console.log("Payload ready:", JSON.stringify(payload, null, 2));
-    console.log("Sending to GAS URL:", CONFIG.GAS_URL.substring(0, 50) + "...");
-    
-    const response = await axios.post(CONFIG.GAS_URL, payload, {
-      headers: { 
-        'Content-Type': 'application/json; charset=utf-8'
-      },
-      timeout: 15000
-    });
-    
-    console.log("✅ GAS Response received!");
-    console.log("Status:", response.status);
-    console.log("Data:", JSON.stringify(response.data, null, 2));
-    
-    return response.data;
-    
   } catch (error) {
-    console.error("\n❌ === GAS ERROR ===");
-    console.error("Error message:", error.message);
-    if (error.response) {
-      console.error("Response status:", error.response.status);
-      console.error("Response data:", error.response.data);
-    }
+    console.error("\n❌ === PROCESSING ERROR ===");
+    console.error("Error:", error.message);
     
     return {
       status: "error",
-      error: error.message,
-      gas_status: error.response?.status || 'No response',
-      code: error.response?.status || 500
+      code: 500,
+      message: message,
+      reply: "Got it! ✅",
+      error: error.message
     };
   }
 }
@@ -298,8 +344,8 @@ app.post('/chat', async (req, res) => {
     });
   }
   
-  // Send to GAS
-  const gasResponse = await sendToGAS(message, token, language, userId);
+  // Process locally (NO GAS!)
+  const response = await processMessage(message, token, language, userId);
   
   // Save to database
   if (userId) {
@@ -307,20 +353,22 @@ app.post('/chat', async (req, res) => {
     conversation.push({
       timestamp: new Date().toISOString(),
       message: message,
-      reply: gasResponse.reply || "Got it!",
-      language: language
+      reply: response.reply,
+      language: language,
+      analysis: response.analysis
     });
     await db.saveConversation(userId, conversation);
   }
   
   res.json({
-    status: "success",
-    code: 200,
+    status: response.status,
+    code: response.code,
     message: message,
-    reply: gasResponse.reply || gasResponse.data?.reply || "Got it!",
+    reply: response.reply,
     language: language,
     token_type: tokenCheck.type,
-    gas_response: gasResponse
+    analysis: response.analysis,
+    timestamp: response.timestamp
   });
 });
 
@@ -403,11 +451,11 @@ async function startServer() {
       console.log("╚════════════════════════════════════════════════════════╝\n");
       
       console.log("📊 Configuration:");
-      console.log("   GAS URL: " + CONFIG.GAS_URL.substring(0, 50) + "...");
+      console.log("   Mode: LOCAL AI (No GAS dependency)");
       console.log("   Discord: " + (CONFIG.DISCORD_TOKEN ? "Configured" : "Not configured"));
       console.log("   Telegram: " + (CONFIG.TELEGRAM_TOKEN ? "Configured" : "Not configured"));
       console.log("   Database: " + (CONFIG.MONGODB_URI ? "MongoDB" : "In-Memory"));
-      console.log("\n✅ Server running...\n");
+      console.log("\n✅ Server running with LOCAL AI ANALYSIS...\n");
     });
     
   } catch (error) {
