@@ -9,7 +9,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from google.oauth2 import service_account
-from google.cloud import drive_v3
 import json
 from datetime import datetime
 import os
@@ -54,7 +53,7 @@ VALID_TOKENS = {
 }
 
 # ═════════════════════════════════════════════════════════════════
-# 🌍 15 LANGUAGES
+# 🌍 15 LANGUAGES SUPPORT - COMPLETE
 # ═════════════════════════════════════════════════════════════════
 
 LANGUAGES = {
@@ -97,20 +96,17 @@ ANALYTICS = {
 }
 
 # ═════════════════════════════════════════════════════════════════
-# 🔐 INITIALIZE GOOGLE DRIVE
+# 🔐 INITIALIZE GOOGLE DRIVE (Demo Mode - No Drive Access Needed)
 # ═════════════════════════════════════════════════════════════════
 
 def init_google_drive():
-    """
-    Initialize Google Drive using Service Account
-    No OAuth warnings!
-    """
+    """Initialize Google Drive using Service Account"""
     try:
         service_account_json = os.getenv('GOOGLE_SERVICE_ACCOUNT_JSON')
         
         if not service_account_json:
             print("⚠️  GOOGLE_SERVICE_ACCOUNT_JSON not set")
-            print("   For now, running in demo mode")
+            print("   Running in demo mode (no Google Drive access)")
             return None
         
         credentials = service_account.Credentials.from_service_account_info(
@@ -122,7 +118,7 @@ def init_google_drive():
         return credentials
         
     except Exception as e:
-        print(f"❌ Google Drive init error: {str(e)}")
+        print(f"⚠️  Google Drive init (non-critical): {str(e)}")
         return None
 
 GOOGLE_CREDS = init_google_drive()
@@ -136,26 +132,22 @@ def load_knowledge_base():
     global KNOWLEDGE_BASE, CACHE_LOADED, LAST_CACHE_UPDATE
     
     print("\n📚 === LOADING KNOWLEDGE BASE ===")
-    print(f"   Folder ID: {SYSTEM_CONFIG['knowledge_folder_id']}")
     
     try:
-        if not GOOGLE_CREDS:
-            print("   ⚠️  No Google credentials, using demo mode")
-            KNOWLEDGE_BASE = {
-                "demo": {
-                    "content": "זהו מערכת חי-אמת דמו. בייצור, זה יקרא קבצים מGoogle Drive.",
-                    "length": 50
-                }
-            }
-            CACHE_LOADED = True
-            LAST_CACHE_UPDATE = datetime.now().isoformat()
-            return {"status": "success_demo", "files_loaded": 1}
-        
-        # In production: load from Drive API
-        # For now: demo mode
+        # Demo knowledge base
         KNOWLEDGE_BASE = {
-            "README": {"content": "חי-אמת הוא מערכת AI חדשנית בעברית"},
-            "Features": {"content": "תכונות: שפות 15, אנליטיקה, היסטוריה שיחות"}
+            "README": {
+                "content": "חי-אמת הוא מערכת AI חדשנית בעברית עם תמיכה ב-15 שפות",
+                "length": 50
+            },
+            "Features": {
+                "content": "תכונות: שפות 15, אנליטיקה, היסטוריה שיחות, אין OAuth warnings",
+                "length": 60
+            },
+            "About": {
+                "content": "Hai-Emet - Living Truth. A quantum-powered AI assistant developed by TNTF. Binary DNA: 0101-0101(0101)",
+                "length": 90
+            }
         }
         
         CACHE_LOADED = True
@@ -230,8 +222,6 @@ def analyze_message(message, language):
         analysis["intent"] = "help_request"
     elif any(word in msg for word in ["מידע", "information", "tell"]):
         analysis["intent"] = "information_request"
-    elif any(word in msg for word in ["היסטוריה", "history", "past"]):
-        analysis["intent"] = "history_request"
     
     return analysis
 
@@ -248,7 +238,7 @@ def generate_response(message, language, analysis, search_results):
         top_result = search_results[0]
         return {
             "type": "knowledge_based",
-            "reply": f"📚 {top_result['snippet']}\n\n💡 מקור: {top_result['file']}",
+            "reply": f"📚 {top_result['snippet']}\n\n💡 Source: {top_result['file']}",
             "source": top_result["file"],
             "relevance": top_result["relevance"]
         }
