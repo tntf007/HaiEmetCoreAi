@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # ═════════════════════════════════════════════════════════════════
-# 💛 HAI-EMET PYTHON BACKEND v2.0 + HTML INTERFACE
+# 💛 HAI-EMET PYTHON BACKEND v2.0 + HTML INTERFACE + CORS FIX
 # Google Drive API (Service Account) + 15 Languages + Full Analytics
 # No OAuth Issues - Works for EVERYONE!
 # Master: TNTF | Binary DNA: 0101-0101(0101)
@@ -304,18 +304,35 @@ def handle_chat(req_data):
     }
 
 # ═════════════════════════════════════════════════════════════════
-# 🌐 FLASK APP
+# 🌐 FLASK APP + CORS FIX
 # ═════════════════════════════════════════════════════════════════
 
 app = Flask(__name__, 
             template_folder='templates',
             static_folder='static',
             static_url_path='/static')
-CORS(app)
+
+# ✅ PROPER CORS CONFIGURATION
+CORS(app, 
+     origins="*",
+     allow_headers=["Content-Type", "Authorization"],
+     methods=["GET", "POST", "OPTIONS"],
+     supports_credentials=True,
+     max_age=3600)
+
+# Add additional CORS headers to every response
+@app.after_request
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS, PUT, DELETE'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+    response.headers['Access-Control-Max-Age'] = '3600'
+    return response
 
 print("\n╔════════════════════════════════════════════════════════╗")
 print("║   💛 HAI-EMET PYTHON BACKEND STARTING                ║")
 print("║   NO OAuth Issues - Works for EVERYONE!             ║")
+print("║   ✅ CORS ENABLED - No Cross-Origin Issues!         ║")
 print("╚════════════════════════════════════════════════════════╝\n")
 
 load_knowledge_base()
@@ -337,9 +354,12 @@ def health():
         "timestamp": datetime.now().isoformat()
     })
 
-@app.route('/chat', methods=['POST'])
+@app.route('/chat', methods=['POST', 'OPTIONS'])
 def chat():
     """Main chat endpoint"""
+    if request.method == 'OPTIONS':
+        return '', 200
+    
     try:
         data = request.get_json()
         result = handle_chat(data)
@@ -372,9 +392,11 @@ if __name__ == '__main__':
     print(f"\n╔════════════════════════════════════════════════════════╗")
     print(f"║   💛 HAI-EMET RUNNING ON PORT {port}                      ║")
     print(f"║   🌐 http://0.0.0.0:{port}                           ║")
+    print(f"║   ✅ CORS ENABLED - Cross-origin requests OK!      ║")
     print(f"╚════════════════════════════════════════════════════════╝\n")
     print("✅ Server started successfully!")
     print("   HTML Interface ready!")
-    print("   No OAuth issues\n")
+    print("   No OAuth issues")
+    print("   ✅ CORS enabled\n")
     
     app.run(host='0.0.0.0', port=port, debug=False)
