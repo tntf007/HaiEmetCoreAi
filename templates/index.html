@@ -39,35 +39,38 @@
     </div>
     
     <script>
-        // ✅ Inline debug script
+        // ✅ Inline script - Complete version with fixes
         console.log('✅ HTML LOADED!');
         
         const API_URL = '/chat';
         const TOKEN = 'chai_emet_cXVhbnR1bV9tYXN0ZXI:Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp';
         
-        console.log('📍 Elements:');
         const chatArea = document.getElementById('chatArea');
         const messageInput = document.getElementById('messageInput');
         const sendBtn = document.getElementById('sendBtn');
         const statusEl = document.getElementById('status');
         
-        console.log('chatArea:', chatArea);
-        console.log('messageInput:', messageInput);
-        console.log('sendBtn:', sendBtn);
-        console.log('statusEl:', statusEl);
-        
-        if (!chatArea || !messageInput || !sendBtn || !statusEl) {
-            console.error('❌ CRITICAL: Some elements not found!');
+        // Helper: Get current time in HH:MM:SS format
+        function getCurrentTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            return `${hours}:${minutes}:${seconds}`;
         }
         
+        // Helper: Detect language
         function detectLanguage(text) {
             const hebrewRegex = /[\u0590-\u05FF]/g;
             const hebrewChars = text.match(hebrewRegex) || [];
-            return hebrewChars.length > text.length / 2 ? 'he' : 'en';
+            const ratio = hebrewChars.length / text.length;
+            console.log(`🌍 Language detection: Hebrew=${hebrewChars.length}, Total=${text.length}, Ratio=${ratio.toFixed(2)}`);
+            return ratio > 0.3 ? 'he' : 'en';
         }
         
+        // Add message to chat
         function addMessage(text, isUser = false) {
-            console.log('📝 Adding message:', text, '| User:', isUser);
+            console.log(`📝 Adding ${isUser ? 'user' : 'assistant'} message:`, text.substring(0, 50));
             
             const messageEl = document.createElement('div');
             messageEl.className = `message ${isUser ? 'user' : 'assistant'}`;
@@ -78,8 +81,7 @@
             
             const timeEl = document.createElement('div');
             timeEl.className = 'message-time';
-            const now = new Date();
-            timeEl.textContent = now.toLocaleTimeString('he-IL');
+            timeEl.textContent = getCurrentTime();
             
             messageEl.appendChild(contentEl);
             messageEl.appendChild(timeEl);
@@ -88,17 +90,17 @@
             chatArea.scrollTop = chatArea.scrollHeight;
         }
         
+        // Main send function
         async function sendMessage() {
             console.log('🚀 sendMessage() called');
             
             const message = messageInput.value.trim();
-            console.log('📨 Message:', message);
-            
             if (!message) {
                 console.log('⚠️ Empty message');
                 return;
             }
             
+            console.log(`📨 Sending: "${message}"`);
             addMessage(message, true);
             messageInput.value = '';
             
@@ -106,69 +108,64 @@
             
             try {
                 const language = detectLanguage(message);
-                console.log('🌍 Language:', language);
+                console.log(`🌍 Detected language: ${language}`);
                 
                 const payload = {
                     message: message,
                     token: TOKEN,
                     language: language,
-                    userId: 'web-user-' + Date.now()
+                    userId: 'web-' + Date.now()
                 };
                 
-                console.log('📤 Sending:', payload);
+                console.log('📤 Sending to /chat:', payload);
                 
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json; charset=utf-8',
                     },
                     body: JSON.stringify(payload)
                 });
                 
-                console.log('📡 Status:', response.status);
+                console.log(`📡 Response status: ${response.status}`);
                 const data = await response.json();
-                console.log('📥 Response:', data);
+                console.log('📥 Response data:', data);
                 
                 if (data.status === 'success') {
                     addMessage(data.reply, false);
                     statusEl.textContent = '✅ Connected';
+                    console.log('✅ Message processed successfully');
                 } else {
-                    addMessage('❌ ' + (data.reply || 'שגיאה'), false);
+                    const errorMsg = `❌ ${data.reply || 'שגיאה בשליחת ההודעה'}`;
+                    addMessage(errorMsg, false);
                     statusEl.textContent = '⚠️ Error';
                 }
             } catch (error) {
-                console.error('❌ Error:', error);
-                addMessage('❌ ' + error.message, false);
+                console.error('❌ Error:', error.message);
+                addMessage(`❌ Error: ${error.message}`, false);
                 statusEl.textContent = '❌ Disconnected';
             }
         }
         
-        // ✅ Setup event listeners
-        console.log('🔘 Setting up listeners');
-        
+        // Event listeners
         if (sendBtn) {
             sendBtn.addEventListener('click', function(e) {
-                console.log('🔘 Button clicked!');
                 e.preventDefault();
                 sendMessage();
             });
-            console.log('✅ Button click listener added');
         }
         
         if (messageInput) {
             messageInput.addEventListener('keypress', function(e) {
-                console.log('⌨️ Key:', e.key);
                 if (e.key === 'Enter') {
-                    console.log('⌨️ Enter pressed');
                     e.preventDefault();
                     sendMessage();
                 }
             });
-            console.log('✅ Input keypress listener added');
         }
         
         messageInput.focus();
-        console.log('✅ READY! Focus on input');
+        console.log('✅ Chat interface ready!');
     </script>
 </body>
 </html>
