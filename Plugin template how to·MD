@@ -1,0 +1,131 @@
+# 🔌 HAI-EMET PLUGIN SYSTEM
+
+## איך להוסיף קודים שלך
+
+### שלב 1: Create Your Plugin Class
+
+```python
+class MyCustomPlugin:
+    """Your custom plugin"""
+    
+    def __init__(self):
+        self.name = "my_plugin"
+        self.version = "1.0"
+        self.enabled = True
+    
+    def execute(self, data):
+        """Main execution method"""
+        # Your code here
+        result = process_data(data)
+        return {
+            "status": "success",
+            "result": result,
+            "plugin": self.name
+        }
+```
+
+### שלב 2: Add to hai_emet_python_backend.py
+
+```python
+# In the __main__ section, add:
+
+# Register your plugins
+PLUGIN_SYSTEM.register_plugin("my_plugin", MyCustomPlugin)
+PLUGIN_SYSTEM.register_plugin("another_plugin", AnotherPlugin)
+```
+
+### שלב 3: Use in Chat Endpoint
+
+```python
+@app.route('/chat', methods=['POST'])
+def chat():
+    # ... existing code ...
+    
+    # Execute plugin if needed
+    plugin_result = GAS_ENGINE.plugins.execute_plugin("my_plugin", {
+        "message": message,
+        "user_id": user_id,
+        "language": language
+    })
+    
+    if plugin_result:
+        # Use plugin result
+        reply = plugin_result.get("result")
+    
+    # ... rest of code ...
+```
+
+---
+
+## 📋 דוגמאות:
+
+### Plugin 1: Translation Module
+```python
+class TranslationPlugin:
+    def execute(self, data):
+        message = data.get("message")
+        target_lang = data.get("language")
+        # Your translation logic
+        translated = translate(message, target_lang)
+        return {"translated": translated}
+```
+
+### Plugin 2: Sentiment Analysis
+```python
+class SentimentPlugin:
+    def execute(self, data):
+        message = data.get("message")
+        # Your sentiment logic
+        sentiment = analyze_sentiment(message)
+        return {"sentiment": sentiment, "confidence": 0.95}
+```
+
+### Plugin 3: Custom Knowledge Base
+```python
+class KnowledgePlugin:
+    def __init__(self):
+        self.kb = {}
+    
+    def execute(self, data):
+        query = data.get("message")
+        # Search in your knowledge base
+        result = self.kb.get(query)
+        return {"answer": result}
+```
+
+---
+
+## 🎯 איך המערכת משתמשת בPlugins:
+
+1. **GAS Engine** ≈ ריסק את הPlugins
+2. **Learning Engine** ≈ לומד מתוצאות הPlugins
+3. **Memory Engine** ≈ שומר את כל התוצאות
+
+---
+
+## 📂 File Structure
+
+```
+HaiEmetCoreAi/
+├── hai_emet_python_backend.py (main)
+├── plugins/
+│   ├── translation_plugin.py
+│   ├── sentiment_plugin.py
+│   ├── knowledge_plugin.py
+│   └── your_custom_plugin.py
+├── static/
+└── requirements.txt
+```
+
+---
+
+## 🚀 To Add Your Plugin:
+
+1. Create file: `plugins/your_plugin.py`
+2. Define class with `execute()` method
+3. In main file:
+   ```python
+   from plugins.your_plugin import YourPlugin
+   PLUGIN_SYSTEM.register_plugin("your_plugin", YourPlugin)
+   ```
+4. Call in chat endpoint when needed
