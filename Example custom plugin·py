@@ -1,0 +1,167 @@
+#!/usr/bin/env python3
+# ═════════════════════════════════════════════════════════════════
+# 💛 EXAMPLE CUSTOM PLUGIN
+# Integrate your code here!
+# ═════════════════════════════════════════════════════════════════
+
+class CustomAnalysisPlugin:
+    """Example: Analyze message and return custom insights"""
+    
+    def __init__(self):
+        self.name = "custom_analysis"
+        self.version = "1.0"
+        self.analysis_count = 0
+    
+    def execute(self, data):
+        """
+        Main execution method
+        
+        data = {
+            "message": str,
+            "user_id": str,
+            "language": str
+        }
+        """
+        self.analysis_count += 1
+        
+        message = data.get("message", "")
+        user_id = data.get("user_id", "")
+        language = data.get("language", "en")
+        
+        # YOUR CUSTOM LOGIC HERE
+        analysis = self._analyze(message, language)
+        
+        return {
+            "status": "success",
+            "plugin": self.name,
+            "analysis_id": self.analysis_count,
+            "message": message,
+            "analysis": analysis,
+            "confidence": 0.85
+        }
+    
+    def _analyze(self, message, language):
+        """Your custom analysis logic"""
+        
+        # Example 1: Keyword detection
+        keywords = self._extract_keywords(message)
+        
+        # Example 2: Emotion detection
+        emotion = self._detect_emotion(message, language)
+        
+        # Example 3: Intent detection
+        intent = self._detect_intent(message)
+        
+        return {
+            "keywords": keywords,
+            "emotion": emotion,
+            "intent": intent,
+            "length": len(message),
+            "word_count": len(message.split())
+        }
+    
+    def _extract_keywords(self, text):
+        """Extract keywords from text"""
+        # Your keyword extraction logic
+        keywords = [word for word in text.split() if len(word) > 3]
+        return keywords[:5]
+    
+    def _detect_emotion(self, text, language):
+        """Detect emotion"""
+        emotions = ["happy", "sad", "neutral", "excited", "confused"]
+        # Your emotion detection logic
+        return emotions[0]
+    
+    def _detect_intent(self, text):
+        """Detect user intent"""
+        intents = ["greeting", "question", "statement", "command"]
+        # Your intent detection logic
+        return intents[0]
+
+
+class DataProcessingPlugin:
+    """Example: Process data through custom algorithm"""
+    
+    def __init__(self):
+        self.name = "data_processor"
+        self.processed_count = 0
+    
+    def execute(self, data):
+        self.processed_count += 1
+        
+        # Your data processing
+        processed = self._process(data)
+        
+        return {
+            "status": "success",
+            "plugin": self.name,
+            "processed": processed,
+            "batch_number": self.processed_count
+        }
+    
+    def _process(self, data):
+        """Your custom processing logic"""
+        message = data.get("message", "")
+        
+        # Example processing
+        return {
+            "original": message,
+            "uppercase": message.upper(),
+            "reversed": message[::-1],
+            "char_count": len(message)
+        }
+
+
+# Template for YOUR plugin:
+class YourCustomPlugin:
+    """
+    Replace this with your custom code!
+    
+    Instructions:
+    1. Rename class to something meaningful
+    2. Implement __init__ with plugin info
+    3. Implement execute(self, data) method
+    4. Return dict with results
+    """
+    
+    def __init__(self):
+        self.name = "your_plugin_name"
+        self.version = "1.0"
+        self.enabled = True
+    
+    def execute(self, data):
+        """
+        Main execution
+        
+        Input: data = {
+            "message": user message,
+            "user_id": user identifier,
+            "language": language code
+        }
+        
+        Output: {
+            "status": "success/error",
+            "result": your result,
+            "plugin": self.name
+        }
+        """
+        
+        # START YOUR CODE HERE
+        message = data.get("message", "")
+        user_id = data.get("user_id", "")
+        language = data.get("language", "")
+        
+        # Do something with message
+        result = self._your_logic(message)
+        
+        # Return result
+        return {
+            "status": "success",
+            "result": result,
+            "plugin": self.name
+        }
+    
+    def _your_logic(self, message):
+        """Your custom logic"""
+        # WRITE YOUR CODE HERE
+        return f"Processed: {message}"
