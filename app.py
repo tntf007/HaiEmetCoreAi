@@ -322,7 +322,7 @@ def handle_chat_message(data):
 
 @app.route('/')
 def home():
-    return render_template('voice_system_v4_with_translation.html')
+    return render_template('index.html')
 
 @app.route('/voice')
 def voice():
