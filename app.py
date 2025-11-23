@@ -319,7 +319,7 @@ def handle_chat_message(data):
 
 @app.route('/')
 def home():
-    return render_template('index_responsive.html')
+    return render_template('index.html')
 
 @app.route('/voice')
 def voice():
