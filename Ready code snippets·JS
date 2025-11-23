@@ -1,79 +1,109 @@
 // ============================================
-// 🔧 תיקון נקודתי - Watchdog Timer
-// (שמירה על הקלטה רציפה בכל עת)
+// 🔧 תיקון נקודתי #1 - CSS (תצוגה תקינה)
 // ============================================
+// בקובץ HTML, בחלק ה-<style>, חפש:
+// 
+// בדרך כלל יש משהו כמו:
+// #transcript { white-space: pre-wrap; }
+// או display: flex; flex-direction: column;
 
-// הוסף בתוך init() בקונסטרוקטור (אחרי this.startListening()):
+// ✅ החלף ל:
 
-this.watchdog = setInterval(() => {
-    if (!this.isListening && !this.isSpeaking) {
-        // ✅ אם recognition נעצר ולא מדברים - התחל מחדש
-        try {
-            this.recognition.start();
-        } catch(e) {
-            // Recognition כבר רץ
-        }
-    }
-}, 3000); // ✅ בדוק כל 3 שניות
+<style>
+/* תיקון צפי תקינה */
+#transcript {
+    white-space: normal !important;     /* ✅ תיקון שבירה */
+    word-break: break-word !important;   /* ✅ תיקון מילים ארוכות */
+    word-wrap: break-word !important;    /* ✅ תיקון RTL */
+    text-align: right;                   /* ✅ עברית לימין */
+    direction: rtl;                      /* ✅ כיוון ימין לשמאל */
+    line-height: 1.5;                    /* ✅ גובה שורה תקין */
+}
+</style>
 
 
 // ============================================
-// ✅ תיקון בחלק ה-startListening():
+// 🔧 תיקון נקודתי #2 - Learning System (קטן וחכם)
 // ============================================
-// חפש את הפונקציה startListening ותעדכן:
+// בתוך הקונסטרוקטור של ChaiEmetVoice, הוסף:
 
-startListening() {
-    if (this.recognition && !this.isListening && !this.isSpeaking) {
-        try {
-            this.recognition.start();
-            this.isListening = true;  // ✅ הוסף את השורה הזו
-        } catch (e) {
-            console.log('🎤 Recognition started already');
-        }
-    }
+constructor() {
+    this.recognition = null;
+    this.synthesis = window.speechSynthesis;
+    this.isListening = false;
+    this.isSpeaking = false;
+    this.visualizer = null;
+    this.audioContext = null;
+    this.analyser = null;
+    this.dataArray = null;
+    
+    // ✅ תוסף Learning System
+    this.learnedWords = new Set();  // מילים שהוא למד
+    this.brainMemory = 0;           // רמת החכמה
+    
+    this.init();
 }
 
+// ✅ הוסף פונקציה בקלאס (אחרי processCommand):
 
-// ============================================
-// ✅ תיקון בחלק ה-onend (החלפה מלאה):
-// ============================================
-// החלף את onend לפשוט יותר:
-
-this.recognition.onend = () => {
-    this.isListening = false;
-    document.getElementById('centralCore').classList.remove('listening');
-    // ✅ Watchdog ידאג שיתחיל מחדש!
-};
-
-
-// ============================================
-// ✅ תיקון בחלק ה-speak (סגירה טובה יותר):
-// ============================================
-
-speak(text) {
-    if ('speechSynthesis' in window) {
-        this.isSpeaking = true;
-        
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'he-IL';
-        utterance.rate = 0.9;
-        utterance.pitch = 1.1;
-        utterance.volume = 0.9;
-        
-        utterance.onstart = () => {
-            this.updateStatus('🗣️ מדברת...');
-        };
-        
-        utterance.onend = () => {
-            this.isSpeaking = false;
-            this.updateStatus('🎤 מאזין...');
-            // ✅ Watchdog יטפל בהתחלה מחדש
-        };
-        
-        utterance.onerror = () => {
-            this.isSpeaking = false;
-        };
-        
-        this.synthesis.speak(utterance);
+learn(text) {
+    // פרק את הטקסט למילים
+    const words = text.split(' ').filter(w => w.length > 1);
+    
+    let newWordsCount = 0;
+    words.forEach(word => {
+        if (!this.learnedWords.has(word.toLowerCase())) {
+            this.learnedWords.add(word.toLowerCase());
+            newWordsCount++;
+        }
+    });
+    
+    // עדכן רמת החכמה
+    this.brainMemory = this.learnedWords.size;
+    
+    // הצג למידה
+    if (newWordsCount > 0) {
+        console.log(`🧠 למדתי ${newWordsCount} מילים חדשות! סך הכל: ${this.brainMemory} מילים`);
     }
+    
+    return {
+        newWords: newWordsCount,
+        totalKnown: this.brainMemory,
+        intelligence: Math.min(100, Math.floor((this.brainMemory / 50) * 100))
+    };
+}
+
+// ✅ עדכן את respond() לכלול learning:
+
+respond(text) {
+    this.updateStatus('🗣️ מדברת...');
+    
+    // ✅ למד מהטקסט הנכנס
+    const learning = this.learn(text);
+    
+    // ✅ הוסף למידה לתגובה
+    let responseWithIntelligence = text;
+    if (learning.newWords > 0) {
+        responseWithIntelligence += ` | 🧠 למדתי עכשיו: ${learning.newWords} מילים. חכמה: ${learning.intelligence}%`;
+    }
+    
+    this.speak(text);
+    this.log(`🗣️ עניתי: "${text}"`);
+    this.log(`🧠 זכרון: ${learning.totalKnown} מילים | חכמה: ${learning.intelligence}%`);
+}
+
+// ✅ עדכן את processCommand() בתחילה:
+
+processCommand(text) {
+    this.log(`🎯 שמעתי: "${text}"`);
+    
+    // ✅ למד מהקול שנשמע
+    const learning = this.learn(text);
+    
+    // הצג שהלמדתי
+    if (learning.newWords > 0) {
+        this.log(`🧠 למדתי: ${learning.newWords} מילים חדשות! חכמה עכשיו: ${learning.intelligence}%`);
+    }
+    
+    // ... שאר הקוד כרגיל ...
 }
