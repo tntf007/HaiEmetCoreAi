@@ -138,27 +138,107 @@ def analyze_message(message, language):
     analysis = {
         "sentiment": "neutral",
         "intent": "general",
-        "confidence": 0.5
+        "confidence": 0.5,
+        "language": language
     }
     
-    if any(word in msg for word in ["thanks", "great", "awesome", "love", "excellent"]):
+    # Multi-language sentiment detection
+    positive_words = {
+        "en": ["thanks", "great", "awesome", "love", "excellent", "wonderful", "perfect"],
+        "he": ["תודה", "מעולה", "יופי", "אוהב", "שמח", "נפלא", "מדהים"],
+        "es": ["gracias", "excelente", "maravilloso", "perfecto", "genial"],
+        "fr": ["merci", "excellent", "magnifique", "parfait", "merveilleux"],
+        "de": ["danke", "ausgezeichnet", "wunderbar", "perfekt", "großartig"],
+        "it": ["grazie", "eccellente", "meraviglioso", "perfetto", "fantastico"],
+        "pt": ["obrigado", "excelente", "maravilhoso", "perfeito", "ótimo"],
+        "ru": ["спасибо", "отлично", "чудесно", "прекрасно", "замечательно"],
+        "ar": ["شكرا", "رائع", "ممتاز", "رائع", "مشهور"],
+        "ja": ["ありがとう", "素晴らしい", "素敵", "完璧", "素晴らしい"],
+        "zh": ["谢谢", "很好", "完美", "绝佳", "精彩"],
+        "ko": ["감사합니다", "훌륭한", "완벽한", "훌륭한", "좋습니다"],
+        "hi": ["धन्यवाद", "बहुत अच्छा", "शानदार", "परिपूर्ण", "अद्भुत"],
+        "nl": ["dank", "uitstekend", "prachtig", "perfect", "fantastisch"],
+        "pl": ["dziękuję", "doskonały", "wspaniały", "idealny", "świetny"]
+    }
+    
+    negative_words = {
+        "en": ["problem", "error", "help", "issue", "wrong", "broken", "bad"],
+        "he": ["בעיה", "שגיאה", "עזרה", "לא", "שבור", "רע", "קשה"],
+        "es": ["problema", "error", "ayuda", "malo", "roto", "difícil"],
+        "fr": ["problème", "erreur", "aide", "mauvais", "cassé", "difficile"],
+        "de": ["problem", "fehler", "hilfe", "falsch", "kaputt", "schlecht"],
+        "it": ["problema", "errore", "aiuto", "cattivo", "rotto", "difficile"],
+        "pt": ["problema", "erro", "ajuda", "ruim", "quebrado", "difícil"],
+        "ru": ["проблема", "ошибка", "помощь", "плохо", "сломано", "трудно"],
+        "ar": ["مشكلة", "خطأ", "مساعدة", "سيء", "مكسور", "صعب"],
+        "ja": ["問題", "エラー", "助け", "悪い", "壊れた", "難しい"],
+        "zh": ["问题", "错误", "帮助", "坏", "破碎", "困难"],
+        "ko": ["문제", "오류", "도움", "나쁨", "깨진", "어려움"],
+        "hi": ["समस्या", "त्रुटि", "मदद", "बुरा", "टूटा", "मुश्किल"],
+        "nl": ["probleem", "fout", "hulp", "slecht", "kapot", "moeilijk"],
+        "pl": ["problem", "błąd", "pomoc", "złe", "zepsute", "trudne"]
+    }
+    
+    curious_words = {
+        "en": ["question", "what", "how", "why", "curious", "wonder"],
+        "he": ["שאלה", "מה", "איך", "למה", "סקרן", "תמונה"],
+        "es": ["pregunta", "qué", "cómo", "por qué", "curioso"],
+        "fr": ["question", "quoi", "comment", "pourquoi", "curieux"],
+        "de": ["frage", "was", "wie", "warum", "neugierig"],
+        "it": ["domanda", "cosa", "come", "perché", "curioso"],
+        "pt": ["pergunta", "o que", "como", "por que", "curioso"],
+        "ru": ["вопрос", "что", "как", "почему", "любопытный"],
+        "ar": ["سؤال", "ما", "كيف", "لماذا", "فضولي"],
+        "ja": ["質問", "何", "どのように", "なぜ", "好奇心"],
+        "zh": ["问题", "什么", "怎样", "为什么", "好奇"],
+        "ko": ["질문", "무엇", "어떻게", "왜", "호기심"],
+        "hi": ["सवाल", "क्या", "कैसे", "क्यों", "जिज्ञासु"],
+        "nl": ["vraag", "wat", "hoe", "waarom", "nieuwsgierig"],
+        "pl": ["pytanie", "co", "jak", "dlaczego", "ciekawy"]
+    }
+    
+    help_words = {
+        "en": ["help", "support", "assist", "need", "please"],
+        "he": ["עזרה", "תמיכה", "צריך", "בבקשה", "עוזר"],
+        "es": ["ayuda", "apoyo", "necesito", "por favor"],
+        "fr": ["aide", "soutien", "besoin", "s'il vous plaît"],
+        "de": ["hilfe", "unterstützung", "benötige", "bitte"],
+        "it": ["aiuto", "supporto", "ho bisogno", "per favore"],
+        "pt": ["ajuda", "apoio", "preciso", "por favor"],
+        "ru": ["помощь", "поддержка", "нужен", "пожалуйста"],
+        "ar": ["مساعدة", "دعم", "احتاج", "من فضلك"],
+        "ja": ["助け", "サポート", "必要", "ください"],
+        "zh": ["帮助", "支持", "需要", "请"],
+        "ko": ["도움", "지원", "필요", "부탁"],
+        "hi": ["मदद", "समर्थन", "चाहिए", "कृपया"],
+        "nl": ["hulp", "steun", "nodig", "alstublieft"],
+        "pl": ["pomoc", "wsparcie", "potrzebuję", "proszę"]
+    }
+    
+    # Get language-specific words or fallback to English
+    lang_pos = positive_words.get(language, positive_words["en"])
+    lang_neg = negative_words.get(language, negative_words["en"])
+    lang_cur = curious_words.get(language, curious_words["en"])
+    lang_help = help_words.get(language, help_words["en"])
+    
+    # Sentiment analysis
+    if any(word in msg for word in lang_pos):
         analysis["sentiment"] = "positive"
         analysis["confidence"] = 0.8
-    elif any(word in msg for word in ["problem", "error", "help", "issue"]):
+    elif any(word in msg for word in lang_neg):
         analysis["sentiment"] = "negative"
         analysis["confidence"] = 0.8
-    elif any(word in msg for word in ["question", "what", "how", "why"]):
+    elif any(word in msg for word in lang_cur):
         analysis["sentiment"] = "curious"
         analysis["confidence"] = 0.7
     
-    if any(word in msg for word in ["help", "support", "assist"]):
+    # Intent analysis
+    if any(word in msg for word in lang_help):
         analysis["intent"] = "help_request"
-    elif any(word in msg for word in ["information", "tell", "explain"]):
+    elif any(word in msg for word in lang_pos + ["information", "información", "информация", "معلومات", "情報"]):
         analysis["intent"] = "information_request"
-    elif any(word in msg for word in ["history", "past", "before"]):
-        analysis["intent"] = "history_request"
-    elif any(word in msg for word in ["hello", "hi", "hey", "greet"]):
-        analysis["intent"] = "greeting"
+    elif any(word in msg for word in lang_cur):
+        analysis["intent"] = "question"
     
     return analysis
 
