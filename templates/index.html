@@ -503,32 +503,33 @@
                 <div id="streamAccordion" style="display: none;">
                     <div style="margin-bottom: 8px;">
                         <input type="text" id="streamURL" placeholder="YouTube / Stream URL" 
-                            style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #667eea; margin-bottom: 8px;">
+                            style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #667eea; margin-bottom: 8px; font-size: 0.9em;">
                         <button class="control-btn" onclick="processStream()" style="width: 100%; margin-bottom: 0;">
-                            ▶ הפעל + תרגום
+                            ▶ הפעל סרטון
                         </button>
                     </div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
-                        <button class="control-btn" id="audioStreamBtn" onclick="startAudioStreaming()" style="border-color: #667eea; color: #667eea; margin-bottom: 0;">
+                        <button class="control-btn" id="audioStreamBtn" onclick="startAudioStreaming()" style="border-color: #667eea; color: #667eea; margin-bottom: 0; font-size: 0.9em;">
                             🎙️ הקלט אודיו
                         </button>
-                        <button class="control-btn" onclick="stopAudioStreaming()" style="border-color: #ff6b6b; color: #ff6b6b; margin-bottom: 0;">
+                        <button class="control-btn" onclick="stopAudioStreaming()" style="border-color: #ff6b6b; color: #ff6b6b; margin-bottom: 0; font-size: 0.9em;">
                             ⏹️ עצור
                         </button>
                     </div>
                     
-                    <div id="videoContainer" style="margin-top: 8px; display: none;">
-                        <div style="background: #f8f9fa; border-radius: 8px; overflow: hidden; margin-bottom: 8px;">
-                            <video id="videoPlayer" width="100%" height="auto" controls style="display: block;">
+                    <div id="videoContainer" style="margin-top: 8px; display: none; border-radius: 8px; overflow: hidden; background: #000;">
+                        <div id="videoPlayerWrapper" style="width: 100%; background: #f8f9fa; border-radius: 8px; margin-bottom: 8px; overflow: hidden;">
+                            <video id="videoPlayer" width="100%" height="auto" controls style="display: none; background: #000;">
                                 Your browser does not support the video tag.
                             </video>
                         </div>
-                        <div class="transcription-box" style="min-height: 100px; max-height: 150px;">
-                            <div class="transcription-label">סרטון + תרגום בזמן אמת</div>
+                        
+                        <div class="transcription-box" style="min-height: 100px; max-height: 180px; margin-bottom: 0;">
+                            <div class="transcription-label">סרטון + טקסט בזמן אמת</div>
                             <div id="videoTranscript"></div>
                         </div>
-                        <button class="control-btn" onclick="saveStreamTranscript()" style="border-color: #28a745; color: #28a745; width: 100%;">
+                        <button class="control-btn" onclick="saveStreamTranscript()" style="border-color: #28a745; color: #28a745; width: 100%; margin-top: 8px;">
                             💾 שמור תרגום סרטון
                         </button>
                     </div>
@@ -675,6 +676,7 @@
             };
             
             recognition.onresult = (event) => {
+                let interimTranscript = '';
                 let finalTranscript = '';
                 
                 for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -682,19 +684,35 @@
                     
                     if (event.results[i].isFinal) {
                         finalTranscript += transcript + ' ';
+                    } else {
+                        interimTranscript += transcript;
                     }
+                }
+                
+                // Show interim text in real-time (immediately)
+                if (interimTranscript.trim()) {
+                    document.getElementById('finalTranscript').textContent = interimTranscript;
                 }
                 
                 // Append text continuously (not replace)
                 if (finalTranscript.trim()) {
                     const current = document.getElementById('finalTranscript').textContent;
-                    document.getElementById('finalTranscript').textContent = current + finalTranscript.trim() + '\n';
+                    const newText = current ? current + ' ' + finalTranscript.trim() : finalTranscript.trim();
+                    document.getElementById('finalTranscript').textContent = newText;
                     console.log(`[${getPrecisionTime()}s] Final: "${finalTranscript.trim()}"`);
                     
                     transcriptionHistory.push({
                         text: finalTranscript.trim(),
                         time: getPrecisionTime(),
                         lang: currentVoiceLang
+                    });
+                    
+                    // Send to learning system
+                    sendToLearningSystem({
+                        type: 'voice_transcription',
+                        transcript: finalTranscript.trim(),
+                        language: currentVoiceLang,
+                        timestamp: getPrecisionTime()
                     });
                     
                     // Auto-translate if language selected
@@ -784,8 +802,52 @@
             const message = document.getElementById('messageInput').value.trim();
             if (!message) return;
             
+            // Show user message immediately
             addMessage(message, true);
             document.getElementById('messageInput').value = '';
+            document.getElementById('statusIndicator').textContent = '⏳ משדרת תגובה...';
+            
+            try {
+                // Send to backend API with learning
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'chat',
+                        message: message,
+                        token: TOKEN,
+                        language: currentVoiceLang,
+                        userId: userId,
+                        timestamp: getPrecisionTime()
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // Show AI response
+                if (data.reply) {
+                    addMessage(data.reply, false);
+                    console.log('✅ Response:', data.reply);
+                    console.log('📚 Learned:', data.learned);
+                    console.log('🧠 Learning Patterns:', data.learned_patterns_count);
+                }
+                
+                document.getElementById('statusIndicator').textContent = '✅ בחזרה מהליבה';
+                
+                // Add to transcription history for learning
+                transcriptionHistory.push({
+                    text: message,
+                    reply: data.reply,
+                    time: getPrecisionTime(),
+                    lang: currentVoiceLang,
+                    learned: data.learned
+                });
+                
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('❌ שגיאה בחיבור לליבה. בדוק את התוקן.', false);
+                document.getElementById('statusIndicator').textContent = '❌ שגיאה';
+            }
         }
         
         function saveTranscriptionTXT() {
@@ -1029,14 +1091,6 @@
             document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
         }
         
-        async function sendMessage() {
-            const message = document.getElementById('messageInput').value.trim();
-            if (!message) return;
-            
-            addMessage(message, true);
-            document.getElementById('messageInput').value = '';
-        }
-        
         function toggleStreamAccordion(element) {
             const accordion = document.getElementById('streamAccordion');
             const arrow = element.textContent.includes('▶') ? '▼' : '▶';
@@ -1052,20 +1106,75 @@
             }
             
             document.getElementById('videoContainer').style.display = 'block';
-            document.getElementById('videoPlayer').src = url;
-            document.getElementById('videoTranscript').textContent = '⏳ טוען טרנסקריפציה...';
+            document.getElementById('videoTranscript').textContent = '⏳ טוען סרטון...';
             
-            // Start real-time transcription
+            const videoPlayer = document.getElementById('videoPlayer');
+            const videoPlayerWrapper = document.getElementById('videoPlayerWrapper');
+            
+            // Handle YouTube URLs
+            if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                let videoId = '';
+                if (url.includes('youtu.be/')) {
+                    videoId = url.split('youtu.be/')[1].split('?')[0];
+                } else if (url.includes('v=')) {
+                    videoId = url.split('v=')[1].split('&')[0];
+                }
+                
+                if (videoId) {
+                    // Clear wrapper and add YouTube iframe
+                    videoPlayerWrapper.innerHTML = '';
+                    const iframe = document.createElement('iframe');
+                    iframe.width = '100%';
+                    iframe.height = '315';
+                    iframe.src = `https://www.youtube.com/embed/${videoId}`;
+                    iframe.title = 'YouTube video player';
+                    iframe.frameBorder = '0';
+                    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+                    iframe.allowFullscreen = true;
+                    iframe.style.borderRadius = '8px';
+                    videoPlayerWrapper.appendChild(iframe);
+                }
+            } 
+            // Handle direct video URLs (MP4, WebM, MOV, etc.)
+            else if (url.endsWith('.mp4') || url.endsWith('.webm') || url.endsWith('.mov') || url.endsWith('.avi')) {
+                videoPlayerWrapper.innerHTML = ''; // Clear YouTube if exists
+                videoPlayer.src = url;
+                videoPlayer.style.display = 'block';
+                videoPlayerWrapper.appendChild(videoPlayer);
+            }
+            // Try as stream (HLS, DASH, etc.)
+            else {
+                videoPlayerWrapper.innerHTML = ''; // Clear YouTube if exists
+                videoPlayer.src = url;
+                videoPlayer.style.display = 'block';
+                videoPlayerWrapper.appendChild(videoPlayer);
+            }
+            
+            // Start transcription
             startVideoTranscription(url);
-            
-            addMessage(`🎬 סרטון חדש: ${url}`, false);
+            addMessage(`🎬 סרטון: ${url}`, false);
         }
         
         let videoTranscriptHistory = [];
         
         async function startVideoTranscription(url) {
-            // Simulate real-time transcription from video/stream
-            const transcript = `[סרטון בהשמעה] טוען תרגום בזמן אמת מה-URL...`;
+            // Real-time transcription simulation for video/stream
+            document.getElementById('videoTranscript').textContent = '🎬 סרטון בהשמעה - טקסט יופיע בזמן אמת...';
+            
+            // Simulate transcription loading
+            const messages = [
+                '▶ מתחיל להעלות סרטון...',
+                '📝 טוען טקסט...',
+                '✅ מוכן לשמעה'
+            ];
+            
+            for (let msg of messages) {
+                await new Promise(r => setTimeout(r, 1000));
+                document.getElementById('videoTranscript').textContent = msg;
+            }
+            
+            // Initial transcript message
+            const transcript = `🔴 סרטון בהשמעה - טקסט בזמן אמת`;
             document.getElementById('videoTranscript').textContent = transcript;
             
             videoTranscriptHistory.push({
@@ -1074,12 +1183,6 @@
                 url: url,
                 lang: currentVoiceLang
             });
-            
-            // Auto-translate if needed
-            if (selectedTranslateLang) {
-                const translated = await translateVideoText(transcript, selectedTranslateLang);
-                document.getElementById('videoTranscript').textContent += '\n\n[תרגום] ' + translated;
-            }
             
             // Send to learning system
             await sendToLearningSystem({
@@ -1201,6 +1304,19 @@
             updateFilesList();
             addMessage(`🎵 אודיו שמור: ${filename}`, false);
         }
+        
+        // Enter key to send message
+        document.addEventListener('DOMContentLoaded', () => {
+            const messageInput = document.getElementById('messageInput');
+            if (messageInput) {
+                messageInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                    }
+                });
+            }
+        });
         
         console.log('✅ Hai-Emet VOICE System Ready!');
         console.log('Binary: ' + BINARY_SIG);
