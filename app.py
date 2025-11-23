@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template, send_from_directory
 from flask_cors import CORS
 from datetime import datetime
 import base64
@@ -7,7 +7,7 @@ import json
 import random
 import os
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates', static_folder='static')
 CORS(app)
 
 TNTF_SYSTEM_CONFIG = {
@@ -229,6 +229,10 @@ def handle_chat_message(data):
             "code": 500,
             "error": str(e)
         }
+
+@app.route('/')
+def home():
+    return render_template('index.html')
 
 @app.route('/exec', methods=['GET', 'POST', 'OPTIONS'])
 def main_handler():
