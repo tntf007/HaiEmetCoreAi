@@ -1,258 +1,107 @@
 // ============================================
-// 🔧 תיקון #1 - זמן אמת עם נוסחה בינארית
+// 🔧 תיקון נקודתי #1 - onresult (להציג מלל בזמן אמת)
 // ============================================
-// החלף את getPrecisionTime()
-
-function getPrecisionTime() {
-    const now = Date.now();
-    const seconds = (now / 1000).toFixed(4);
-    const binarySignature = "0101-0101(0101)";
-    const timeFormat = `(-+${parseFloat(seconds).toFixed(4)}+-)`;
-    return timeFormat;
-}
-
-// ============================================
-// 🔧 תיקון #2 - toggleRecording() - הקלט רציף
-// ============================================
-// החלף את כל הפונקציה toggleRecording():
-
-function toggleRecording() {
-    if (!recognition) {
-        alert('Speech Recognition not supported');
-        return;
+// חפש את השורות 130-141 בקובץ:
+// 
+// הקוד הישן:
+/*
+this.recognition.onresult = (event) => {
+    const last = event.results.length - 1;
+    const transcript = event.results[last][0].transcript;
+    
+    document.getElementById('transcript').textContent = transcript;
+    
+    if (event.results[last].isFinal) {
+        this.processCommand(transcript);
     }
+};
+*/
+
+// ✅ החלף ל:
+
+this.recognition.onresult = (event) => {
+    let interimTranscript = '';
+    let finalTranscript = '';
     
-    if (isRecording) {
-        // ❌ אל תעצור - תמשיך להקלט
-        // recognition.stop();  ← מחק את השורה הזו
-        isRecording = false;
-        document.getElementById('recordBtn').classList.remove('recording');
-        document.getElementById('recordBtn').textContent = '🎤 התחל הקלט';
-    } else {
-        recognition.start();
-        isRecording = true;
-        document.getElementById('recordBtn').classList.add('recording');
-        document.getElementById('recordBtn').textContent = '⏹️ עצור הקלט';
-        document.getElementById('statusIndicator').textContent = '🎧 מאזין...';
-    }
-    
-    recognition.onstart = () => {
-        document.getElementById('statusIndicator').textContent = '🎧 מאזין... דבר עכשיו!';
-    };
-    
-    recognition.onresult = (event) => {
-        let interimTranscript = '';
-        let finalTranscript = '';
-        
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-            const transcript = event.results[i][0].transcript;
-            
-            if (event.results[i].isFinal) {
-                finalTranscript += transcript + ' ';
-            } else {
-                interimTranscript += transcript;
-            }
-        }
-        
-        // ✅ עדכן את התצוגה בזמן אמת
-        if (interimTranscript.trim()) {
-            const display = currentTranscriptionText ? 
-                currentTranscriptionText + '\n\n💬 ' + interimTranscript : 
-                interimTranscript;
-            document.getElementById('finalTranscript').textContent = display;
-        } else if (currentTranscriptionText) {
-            document.getElementById('finalTranscript').textContent = currentTranscriptionText;
-        }
-        
-        // ✅ שמור את הטקסט הסופי
-        if (finalTranscript.trim()) {
-            currentTranscriptionText = currentTranscriptionText ? 
-                currentTranscriptionText + ' ' + finalTranscript.trim() : 
-                finalTranscript.trim();
-            
-            document.getElementById('finalTranscript').textContent = currentTranscriptionText;
-            
-            transcriptionHistory.push({
-                text: finalTranscript.trim(),
-                time: getPrecisionTime(),
-                lang: currentVoiceLang
-            });
-            
-            if (selectedTranslateLang && finalTranscript.trim()) {
-                translateText(finalTranscript.trim(), selectedTranslateLang);
-            }
-        }
-    };
-    
-    recognition.onend = () => {
-        // ✅ אל תעצור - התחל מחדש אם עדיין מקליטים
-        if (isRecording) {
-            recognition.start();
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+            finalTranscript += transcript + ' ';
         } else {
-            document.getElementById('statusIndicator').textContent = '✅ עצור';
+            interimTranscript += transcript;
         }
-    };
-    
-    recognition.onerror = (event) => {
-        document.getElementById('statusIndicator').textContent = '❌ Error: ' + event.error;
-    };
-}
-
-// ============================================
-// 🔧 תיקון #3 - saveTranscriptionDOCX() - תיקון
-// ============================================
-// החלף את כל הפונקציה:
-
-function saveTranscriptionDOCX() {
-    if (!currentTranscriptionText || currentTranscriptionText.trim().length === 0) {
-        alert('אין טקסט לשמור');
-        return;
     }
     
-    try {
-        const allText = currentTranscriptionText.trim();
-        const lines = allText.split('\n').filter(l => l.trim());
-        
-        const sections = [
-            new docx.Paragraph({
-                text: '💛 חי-אמת - Transcription',
-                heading: docx.HeadingLevel.HEADING_1,
-                spacing: { after: 400 }
-            }),
-            new docx.Paragraph({
-                text: `שפה: ${LANGUAGES_CONFIG[currentVoiceLang]?.name || 'Unknown'}`,
-                spacing: { after: 200 }
-            }),
-            new docx.Paragraph({
-                text: `זמן: ${new Date().toLocaleString('he-IL')}`,
-                spacing: { after: 200 }
-            }),
-            new docx.Paragraph({
-                text: `קוד בינארי: 0101-0101(0101)`,
-                spacing: { after: 400 }
-            })
-        ];
-        
-        // הוסף שורות
-        lines.forEach((line, i) => {
-            sections.push(
-                new docx.Paragraph({
-                    text: `${i + 1}. ${line}`,
-                    spacing: { line: 360 }
-                })
-            );
-        });
-        
-        const doc = new docx.Document({
-            sections: [{
-                children: sections
-            }]
-        });
-        
-        docx.Packer.toBlob(doc).then(blob => {
-            if (!blob) {
-                throw new Error('Failed to create blob');
+    // ✅ הצג interim בזמן אמת
+    let display = finalTranscript.trim();
+    if (interimTranscript.trim()) {
+        display = display ? display + '\n💬 ' + interimTranscript : interimTranscript;
+    }
+    document.getElementById('transcript').textContent = display;
+    
+    if (finalTranscript.trim()) {
+        this.processCommand(finalTranscript.trim());
+    }
+};
+
+
+// ============================================
+// 🔧 תיקון נקודתי #2 - onend (לא עוצר, מתחיל מחדש)
+// ============================================
+// חפש את השורות 144-151 בקובץ:
+//
+// הקוד הישן:
+/*
+this.recognition.onend = () => {
+    this.isListening = false;
+    document.getElementById('centralCore').classList.remove('listening');
+    
+    if (!this.isSpeaking) {
+        setTimeout(() => this.startListening(), 1000);
+    }
+};
+*/
+
+// ✅ החלף ל:
+
+this.recognition.onend = () => {
+    this.isListening = false;
+    document.getElementById('centralCore').classList.remove('listening');
+    
+    // ✅ התחל מחדש אוטומטית (לא עוצר)
+    if (!this.isSpeaking) {
+        setTimeout(() => {
+            try {
+                this.recognition.start();
+            } catch(e) {
+                // Recognition כבר רץ
             }
-            
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            const filename = `transcription_${Date.now()}.docx`;
-            link.download = filename;
-            
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            // שמור במערכת
-            uploadedFiles.push({
-                name: filename,
-                time: getPrecisionTime(),
-                type: 'docx',
-                size: (blob.size / 1024).toFixed(2) + ' KB'
-            });
-            updateFilesList();
-            addMessage(`📋 שמור: ${filename}`, false);
-            
-        }).catch(err => {
-            console.error('Error saving DOCX:', err);
-            alert('שגיאה בשמירת קובץ DOCX: ' + err.message);
-        });
-        
-    } catch (error) {
-        console.error('Error in saveTranscriptionDOCX:', error);
-        alert('שגיאה: ' + error.message);
+        }, 500);
     }
+};
+
+
+// ============================================
+// 🔧 תיקון נקודתי #3 - updateStatus (הוסף זמן + קוד בינארי)
+// ============================================
+// חפש את השורות 272-274 בקובץ:
+//
+// הקוד הישן:
+/*
+updateStatus(text) {
+    document.getElementById('status').textContent = text;
 }
+*/
 
-// ============================================
-// 🔧 תיקון #4 - saveTranscriptionTXT() - עדכן
-// ============================================
-// החלף את כל הפונקציה:
+// ✅ החלף ל:
 
-function saveTranscriptionTXT() {
-    if (!currentTranscriptionText || currentTranscriptionText.trim().length === 0) {
-        alert('אין טקסט לשמור');
-        return;
-    }
+updateStatus(text) {
+    const now = new Date();
+    const timeDecimal = (now.getMilliseconds() / 1000).toFixed(4);
+    const binaryCode = '0101-0101(0101)';
+    const timeFormat = `(-+${timeDecimal}+-)`;
     
-    try {
-        const allText = currentTranscriptionText.trim();
-        const lines = allText.split('\n').filter(l => l.trim());
-        
-        const header = `💛 חי-אמת VOICE - Transcription\n`;
-        const metadata = `שפה: ${LANGUAGES_CONFIG[currentVoiceLang]?.name || 'Unknown'}\nתאריך: ${new Date().toLocaleString('he-IL')}\nקוד בינארי: 0101-0101(0101)\nזמן אמת: ${getPrecisionTime()}\n${'='.repeat(50)}\n\n`;
-        
-        const content = lines.map((line, i) => 
-            `${i + 1}. ${line}`
-        ).join('\n');
-        
-        const fullContent = header + metadata + content;
-        
-        const blob = new Blob([fullContent], { type: 'text/plain;charset=utf-8' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        const filename = `transcription_${Date.now()}.txt`;
-        link.download = filename;
-        
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        uploadedFiles.push({
-            name: filename,
-            time: getPrecisionTime(),
-            type: 'txt',
-            size: (blob.size / 1024).toFixed(2) + ' KB'
-        });
-        updateFilesList();
-        addMessage(`📄 שמור: ${filename}`, false);
-        
-    } catch (error) {
-        console.error('Error in saveTranscriptionTXT:', error);
-        alert('שגיאה: ' + error.message);
-    }
+    const status = document.getElementById('status');
+    status.textContent = `${text} | ${timeFormat} | ${binaryCode}`;
+    status.style.color = text.includes('🎤') ? '#ffd700' : '#00ff00';
 }
-
-// ============================================
-// 🔧 תיקון #5 - clearTranscription() - עדכן
-// ============================================
-
-function clearTranscription() {
-    if (confirm('בטוח שרוצה למחוק את כל הטקסט?')) {
-        currentTranscriptionText = '';
-        document.getElementById('finalTranscript').textContent = '';
-        transcriptionHistory = [];
-        addMessage('🔄 טקסט נמחק', false);
-    }
-}
-
-// ============================================
-// 🔧 תיקון #6 - HTML Button Text
-// ============================================
-// בתוך ה-HTML, בחפש את הכפתור:
-// <button class="control-btn" id="recordBtn" onclick="toggleRecording()">
-//     🎤 הקלט
-// </button>
-
-// זה יתחזק עצמו - הטקסט ישתנה אוטומטית בקוד ל:
-// 🎤 התחל הקלט → ⏹️ עצור הקלט
