@@ -276,7 +276,11 @@ def handle_chat_message(data):
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('index_advanced.html')
+
+@app.route('/voice')
+def voice():
+    return render_template('voice.html')
 
 @app.route('/exec', methods=['GET', 'POST', 'OPTIONS'])
 def main_handler():
