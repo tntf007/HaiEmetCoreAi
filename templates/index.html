@@ -10,7 +10,7 @@
     <div class="container">
         <div class="header">
             <h1>💛 חי-אמת</h1>
-            <p>Hai-Emet AI Assistant - 15 Languages</p>
+            <p>Hai-Emet AI Assistant - 15 Languages - NO OAUTH!</p>
         </div>
         
         <div class="chat-area" id="chatArea">
@@ -24,7 +24,7 @@
         
         <div class="input-area">
             <div class="status">
-                <span id="status">✅ Connected</span>
+                <span id="status">✅ Connected to API</span>
             </div>
             <div class="input-wrapper">
                 <input 
@@ -39,10 +39,9 @@
     </div>
     
     <script>
-        // ✅ Inline script - Complete version with fixes
-        console.log('✅ HTML LOADED!');
+        console.log('✅ HAI-EMET FRONTEND LOADED!');
         
-        const API_URL = '/chat';
+        const API_URL = 'https://haiemetweb.onrender.com/exec';
         const TOKEN = 'chai_emet_cXVhbnR1bV9tYXN0ZXI:Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp';
         
         const chatArea = document.getElementById('chatArea');
@@ -50,7 +49,6 @@
         const sendBtn = document.getElementById('sendBtn');
         const statusEl = document.getElementById('status');
         
-        // Helper: Get current time in HH:MM:SS format
         function getCurrentTime() {
             const now = new Date();
             const hours = String(now.getHours()).padStart(2, '0');
@@ -59,16 +57,14 @@
             return `${hours}:${minutes}:${seconds}`;
         }
         
-        // Helper: Detect language
         function detectLanguage(text) {
             const hebrewRegex = /[\u0590-\u05FF]/g;
             const hebrewChars = text.match(hebrewRegex) || [];
             const ratio = hebrewChars.length / text.length;
-            console.log(`🌍 Language detection: Hebrew=${hebrewChars.length}, Total=${text.length}, Ratio=${ratio.toFixed(2)}`);
+            console.log(`🌍 Language: Hebrew=${hebrewChars.length}, Total=${text.length}, Ratio=${ratio.toFixed(2)}`);
             return ratio > 0.3 ? 'he' : 'en';
         }
         
-        // Add message to chat
         function addMessage(text, isUser = false) {
             console.log(`📝 Adding ${isUser ? 'user' : 'assistant'} message:`, text.substring(0, 50));
             
@@ -90,7 +86,6 @@
             chatArea.scrollTop = chatArea.scrollHeight;
         }
         
-        // Main send function
         async function sendMessage() {
             console.log('🚀 sendMessage() called');
             
@@ -110,44 +105,44 @@
                 const language = detectLanguage(message);
                 console.log(`🌍 Detected language: ${language}`);
                 
-                const payload = {
+                const params = new URLSearchParams({
+                    action: 'chat',
                     message: message,
                     token: TOKEN,
                     language: language,
                     userId: 'web-' + Date.now()
-                };
+                });
                 
-                console.log('📤 Sending to /chat:', payload);
+                const fullURL = API_URL + '?' + params.toString();
+                console.log('📤 Sending to:', fullURL);
                 
-                const response = await fetch(API_URL, {
-                    method: 'POST',
+                const response = await fetch(fullURL, {
+                    method: 'GET',
                     headers: {
                         'Content-Type': 'application/json; charset=utf-8',
-                    },
-                    body: JSON.stringify(payload)
+                    }
                 });
                 
                 console.log(`📡 Response status: ${response.status}`);
                 const data = await response.json();
                 console.log('📥 Response data:', data);
                 
-                if (data.status === 'success') {
+                if (data.status === 'success' && data.code === 200) {
                     addMessage(data.reply, false);
-                    statusEl.textContent = '✅ Connected';
+                    statusEl.textContent = '✅ Connected to API';
                     console.log('✅ Message processed successfully');
                 } else {
                     const errorMsg = `❌ ${data.reply || 'שגיאה בשליחת ההודעה'}`;
                     addMessage(errorMsg, false);
-                    statusEl.textContent = '⚠️ Error';
+                    statusEl.textContent = '⚠️ Error: ' + (data.code || 'Unknown');
                 }
             } catch (error) {
                 console.error('❌ Error:', error.message);
                 addMessage(`❌ Error: ${error.message}`, false);
-                statusEl.textContent = '❌ Disconnected';
+                statusEl.textContent = '❌ Disconnected from API';
             }
         }
         
-        // Event listeners
         if (sendBtn) {
             sendBtn.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -165,7 +160,7 @@
         }
         
         messageInput.focus();
-        console.log('✅ Chat interface ready!');
+        console.log('✅ Chat interface ready! API:', API_URL);
     </script>
 </body>
 </html>
