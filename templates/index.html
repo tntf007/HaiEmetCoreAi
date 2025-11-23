@@ -95,15 +95,6 @@
             white-space: pre-wrap;
         }
         
-        #interimTranscript {
-            font-size: 0.95em;
-            color: #888;
-            font-style: italic;
-            line-height: 1.5;
-            word-break: break-word;
-            white-space: pre-wrap;
-        }
-        
         #translatedText {
             font-size: 0.95em;
             color: #667eea;
@@ -111,9 +102,6 @@
             line-height: 1.5;
             word-break: break-word;
             white-space: pre-wrap;
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px dashed #667eea;
         }
         
         .status-indicator {
@@ -419,9 +407,9 @@
                 </select>
                 
                 <!-- TRANSLATION LANGUAGE -->
-                <div class="section-title">תרגום</div>
+                <div class="section-title" style="margin-top: 15px;">תרגום</div>
                 <select class="lang-select" id="translateLang" onchange="changeTranslateLanguage()">
-                    <option value="">🌍 בחר שפה</option>
+                    <option value="">🌍 לא לתרגם</option>
                     <option value="he">🇮🇱 עברית</option>
                     <option value="en">🇺🇸 English</option>
                     <option value="es">🇪🇸 Español</option>
@@ -439,22 +427,17 @@
                     <option value="pl">🇵🇱 Polski</option>
                 </select>
                 
+                <div class="transcription-box" id="translatedBox" style="display: none; margin-top: 12px;">
+                    <div class="transcription-label">תרגום בזמן אמת</div>
+                    <div id="translatedText"></div>
+                </div>
+                
                 <!-- TRANSCRIPTION -->
                 <div class="section-title" style="margin-top: 15px;">טרנסקריפציה</div>
                 
                 <div class="transcription-box">
-                    <div class="transcription-label">סופי</div>
+                    <div class="transcription-label">טקסט בזמן אמת</div>
                     <div id="finalTranscript"></div>
-                </div>
-                
-                <div class="transcription-box">
-                    <div class="transcription-label">זמני</div>
-                    <div id="interimTranscript"></div>
-                </div>
-                
-                <div class="transcription-box">
-                    <div class="transcription-label">תרגום</div>
-                    <div id="translatedText"></div>
                 </div>
                 
                 <!-- FILE MANAGEMENT -->
@@ -618,9 +601,11 @@
                 isRecording = false;
                 document.getElementById('recordBtn').classList.remove('recording');
             } else {
+                // Clear only old text when starting new recording
                 document.getElementById('finalTranscript').textContent = '';
-                document.getElementById('interimTranscript').textContent = '';
-                document.getElementById('translatedText').textContent = '';
+                if (selectedTranslateLang) {
+                    document.getElementById('translatedText').textContent = '';
+                }
                 
                 recognition.start();
                 isRecording = true;
@@ -633,7 +618,6 @@
             };
             
             recognition.onresult = (event) => {
-                let interimTranscript = '';
                 let finalTranscript = '';
                 
                 for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -641,31 +625,22 @@
                     
                     if (event.results[i].isFinal) {
                         finalTranscript += transcript + ' ';
-                    } else {
-                        interimTranscript += transcript;
                     }
                 }
                 
-                // Update DOM immediately
+                // Append text continuously (not replace)
                 if (finalTranscript.trim()) {
-                    document.getElementById('finalTranscript').textContent = finalTranscript.trim();
+                    const current = document.getElementById('finalTranscript').textContent;
+                    document.getElementById('finalTranscript').textContent = current + finalTranscript.trim() + '\n';
                     console.log(`[${getPrecisionTime()}s] Final: "${finalTranscript.trim()}"`);
-                }
-                
-                if (interimTranscript.trim()) {
-                    document.getElementById('interimTranscript').textContent = '➤ ' + interimTranscript;
-                } else {
-                    document.getElementById('interimTranscript').textContent = '';
-                }
-                
-                if (finalTranscript) {
+                    
                     transcriptionHistory.push({
                         text: finalTranscript.trim(),
                         time: getPrecisionTime(),
                         lang: currentVoiceLang
                     });
                     
-                    // Auto-translate
+                    // Auto-translate if language selected
                     if (selectedTranslateLang && finalTranscript.trim()) {
                         translateText(finalTranscript.trim(), selectedTranslateLang);
                     }
@@ -708,6 +683,21 @@
         
         function changeTranslateLanguage() {
             selectedTranslateLang = document.getElementById('translateLang').value;
+            const translatedBox = document.getElementById('translatedBox');
+            
+            // Show/hide translation box
+            if (selectedTranslateLang) {
+                translatedBox.style.display = 'block';
+                
+                // Translate current text if exists
+                const currentText = document.getElementById('finalTranscript').textContent.trim();
+                if (currentText) {
+                    translateText(currentText, selectedTranslateLang);
+                }
+            } else {
+                translatedBox.style.display = 'none';
+                document.getElementById('translatedText').textContent = '';
+            }
         }
         
         function addMessage(text, isUser = false) {
@@ -953,7 +943,6 @@
                 transcriptionHistory = [];
                 updateFilesList();
                 document.getElementById('finalTranscript').textContent = '';
-                document.getElementById('interimTranscript').textContent = '';
                 document.getElementById('translatedText').textContent = '';
             }
         }
