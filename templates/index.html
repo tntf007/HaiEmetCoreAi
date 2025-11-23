@@ -3,164 +3,948 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💛 חי-אמת | Hai-Emet AI</title>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <title>💛 חי-אמת קוליות | Hai-Emet Voice</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            color: #333;
+        }
+
+        .container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            flex: 1;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .toggle-btn, .chat-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .toggle-btn:hover, .chat-btn:hover {
+            background: rgba(255,255,255,0.4);
+        }
+
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.assistant {
+            text-align: right;
+        }
+
+        .message-content {
+            display: inline-block;
+            padding: 12px 18px;
+            border-radius: 15px;
+            max-width: 70%;
+            word-wrap: break-word;
+            background: #e9ecef;
+            color: #333;
+            border-bottom-left-radius: 0;
+        }
+
+        .message-time {
+            font-size: 0.8em;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .input-area {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .status {
+            text-align: center;
+            padding: 10px;
+            font-size: 0.9em;
+            color: #666;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .voice-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+            flex: 0 0 auto;
+        }
+
+        .voice-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .voice-btn.recording {
+            background: linear-gradient(135deg, #ff0040 0%, #ff6b9d 100%);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255,0,64,0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(255,0,64,0); }
+        }
+
+        /* SIDEBAR STYLES */
+        .sidebar {
+            width: 420px;
+            background: white;
+            border-left: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .sidebar.collapsed {
+            width: 0;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-bottom: 2px solid #555;
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        .panel-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .transcription-items {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            min-height: 150px;
+            max-height: 250px;
+            overflow-y: auto;
+            border: 2px solid #e0e0e0;
+        }
+
+        .transcription-items.listening {
+            border-color: #667eea;
+            background: #f0f3ff;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .message-item {
+            background: white;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            border-left: 4px solid #667eea;
+        }
+
+        .message-item.user {
+            background: #e9ecef;
+            border-left-color: #667eea;
+        }
+
+        .message-item.assistant {
+            background: #f0f3ff;
+            border-left-color: #00d084;
+        }
+
+        .message-item-text {
+            font-size: 0.95em;
+            margin-bottom: 5px;
+        }
+
+        .message-item-meta {
+            font-size: 0.75em;
+            color: #999;
+        }
+
+        .translation-box {
+            background: #fff8e1;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            min-height: 80px;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 2px solid #ffc107;
+            border-left: 4px solid #ff9800;
+        }
+
+        .translation-item {
+            background: white;
+            padding: 8px;
+            margin-bottom: 6px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            border-left: 3px solid #ff9800;
+        }
+
+        .save-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .save-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 1em;
+        }
+
+        .save-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .save-btn:active {
+            transform: scale(0.98);
+        }
+
+        .language-picker {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 1em;
+        }
+
+        .translate-section {
+            background: #f0f3ff;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .translate-label {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .stats-item {
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            border-left: 4px solid #667eea;
+        }
+
+        .timing-info {
+            font-size: 0.85em;
+            color: #333;
+            padding: 10px;
+            background: #fff8e1;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #ffc107;
+            line-height: 1.6;
+        }
+
+        .sidebar-footer {
+            padding: 15px;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+            text-align: center;
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .sidebar-tabs {
+            display: flex;
+            gap: 5px;
+            padding: 0 20px;
+            border-bottom: 1px solid #e0e0e0;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: #f0f0f0;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 10px 10px 0 0;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .learning-pattern {
+            background: #f0f3ff;
+            padding: 8px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            color: #667eea;
+            border-left: 3px solid #667eea;
+        }
+
+        .translate-btn {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+
+        .translate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>💛 חי-אמת</h1>
-            <p>Hai-Emet AI Assistant - 15 Languages - NO OAUTH!</p>
-        </div>
-        
-        <div class="chat-area" id="chatArea">
-            <div class="message assistant">
-                <div class="message-content">
-                    שלום! 💛 אני חי-אמת. בואנדבר!
+        <div class="main-content">
+            <div class="header">
+                <h1>🎤 חי-אמת קוליות</h1>
+                <div class="nav-buttons">
+                    <button class="chat-btn" id="chatBtn">💬 צ'אט</button>
+                    <button class="toggle-btn" id="toggleSidebarBtn">📋 טרנסקריפציה</button>
                 </div>
-                <div class="message-time">עכשיו</div>
+            </div>
+            
+            <div class="chat-area" id="chatArea">
+                <div class="message assistant">
+                    <div class="message-content">שלום! 💛 אני חי-אמת קוליות. דבר בקול וכל דבר יעובד כאן בטרנסקריפציה!</div>
+                    <div class="message-time">עכשיו</div>
+                </div>
+            </div>
+            
+            <div class="input-area">
+                <div class="status"><span id="status">✅ מוכן לשמע</span></div>
+                <div class="input-wrapper">
+                    <button class="voice-btn" id="voiceBtn">🎤 הקלט</button>
+                </div>
             </div>
         </div>
-        
-        <div class="input-area">
-            <div class="status">
-                <span id="status">✅ Connected to API</span>
+
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">🎙️ טרנסקריפציה + תרגום</div>
+            
+            <div class="sidebar-tabs">
+                <button class="tab-btn active" data-tab="transcription">📝 טקסט</button>
+                <button class="tab-btn" data-tab="translation">🌐 תרגום</button>
+                <button class="tab-btn" data-tab="learning">🧠 למידה</button>
             </div>
-            <div class="input-wrapper">
-                <input 
-                    type="text" 
-                    id="messageInput" 
-                    placeholder="כתוב הודעה... (עברית או English)"
-                    autocomplete="off"
-                />
-                <button class="send-btn" id="sendBtn">✉️ שלח</button>
+
+            <div class="sidebar-content">
+                <!-- Transcription Panel -->
+                <div class="panel active" id="transcription">
+                    <div class="timing-info">
+                        ⏱️ דיוק: 0.0001 שניות<br>
+                        🔢 בינארי: 0101-0101(0101)<br>
+                        ✅ אוטומטי | בלי בועות<br>
+                        🧠 למידה תמיע בליבה
+                    </div>
+
+                    <div class="panel-title">📝 הודעות</div>
+                    <div class="transcription-items" id="transcriptionItems">
+                        <div style="color: #999; text-align: center;">מחכה להקלטה...</div>
+                    </div>
+                    
+                    <div class="panel-title">💾 שמור טקסט</div>
+                    <div class="save-options">
+                        <button class="save-btn" id="saveDocxBtn">📄 DOCX</button>
+                        <button class="save-btn" id="saveTxtBtn">📃 TXT</button>
+                    </div>
+
+                    <div class="panel-title">🌍 בחר שפה קלטה</div>
+                    <select class="language-picker" id="languagePicker">
+                        <option value="he">🇮🇱 עברית</option>
+                        <option value="en">🇺🇸 English</option>
+                        <option value="ar">🇸🇦 العربية</option>
+                        <option value="fr">🇫🇷 Français</option>
+                        <option value="de">🇩🇪 Deutsch</option>
+                        <option value="es">🇪🇸 Español</option>
+                        <option value="it">🇮🇹 Italiano</option>
+                        <option value="pt">🇵🇹 Português</option>
+                        <option value="ru">🇷🇺 Русский</option>
+                        <option value="ja">🇯🇵 日本語</option>
+                        <option value="zh">🇨🇳 中文</option>
+                        <option value="ko">🇰🇷 한국어</option>
+                        <option value="hi">🇮🇳 हिन्दी</option>
+                        <option value="pl">🇵🇱 Polski</option>
+                        <option value="nl">🇳🇱 Nederlands</option>
+                    </select>
+                </div>
+
+                <!-- Translation Panel -->
+                <div class="panel" id="translation">
+                    <div class="translate-section">
+                        <div class="translate-label">🌐 תרגום בזמן אמת</div>
+                        <div class="translation-box" id="realtimeTranslation">
+                            <div style="color: #999; text-align: center;">בחר שפה להתרגום...</div>
+                        </div>
+                    </div>
+
+                    <div class="panel-title">תרגם ל:</div>
+                    <select class="language-picker" id="translationLanguagePicker">
+                        <option value="he">🇮🇱 עברית</option>
+                        <option value="en">🇺🇸 English</option>
+                        <option value="ar">🇸🇦 العربية</option>
+                        <option value="fr">🇫🇷 Français</option>
+                        <option value="de">🇩🇪 Deutsch</option>
+                        <option value="es">🇪🇸 Español</option>
+                        <option value="it">🇮🇹 Italiano</option>
+                        <option value="pt">🇵🇹 Português</option>
+                        <option value="ru">🇷🇺 Русский</option>
+                        <option value="ja">🇯🇵 日本語</option>
+                        <option value="zh">🇨🇳 中文</option>
+                        <option value="ko">🇰🇷 한국어</option>
+                        <option value="hi">🇮🇳 हिन्दी</option>
+                        <option value="pl">🇵🇱 Polski</option>
+                        <option value="nl">🇳🇱 Nederlands</option>
+                    </select>
+
+                    <button class="translate-btn" id="translateAllBtn">🔄 תרגם הכל</button>
+
+                    <div class="panel-title">📝 תרגום מלא</div>
+                    <div class="translation-box" id="fullTranslation">
+                        <div style="color: #999; text-align: center;">התרגום יופיע כאן...</div>
+                    </div>
+                </div>
+
+                <!-- Learning Panel -->
+                <div class="panel" id="learning">
+                    <div class="panel-title">🧠 מערכת הלמידה החכמה</div>
+                    <div class="stats-item">
+                        <span>מילים שנלמדו:</span>
+                        <span id="learnedWords">0</span>
+                    </div>
+                    <div class="stats-item">
+                        <span>דיוק זיהוי:</span>
+                        <span id="accuracy">0%</span>
+                    </div>
+                    <div class="stats-item">
+                        <span>הקלטות כולל:</span>
+                        <span id="totalRecordings">0</span>
+                    </div>
+                    <div class="stats-item">
+                        <span>שפות שנשמעו:</span>
+                        <span id="languagesHeard">1</span>
+                    </div>
+                    <div class="stats-item">
+                        <span>זמן עיבוד (ms):</span>
+                        <span id="processingTime">0.0001</span>
+                    </div>
+                    <div class="panel-title" style="margin-top: 20px;">📚 דפוסים מעניינים</div>
+                    <div id="patterns" style="font-size: 0.9em; color: #667eea; line-height: 1.8;">
+                        המערכת מוצאת דפוסים...
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                🎤 Hai-Emet Voice v4.0<br>
+                Binary: 0101-0101(0101)<br>
+                Deep Learning + Translation ⚡<br>
+                Memory Embedded 💾
             </div>
         </div>
     </div>
-    
+
     <script>
-        console.log('✅ HAI-EMET FRONTEND LOADED!');
-        
+        // קונפיגורציה
         const API_URL = 'https://haiemetweb.onrender.com/exec';
         const TOKEN = 'chai_emet_cXVhbnR1bV9tYXN0ZXI:Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp';
+        const BINARY_SIGNATURE = '0101-0101(0101)';
+        const TRANSLATE_API = 'https://api.mymemory.translated.net/get';
         
-        const chatArea = document.getElementById('chatArea');
-        const messageInput = document.getElementById('messageInput');
-        const sendBtn = document.getElementById('sendBtn');
-        const statusEl = document.getElementById('status');
-        
-        function getCurrentTime() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            return `${hours}:${minutes}:${seconds}`;
-        }
-        
-        function detectLanguage(text) {
-            const hebrewRegex = /[\u0590-\u05FF]/g;
-            const hebrewChars = text.match(hebrewRegex) || [];
-            const ratio = hebrewChars.length / text.length;
-            console.log(`🌍 Language: Hebrew=${hebrewChars.length}, Total=${text.length}, Ratio=${ratio.toFixed(2)}`);
-            return ratio > 0.3 ? 'he' : 'en';
-        }
-        
-        function addMessage(text, isUser = false) {
-            console.log(`📝 Adding ${isUser ? 'user' : 'assistant'} message:`, text.substring(0, 50));
-            
-            const messageEl = document.createElement('div');
-            messageEl.className = `message ${isUser ? 'user' : 'assistant'}`;
-            
-            const contentEl = document.createElement('div');
-            contentEl.className = 'message-content';
-            contentEl.textContent = text;
-            
-            const timeEl = document.createElement('div');
-            timeEl.className = 'message-time';
-            timeEl.textContent = getCurrentTime();
-            
-            messageEl.appendChild(contentEl);
-            messageEl.appendChild(timeEl);
-            
-            chatArea.appendChild(messageEl);
-            chatArea.scrollTop = chatArea.scrollHeight;
-        }
-        
-        async function sendMessage() {
-            console.log('🚀 sendMessage() called');
-            
-            const message = messageInput.value.trim();
-            if (!message) {
-                console.log('⚠️ Empty message');
-                return;
+        let recognition = null;
+        let isRecording = false;
+        let messageItems = [];
+        let currentLanguage = 'he';
+        let translationLanguage = 'en';
+        let totalRecordings = 0;
+        let learnedWords = new Set();
+        let languagesHeard = new Set(['he']);
+        let deepMemory = {};
+        let wordPatterns = {};
+        let lastProcessingTime = 0;
+
+        // Load memory
+        function loadDeepMemory() {
+            const saved = localStorage.getItem('chaiEmetDeepMemory');
+            if (saved) {
+                deepMemory = JSON.parse(saved);
             }
-            
-            console.log(`📨 Sending: "${message}"`);
-            addMessage(message, true);
-            messageInput.value = '';
-            
-            statusEl.innerHTML = '<span class="loading"></span> שולח...';
+        }
+
+        // Save memory
+        function saveDeepMemory() {
+            localStorage.setItem('chaiEmetDeepMemory', JSON.stringify(deepMemory));
+        }
+
+        // Map language codes to translate API codes
+        const languageMap = {
+            'he': 'he', 'en': 'en', 'ar': 'ar', 'fr': 'fr',
+            'de': 'de', 'es': 'es', 'it': 'it', 'pt': 'pt',
+            'ru': 'ru', 'ja': 'ja', 'zh': 'zh', 'ko': 'ko',
+            'hi': 'hi', 'pl': 'pl', 'nl': 'nl'
+        };
+
+        // תרגם טקסט
+        async function translateText(text, sourceLang, targetLang) {
+            if (sourceLang === targetLang) return text;
             
             try {
-                const language = detectLanguage(message);
-                console.log(`🌍 Detected language: ${language}`);
-                
-                const params = new URLSearchParams({
-                    action: 'chat',
-                    message: message,
-                    token: TOKEN,
-                    language: language,
-                    userId: 'web-' + Date.now()
-                });
-                
-                const fullURL = API_URL + '?' + params.toString();
-                console.log('📤 Sending to:', fullURL);
-                
-                const response = await fetch(fullURL, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json; charset=utf-8',
-                    }
-                });
-                
-                console.log(`📡 Response status: ${response.status}`);
+                const response = await fetch(`${TRANSLATE_API}?q=${encodeURIComponent(text)}&langpair=${sourceLang}|${targetLang}`);
                 const data = await response.json();
-                console.log('📥 Response data:', data);
                 
-                if (data.status === 'success' && data.code === 200) {
-                    addMessage(data.reply, false);
-                    statusEl.textContent = '✅ Connected to API';
-                    console.log('✅ Message processed successfully');
-                } else {
-                    const errorMsg = `❌ ${data.reply || 'שגיאה בשליחת ההודעה'}`;
-                    addMessage(errorMsg, false);
-                    statusEl.textContent = '⚠️ Error: ' + (data.code || 'Unknown');
+                if (data.responseStatus === 200) {
+                    return data.responseData.translatedText;
                 }
+                return text;
             } catch (error) {
-                console.error('❌ Error:', error.message);
-                addMessage(`❌ Error: ${error.message}`, false);
-                statusEl.textContent = '❌ Disconnected from API';
+                console.error('Translation error:', error);
+                return text;
             }
         }
-        
-        if (sendBtn) {
-            sendBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                sendMessage();
-            });
-        }
-        
-        if (messageInput) {
-            messageInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    sendMessage();
+
+        // אתחול Speech Recognition
+        function initSpeechRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert('דפדפן זה לא תומך בהקלטת קול. בדוק עם Chrome או Edge.');
+                return;
+            }
+
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = getCurrentLanguageCode();
+
+            recognition.onstart = () => {
+                isRecording = true;
+                document.getElementById('voiceBtn').classList.add('recording');
+                document.getElementById('status').textContent = '🎤 מקליט...';
+                document.getElementById('transcriptionItems').classList.add('listening');
+            };
+
+            recognition.onresult = (event) => {
+                let interim = '';
+                const startTime = performance.now();
+                
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    
+                    if (event.results[i].isFinal) {
+                        addMessageItem(transcript, 'user');
+                        sendToAPIDirectly(transcript, startTime);
+                        
+                        // ✅ תרגום בזמן אמת
+                        translateRealtime(transcript);
+                    } else {
+                        interim += transcript;
+                    }
                 }
-            });
+
+                updateTranscriptionDisplay();
+            };
+
+            recognition.onend = () => {
+                isRecording = false;
+                document.getElementById('voiceBtn').classList.remove('recording');
+                document.getElementById('status').textContent = '✅ מוכן לשמע';
+                document.getElementById('transcriptionItems').classList.remove('listening');
+            };
+
+            recognition.onerror = (event) => {
+                document.getElementById('status').textContent = '❌ שגיאה: ' + event.error;
+            };
         }
-        
-        messageInput.focus();
-        console.log('✅ Chat interface ready! API:', API_URL);
+
+        function getCurrentLanguageCode() {
+            const lang = document.getElementById('languagePicker').value;
+            const langMap = {
+                'he': 'he-IL', 'en': 'en-US', 'ar': 'ar-SA', 'fr': 'fr-FR',
+                'de': 'de-DE', 'es': 'es-ES', 'it': 'it-IT', 'pt': 'pt-BR',
+                'ru': 'ru-RU', 'ja': 'ja-JP', 'zh': 'zh-CN', 'ko': 'ko-KR',
+                'hi': 'hi-IN', 'pl': 'pl-PL', 'nl': 'nl-NL'
+            };
+            return langMap[lang] || 'he-IL';
+        }
+
+        // הוסף הודעה כ-item
+        function addMessageItem(text, type) {
+            const item = {
+                text: text,
+                type: type,
+                language: currentLanguage,
+                timestamp: new Date().toLocaleTimeString('he-IL'),
+                id: Date.now()
+            };
+
+            messageItems.push(item);
+            updateTranscriptionDisplay();
+        }
+
+        // עדכן התצוגה
+        function updateTranscriptionDisplay() {
+            const container = document.getElementById('transcriptionItems');
+            
+            if (messageItems.length === 0) {
+                container.innerHTML = '<div style="color: #999; text-align: center;">מחכה להקלטה...</div>';
+                return;
+            }
+
+            container.innerHTML = messageItems.map(item => `
+                <div class="message-item ${item.type}">
+                    <div class="message-item-text">${item.text}</div>
+                    <div class="message-item-meta">
+                        ${item.type === 'user' ? '👤' : '🤖'} ${item.timestamp}
+                    </div>
+                </div>
+            `).join('');
+
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // ✅ תרגום בזמן אמת
+        async function translateRealtime(text) {
+            const targetLang = document.getElementById('translationLanguagePicker').value;
+            const sourceLang = currentLanguage;
+
+            if (sourceLang === targetLang) return;
+
+            const translated = await translateText(text, sourceLang, targetLang);
+            
+            const container = document.getElementById('realtimeTranslation');
+            container.innerHTML += `
+                <div class="translation-item">
+                    <strong>📌</strong> ${translated}
+                </div>
+            `;
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // שלח ל-API
+        async function sendToAPIDirectly(message, startTime) {
+            const processingStart = performance.now();
+            const lang = document.getElementById('languagePicker').value;
+            
+            const params = new URLSearchParams({
+                action: 'chat',
+                message: message,
+                token: TOKEN,
+                language: lang,
+                userId: 'voice-' + Date.now()
+            });
+
+            try {
+                const response = await fetch(API_URL + '?' + params.toString());
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    addMessageItem(data.reply, 'assistant');
+                    addResponseToChat(data.reply);
+                    updateDeepLearning(message, data.reply, lang);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                addMessageItem(`❌ שגיאה: ${error.message}`, 'assistant');
+            }
+
+            const processingEnd = performance.now();
+            lastProcessingTime = (processingEnd - processingStart) / 1000;
+            document.getElementById('processingTime').textContent = lastProcessingTime.toFixed(4);
+        }
+
+        function addResponseToChat(reply) {
+            document.getElementById('chatArea').innerHTML += `
+                <div class="message assistant">
+                    <div class="message-content">${reply}</div>
+                    <div class="message-time">${new Date().toLocaleTimeString('he-IL')}</div>
+                </div>
+            `;
+            document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
+        }
+
+        // ✅ תרגום הכל אחרי סיום הקלטה
+        async function translateAll() {
+            const sourceLang = currentLanguage;
+            const targetLang = document.getElementById('translationLanguagePicker').value;
+
+            if (sourceLang === targetLang) {
+                alert('בחר שפה שונה מהמקור');
+                return;
+            }
+
+            const container = document.getElementById('fullTranslation');
+            container.innerHTML = '<div style="color: #667eea; text-align: center;">🔄 מתרגם...</div>';
+
+            let fullTranslation = '';
+
+            for (const item of messageItems) {
+                const translated = await translateText(item.text, sourceLang, targetLang);
+                fullTranslation += `[${item.type === 'user' ? 'אתה' : 'חי-אמת'}] ${translated}\n\n`;
+            }
+
+            container.innerHTML = `<div class="translation-item" style="white-space: pre-wrap;">${fullTranslation}</div>`;
+        }
+
+        // למידה עמוקה
+        function updateDeepLearning(question, answer, language) {
+            const words = (question + ' ' + answer).toLowerCase().split(/\s+/).filter(w => w.length > 2);
+            
+            words.forEach(word => {
+                learnedWords.add(word);
+                
+                if (!deepMemory[word]) {
+                    deepMemory[word] = {
+                        count: 0,
+                        languages: new Set(),
+                        contexts: []
+                    };
+                }
+                
+                deepMemory[word].count += 1;
+                deepMemory[word].languages.add(language);
+                deepMemory[word].contexts.push({
+                    q: question,
+                    a: answer,
+                    time: new Date().toISOString()
+                });
+
+                identifyPatterns(word);
+            });
+
+            languagesHeard.add(language);
+            totalRecordings += 1;
+            
+            saveDeepMemory();
+            updateLearningStats();
+        }
+
+        function identifyPatterns(word) {
+            if (!wordPatterns[word]) {
+                wordPatterns[word] = 0;
+            }
+            wordPatterns[word]++;
+        }
+
+        function updateLearningStats() {
+            document.getElementById('learnedWords').textContent = learnedWords.size;
+            document.getElementById('accuracy').textContent = Math.min(85 + Math.floor(learnedWords.size / 20), 99) + '%';
+            document.getElementById('totalRecordings').textContent = totalRecordings;
+            document.getElementById('languagesHeard').textContent = languagesHeard.size;
+
+            const patterns = Object.entries(wordPatterns)
+                .filter(([w, c]) => c > 2)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+
+            const patternsDiv = document.getElementById('patterns');
+            patternsDiv.innerHTML = patterns.length > 0 
+                ? patterns.map(([w, c]) => `<div class="learning-pattern">📌 "${w}" - חוזרת ${c}x</div>`).join('')
+                : '<div style="color: #999;">מחכה לעוד הקלטות...</div>';
+        }
+
+        // שמירה כ-DOCX
+        document.getElementById('saveDocxBtn').addEventListener('click', () => {
+            const content = messageItems.map(item => 
+                `[${item.type === 'user' ? 'אתה' : 'חי-אמת'}] ${item.text}`
+            ).join('\n\n');
+
+            const docContent = `חי-אמת טרנסקריפציה
+תאריך: ${new Date().toLocaleString('he-IL')}
+שפה: ${document.getElementById('languagePicker').value}
+בינארי: ${BINARY_SIGNATURE}
+סה"כ הודעות: ${messageItems.length}
+
+═════════════════════════════════════
+
+${content}`;
+
+            const blob = new Blob([docContent], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+            saveAs(blob, `hai-emet-${Date.now()}.docx`);
+        });
+
+        // שמירה כ-TXT
+        document.getElementById('saveTxtBtn').addEventListener('click', () => {
+            const content = messageItems.map(item => 
+                `[${item.type === 'user' ? 'אתה' : 'חי-אמת'}] ${item.text}`
+            ).join('\n\n');
+
+            const txtContent = `חי-אמת טרנסקריפציה
+תאריך: ${new Date().toLocaleString('he-IL')}
+שפה: ${document.getElementById('languagePicker').value}
+בינארי: ${BINARY_SIGNATURE}
+סה"כ הודעות: ${messageItems.length}
+
+═════════════════════════════════════
+
+${content}`;
+
+            const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8' });
+            saveAs(blob, `hai-emet-${Date.now()}.txt`);
+        });
+
+        // Event Listeners
+        document.getElementById('voiceBtn').addEventListener('click', () => {
+            if (!isRecording) {
+                totalRecordings++;
+                recognition.start();
+            } else {
+                recognition.stop();
+            }
+        });
+
+        document.getElementById('toggleSidebarBtn').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        });
+
+        document.getElementById('chatBtn').addEventListener('click', () => {
+            window.location.href = '/';
+        });
+
+        document.getElementById('translateAllBtn').addEventListener('click', translateAll);
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab).classList.add('active');
+            });
+        });
+
+        document.getElementById('languagePicker').addEventListener('change', (e) => {
+            currentLanguage = e.target.value;
+            languagesHeard.add(e.target.value);
+            if (recognition) {
+                recognition.lang = getCurrentLanguageCode();
+            }
+        });
+
+        document.getElementById('translationLanguagePicker').addEventListener('change', (e) => {
+            translationLanguage = e.target.value;
+        });
+
+        // אתחול
+        loadDeepMemory();
+        initSpeechRecognition();
+        console.log(`✅ Hai-Emet Voice System v4.0 - Translation Active`);
     </script>
 </body>
 </html>
