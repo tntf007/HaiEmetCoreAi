@@ -506,19 +506,39 @@
                 
                 <div id="streamAccordion" style="display: none;">
                     <div style="margin-bottom: 8px;">
-                        <input type="text" id="streamURL" placeholder="YouTube / Stream URL" 
-                            style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #667eea; margin-bottom: 8px; font-size: 0.9em;">
-                        <button class="control-btn" onclick="processStream()" style="width: 100%; margin-bottom: 0;">
-                            ▶ הפעל סרטון
+                        <div style="font-weight: bold; color: #667eea; margin-bottom: 6px;">🎬 סוגי קלט:</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                            <button class="control-btn" onclick="showYouTubeInput()" style="border-color: #FF0000; color: #FF0000; margin-bottom: 0; font-size: 0.9em;">
+                                📺 YouTube
+                            </button>
+                            <button class="control-btn" onclick="showLiveStreamInput()" style="border-color: #00AA00; color: #00AA00; margin-bottom: 0; font-size: 0.9em;">
+                                📡 שידור חי
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="youtubeInputArea" style="display: none; margin-bottom: 8px; padding: 10px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #FF0000;">
+                        <input type="text" id="youtubeURL" placeholder="https://www.youtube.com/watch?v=..." 
+                            style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #FF0000; margin-bottom: 8px; font-size: 0.9em;">
+                        <button class="control-btn" onclick="loadYouTubeVideo()" style="width: 100%; margin-bottom: 0; border-color: #FF0000; color: #FF0000;">
+                            ▶ הפעל YouTube
+                        </button>
+                    </div>
+                    
+                    <div id="liveStreamInputArea" style="display: none; margin-bottom: 8px; padding: 10px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #00AA00;">
+                        <input type="text" id="streamURL2" placeholder="https://example.com/stream או https://example.com/video.mp4" 
+                            style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #00AA00; margin-bottom: 8px; font-size: 0.9em;">
+                        <button class="control-btn" onclick="loadLiveStream()" style="width: 100%; margin-bottom: 0; border-color: #00AA00; color: #00AA00;">
+                            ▶ הפעל שידור
                         </button>
                     </div>
                     
                     <div style="margin-bottom: 8px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
-                        <div style="font-weight: bold; margin-bottom: 6px; color: #667eea;">📝 טקסט מהסרטון:</div>
-                        <textarea id="videoSubtitles" placeholder="הדבק טקסט מהסרטון או הוספה ידנית..." 
-                            style="width: 100%; height: 80px; padding: 8px; border-radius: 6px; border: 1px solid #667eea; resize: vertical; font-size: 0.9em;"></textarea>
+                        <div style="font-weight: bold; margin-bottom: 6px; color: #667eea;">📝 כתוביות/טקסט:</div>
+                        <textarea id="videoSubtitles" placeholder="הדבק כתוביות או טקסט מהסרטון..." 
+                            style="width: 100%; height: 100px; padding: 8px; border-radius: 6px; border: 1px solid #667eea; resize: vertical; font-size: 0.9em; direction: rtl; text-align: right;"></textarea>
                         <button class="control-btn" onclick="processVideoSubtitles()" style="width: 100%; margin-top: 8px; margin-bottom: 0;">
-                            ✅ עדכן כתוביות + תרגום
+                            ✅ עדכן כתוביות
                         </button>
                     </div>
                     
@@ -561,9 +581,9 @@
                             </select>
                         </div>
                         
-                        <div class="transcription-box" style="min-height: 120px; max-height: 200px; margin-bottom: 8px;">
-                            <div class="transcription-label">סרטון + כתוביות בזמן אמת</div>
-                            <div id="videoTranscript" style="line-height: 1.8;"></div>
+                        <div class="transcription-box" style="min-height: 120px; max-height: 220px; margin-bottom: 8px; background: #1a1a1a; border: 2px solid #FFD700;">
+                            <div class="transcription-label" style="color: #FFD700; text-shadow: 0 0 5px #FFD700;">📺 כתוביות בזמן אמת (TV Subtitles)</div>
+                            <div id="videoTranscript" style="line-height: 2; font-size: 1.1em; color: #FFFFFF; text-shadow: 0 0 4px #000000; direction: rtl; text-align: center; padding: 12px; min-height: 60px; background: rgba(0,0,0,0.8); border-radius: 6px; white-space: pre-wrap; word-wrap: break-word;"></div>
                         </div>
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
@@ -1141,61 +1161,67 @@
             accordion.style.display = accordion.style.display === 'none' ? 'block' : 'none';
         }
         
-        async function processStream() {
-            const url = document.getElementById('streamURL').value.trim();
+        function showYouTubeInput() {
+            document.getElementById('youtubeInputArea').style.display = 'block';
+            document.getElementById('liveStreamInputArea').style.display = 'none';
+        }
+        
+        function showLiveStreamInput() {
+            document.getElementById('youtubeInputArea').style.display = 'none';
+            document.getElementById('liveStreamInputArea').style.display = 'block';
+        }
+        
+        async function loadYouTubeVideo() {
+            const url = document.getElementById('youtubeURL').value.trim();
             if (!url) {
-                alert('הכנס URL');
+                alert('הכנס YouTube URL');
+                return;
+            }
+            
+            let videoId = '';
+            if (url.includes('youtu.be/')) {
+                videoId = url.split('youtu.be/')[1].split('?')[0];
+            } else if (url.includes('v=')) {
+                videoId = url.split('v=')[1].split('&')[0];
+            }
+            
+            if (videoId) {
+                document.getElementById('videoContainer').style.display = 'block';
+                const videoPlayerWrapper = document.getElementById('videoPlayerWrapper');
+                videoPlayerWrapper.innerHTML = '';
+                
+                const iframe = document.createElement('iframe');
+                iframe.width = '100%';
+                iframe.height = '380';
+                iframe.src = `https://www.youtube.com/embed/${videoId}`;
+                iframe.title = 'YouTube video player';
+                iframe.frameBorder = '0';
+                iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+                iframe.allowFullscreen = true;
+                iframe.style.borderRadius = '8px';
+                videoPlayerWrapper.appendChild(iframe);
+                
+                addMessage(`📺 YouTube: ${url.substring(0, 50)}...`, false);
+            }
+        }
+        
+        async function loadLiveStream() {
+            const url = document.getElementById('streamURL2').value.trim();
+            if (!url) {
+                alert('הכנס Stream URL');
                 return;
             }
             
             document.getElementById('videoContainer').style.display = 'block';
-            document.getElementById('videoTranscript').textContent = '⏳ טוען סרטון...';
-            
             const videoPlayer = document.getElementById('videoPlayer');
             const videoPlayerWrapper = document.getElementById('videoPlayerWrapper');
+            videoPlayerWrapper.innerHTML = '';
             
-            // Handle YouTube URLs
-            if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                let videoId = '';
-                if (url.includes('youtu.be/')) {
-                    videoId = url.split('youtu.be/')[1].split('?')[0];
-                } else if (url.includes('v=')) {
-                    videoId = url.split('v=')[1].split('&')[0];
-                }
-                
-                if (videoId) {
-                    // Clear wrapper and add YouTube iframe
-                    videoPlayerWrapper.innerHTML = '';
-                    const iframe = document.createElement('iframe');
-                    iframe.width = '100%';
-                    iframe.height = '315';
-                    iframe.src = `https://www.youtube.com/embed/${videoId}`;
-                    iframe.title = 'YouTube video player';
-                    iframe.frameBorder = '0';
-                    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-                    iframe.allowFullscreen = true;
-                    iframe.style.borderRadius = '8px';
-                    videoPlayerWrapper.appendChild(iframe);
-                }
-            } 
-            // Handle direct video URLs (MP4, WebM, MOV, etc.)
-            else if (url.endsWith('.mp4') || url.endsWith('.webm') || url.endsWith('.mov') || url.endsWith('.avi')) {
-                videoPlayerWrapper.innerHTML = ''; // Clear YouTube if exists
-                videoPlayer.src = url;
-                videoPlayer.style.display = 'block';
-                videoPlayerWrapper.appendChild(videoPlayer);
-            }
-            // Try as stream (HLS, DASH, etc.)
-            else {
-                videoPlayerWrapper.innerHTML = ''; // Clear YouTube if exists
-                videoPlayer.src = url;
-                videoPlayer.style.display = 'block';
-                videoPlayerWrapper.appendChild(videoPlayer);
-            }
+            videoPlayer.src = url;
+            videoPlayer.style.display = 'block';
+            videoPlayerWrapper.appendChild(videoPlayer);
             
-            // Start transcription
-            startVideoTranscription(url);
-            addMessage(`🎬 סרטון: ${url}`, false);
+            addMessage(`📡 שידור חי: ${url.substring(0, 50)}...`, false);
         }
         
         let videoTranscriptHistory = [];
@@ -1211,11 +1237,18 @@
             
             currentVideoSubtitles = subtitles;
             currentVideoTranslations = {};
-            document.getElementById('videoTranscript').textContent = subtitles;
+            
+            // Display in caption box like TV subtitles
+            const langName = LANGUAGES_CONFIG[currentVoiceLang]?.name || 'Unknown';
+            const display = `[${langName}]\n\n${subtitles}`;
+            document.getElementById('videoTranscript').textContent = display;
+            
+            // Also keep it visible in the textarea
+            document.getElementById('videoSubtitles').value = subtitles;
             
             videoTranscriptHistory = [{
                 text: subtitles,
-                time: getPrecisionTime(),
+                time: getExactTime(),
                 lang: currentVoiceLang
             }];
             
@@ -1228,6 +1261,7 @@
             });
             
             addMessage(`🎬 עדכן כתוביות: ${subtitles.substring(0, 30)}...`, false);
+            document.getElementById('videoTranslang').focus();
         }
         
         async function updateVideoTranslation() {
@@ -1240,14 +1274,21 @@
                 const translated = await translateVideoText(currentVideoSubtitles, targetLang);
                 currentVideoTranslations[targetLang] = translated;
                 
-                const display = `📺 מקור:\n${currentVideoSubtitles}\n\n🌍 תרגום:\n${translated}`;
+                // Display like TV captions - show only translation in subtitle area
+                const langName = LANGUAGES_CONFIG[targetLang]?.name || targetLang.toUpperCase();
+                const display = `[${langName}]\n\n${translated}`;
                 document.getElementById('videoTranscript').textContent = display;
+                
+                // Also show original in a separate info area
+                console.log(`🎬 Original (${LANGUAGES_CONFIG[currentVoiceLang]?.name}):\n${currentVideoSubtitles}`);
+                console.log(`🌍 Translation (${langName}):\n${translated}`);
                 
                 videoTranscriptHistory.push({
                     text: translated,
-                    time: getPrecisionTime(),
+                    time: getExactTime(),
                     lang: targetLang,
-                    translated_from: currentVoiceLang
+                    translated_from: currentVoiceLang,
+                    original: currentVideoSubtitles
                 });
                 
             } catch (e) {
