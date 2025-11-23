@@ -120,6 +120,9 @@ def get_learned_response(message, language):
     if key in LEARNED_PATTERNS:
         return LEARNED_PATTERNS[key]["reply"]
     return None
+
+def verify_token(token):
+    """Verify authentication token"""
     if not token:
         return {"valid": False, "type": None}
     
@@ -319,7 +322,7 @@ def handle_chat_message(data):
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('voice_system_v4_with_translation.html')
 
 @app.route('/voice')
 def voice():
