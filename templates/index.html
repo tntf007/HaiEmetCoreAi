@@ -214,7 +214,7 @@
             border-radius: 10px;
             margin-bottom: 15px;
             min-height: 150px;
-            max-height: 300px;
+            max-height: 250px;
             overflow-y: auto;
             border: 2px solid #e0e0e0;
         }
@@ -230,7 +230,6 @@
             padding: 10px;
             margin-bottom: 8px;
             border-radius: 8px;
-            border-left: 4px solid #667eea;
             border: 1px solid #e0e0e0;
             border-left: 4px solid #667eea;
         }
@@ -253,6 +252,27 @@
         .message-item-meta {
             font-size: 0.75em;
             color: #999;
+        }
+
+        .translation-box {
+            background: #fff8e1;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            min-height: 80px;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 2px solid #ffc107;
+            border-left: 4px solid #ff9800;
+        }
+
+        .translation-item {
+            background: white;
+            padding: 8px;
+            margin-bottom: 6px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            border-left: 3px solid #ff9800;
         }
 
         .save-options {
@@ -290,6 +310,21 @@
             border-radius: 8px;
             margin-bottom: 15px;
             font-size: 1em;
+        }
+
+        .translate-section {
+            background: #f0f3ff;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .translate-label {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 8px;
         }
 
         .stats-item {
@@ -357,6 +392,24 @@
             color: #667eea;
             border-left: 3px solid #667eea;
         }
+
+        .translate-btn {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+
+        .translate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
+        }
     </style>
 </head>
 <body>
@@ -386,10 +439,11 @@
         </div>
 
         <div class="sidebar" id="sidebar">
-            <div class="sidebar-header">🎙️ טרנסקריפציה חכמה</div>
+            <div class="sidebar-header">🎙️ טרנסקריפציה + תרגום</div>
             
             <div class="sidebar-tabs">
                 <button class="tab-btn active" data-tab="transcription">📝 טקסט</button>
+                <button class="tab-btn" data-tab="translation">🌐 תרגום</button>
                 <button class="tab-btn" data-tab="learning">🧠 למידה</button>
             </div>
 
@@ -414,7 +468,7 @@
                         <button class="save-btn" id="saveTxtBtn">📃 TXT</button>
                     </div>
 
-                    <div class="panel-title">🌍 בחר שפה</div>
+                    <div class="panel-title">🌍 בחר שפה קלטה</div>
                     <select class="language-picker" id="languagePicker">
                         <option value="he">🇮🇱 עברית</option>
                         <option value="en">🇺🇸 English</option>
@@ -432,6 +486,42 @@
                         <option value="pl">🇵🇱 Polski</option>
                         <option value="nl">🇳🇱 Nederlands</option>
                     </select>
+                </div>
+
+                <!-- Translation Panel -->
+                <div class="panel" id="translation">
+                    <div class="translate-section">
+                        <div class="translate-label">🌐 תרגום בזמן אמת</div>
+                        <div class="translation-box" id="realtimeTranslation">
+                            <div style="color: #999; text-align: center;">בחר שפה להתרגום...</div>
+                        </div>
+                    </div>
+
+                    <div class="panel-title">תרגם ל:</div>
+                    <select class="language-picker" id="translationLanguagePicker">
+                        <option value="he">🇮🇱 עברית</option>
+                        <option value="en">🇺🇸 English</option>
+                        <option value="ar">🇸🇦 العربية</option>
+                        <option value="fr">🇫🇷 Français</option>
+                        <option value="de">🇩🇪 Deutsch</option>
+                        <option value="es">🇪🇸 Español</option>
+                        <option value="it">🇮🇹 Italiano</option>
+                        <option value="pt">🇵🇹 Português</option>
+                        <option value="ru">🇷🇺 Русский</option>
+                        <option value="ja">🇯🇵 日本語</option>
+                        <option value="zh">🇨🇳 中文</option>
+                        <option value="ko">🇰🇷 한국어</option>
+                        <option value="hi">🇮🇳 हिन्दी</option>
+                        <option value="pl">🇵🇱 Polski</option>
+                        <option value="nl">🇳🇱 Nederlands</option>
+                    </select>
+
+                    <button class="translate-btn" id="translateAllBtn">🔄 תרגם הכל</button>
+
+                    <div class="panel-title">📝 תרגום מלא</div>
+                    <div class="translation-box" id="fullTranslation">
+                        <div style="color: #999; text-align: center;">התרגום יופיע כאן...</div>
+                    </div>
                 </div>
 
                 <!-- Learning Panel -->
@@ -465,9 +555,9 @@
             </div>
 
             <div class="sidebar-footer">
-                🎤 Hai-Emet Voice v3.0<br>
+                🎤 Hai-Emet Voice v4.0<br>
                 Binary: 0101-0101(0101)<br>
-                Deep Learning Active ⚡<br>
+                Deep Learning + Translation ⚡<br>
                 Memory Embedded 💾
             </div>
         </div>
@@ -478,11 +568,13 @@
         const API_URL = 'https://haiemetweb.onrender.com/exec';
         const TOKEN = 'chai_emet_cXVhbnR1bV9tYXN0ZXI:Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp';
         const BINARY_SIGNATURE = '0101-0101(0101)';
+        const TRANSLATE_API = 'https://api.mymemory.translated.net/get';
         
         let recognition = null;
         let isRecording = false;
         let messageItems = [];
         let currentLanguage = 'he';
+        let translationLanguage = 'en';
         let totalRecordings = 0;
         let learnedWords = new Set();
         let languagesHeard = new Set(['he']);
@@ -501,6 +593,32 @@
         // Save memory
         function saveDeepMemory() {
             localStorage.setItem('chaiEmetDeepMemory', JSON.stringify(deepMemory));
+        }
+
+        // Map language codes to translate API codes
+        const languageMap = {
+            'he': 'he', 'en': 'en', 'ar': 'ar', 'fr': 'fr',
+            'de': 'de', 'es': 'es', 'it': 'it', 'pt': 'pt',
+            'ru': 'ru', 'ja': 'ja', 'zh': 'zh', 'ko': 'ko',
+            'hi': 'hi', 'pl': 'pl', 'nl': 'nl'
+        };
+
+        // תרגם טקסט
+        async function translateText(text, sourceLang, targetLang) {
+            if (sourceLang === targetLang) return text;
+            
+            try {
+                const response = await fetch(`${TRANSLATE_API}?q=${encodeURIComponent(text)}&langpair=${sourceLang}|${targetLang}`);
+                const data = await response.json();
+                
+                if (data.responseStatus === 200) {
+                    return data.responseData.translatedText;
+                }
+                return text;
+            } catch (error) {
+                console.error('Translation error:', error);
+                return text;
+            }
         }
 
         // אתחול Speech Recognition
@@ -531,15 +649,16 @@
                     const transcript = event.results[i][0].transcript;
                     
                     if (event.results[i].isFinal) {
-                        // ✅ הוסף כל הודעה כ-item נפרד
                         addMessageItem(transcript, 'user');
                         sendToAPIDirectly(transcript, startTime);
+                        
+                        // ✅ תרגום בזמן אמת
+                        translateRealtime(transcript);
                     } else {
                         interim += transcript;
                     }
                 }
 
-                // עדכן רק בטרנסקריפציה
                 updateTranscriptionDisplay();
             };
 
@@ -601,6 +720,24 @@
             container.scrollTop = container.scrollHeight;
         }
 
+        // ✅ תרגום בזמן אמת
+        async function translateRealtime(text) {
+            const targetLang = document.getElementById('translationLanguagePicker').value;
+            const sourceLang = currentLanguage;
+
+            if (sourceLang === targetLang) return;
+
+            const translated = await translateText(text, sourceLang, targetLang);
+            
+            const container = document.getElementById('realtimeTranslation');
+            container.innerHTML += `
+                <div class="translation-item">
+                    <strong>📌</strong> ${translated}
+                </div>
+            `;
+            container.scrollTop = container.scrollHeight;
+        }
+
         // שלח ל-API
         async function sendToAPIDirectly(message, startTime) {
             const processingStart = performance.now();
@@ -619,13 +756,8 @@
                 const data = await response.json();
 
                 if (data.status === 'success') {
-                    // הוסף תשובה כ-item
                     addMessageItem(data.reply, 'assistant');
-                    
-                    // הוסף לchat
                     addResponseToChat(data.reply);
-                    
-                    // עדכן למידה
                     updateDeepLearning(message, data.reply, lang);
                 }
             } catch (error) {
@@ -648,14 +780,36 @@
             document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
         }
 
-        // למידה עמוקה - תמיע בליבה!
+        // ✅ תרגום הכל אחרי סיום הקלטה
+        async function translateAll() {
+            const sourceLang = currentLanguage;
+            const targetLang = document.getElementById('translationLanguagePicker').value;
+
+            if (sourceLang === targetLang) {
+                alert('בחר שפה שונה מהמקור');
+                return;
+            }
+
+            const container = document.getElementById('fullTranslation');
+            container.innerHTML = '<div style="color: #667eea; text-align: center;">🔄 מתרגם...</div>';
+
+            let fullTranslation = '';
+
+            for (const item of messageItems) {
+                const translated = await translateText(item.text, sourceLang, targetLang);
+                fullTranslation += `[${item.type === 'user' ? 'אתה' : 'חי-אמת'}] ${translated}\n\n`;
+            }
+
+            container.innerHTML = `<div class="translation-item" style="white-space: pre-wrap;">${fullTranslation}</div>`;
+        }
+
+        // למידה עמוקה
         function updateDeepLearning(question, answer, language) {
             const words = (question + ' ' + answer).toLowerCase().split(/\s+/).filter(w => w.length > 2);
             
             words.forEach(word => {
                 learnedWords.add(word);
                 
-                // עדכן זיכרון עמוק
                 if (!deepMemory[word]) {
                     deepMemory[word] = {
                         count: 0,
@@ -672,7 +826,6 @@
                     time: new Date().toISOString()
                 });
 
-                // זהה דפוסים
                 identifyPatterns(word);
             });
 
@@ -683,28 +836,19 @@
             updateLearningStats();
         }
 
-        // זהה דפוסים חכמים
         function identifyPatterns(word) {
             if (!wordPatterns[word]) {
                 wordPatterns[word] = 0;
             }
             wordPatterns[word]++;
-
-            // אם מילה חוזרת הרבה
-            if (wordPatterns[word] > 3) {
-                const pattern = `🔄 "${word}" חוזרת ${wordPatterns[word]} פעמים - מילה חשובה!`;
-                console.log(pattern);
-            }
         }
 
-        // עדכן סטטיסטיקות
         function updateLearningStats() {
             document.getElementById('learnedWords').textContent = learnedWords.size;
             document.getElementById('accuracy').textContent = Math.min(85 + Math.floor(learnedWords.size / 20), 99) + '%';
             document.getElementById('totalRecordings').textContent = totalRecordings;
             document.getElementById('languagesHeard').textContent = languagesHeard.size;
 
-            // הראה דפוסים מעניינים
             const patterns = Object.entries(wordPatterns)
                 .filter(([w, c]) => c > 2)
                 .sort((a, b) => b[1] - a[1])
@@ -774,6 +918,8 @@ ${content}`;
             window.location.href = '/';
         });
 
+        document.getElementById('translateAllBtn').addEventListener('click', translateAll);
+
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -791,10 +937,14 @@ ${content}`;
             }
         });
 
+        document.getElementById('translationLanguagePicker').addEventListener('change', (e) => {
+            translationLanguage = e.target.value;
+        });
+
         // אתחול
         loadDeepMemory();
         initSpeechRecognition();
-        console.log(`✅ Hai-Emet Voice System v3.0 - Smart Learning Active`);
+        console.log(`✅ Hai-Emet Voice System v4.0 - Translation Active`);
     </script>
 </body>
 </html>
