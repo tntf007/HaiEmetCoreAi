@@ -50,7 +50,7 @@ def init_database():
         c = conn.cursor()
         
         # User profiles
-        c.execute('''CREATE TABLE users (
+        c.execute('''CREATE TABLE IF NOT EXISTS users (
             id TEXT PRIMARY KEY,
             created_at TIMESTAMP,
             preferred_language TEXT,
@@ -58,7 +58,7 @@ def init_database():
         )''')
         
         # Transcriptions learned
-        c.execute('''CREATE TABLE transcriptions (
+        c.execute('''CREATE TABLE IF NOT EXISTS transcriptions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id TEXT,
             text TEXT,
@@ -69,7 +69,7 @@ def init_database():
         )''')
         
         # Messages learned
-        c.execute('''CREATE TABLE messages (
+        c.execute('''CREATE TABLE IF NOT EXISTS messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id TEXT,
             input_text TEXT,
@@ -81,7 +81,7 @@ def init_database():
         )''')
         
         # Translation pairs
-        c.execute('''CREATE TABLE translations (
+        c.execute('''CREATE TABLE IF NOT EXISTS translations (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id TEXT,
             source_text TEXT,
@@ -93,7 +93,7 @@ def init_database():
         )''')
         
         # Voice transcriptions
-        c.execute('''CREATE TABLE voice_data (
+        c.execute('''CREATE TABLE IF NOT EXISTS voice_data (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id TEXT,
             transcript TEXT,
@@ -104,7 +104,7 @@ def init_database():
         )''')
         
         # File uploads
-        c.execute('''CREATE TABLE file_uploads (
+        c.execute('''CREATE TABLE IF NOT EXISTS file_uploads (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id TEXT,
             filename TEXT,
@@ -117,7 +117,7 @@ def init_database():
         )''')
         
         # Learning patterns
-        c.execute('''CREATE TABLE learning_patterns (
+        c.execute('''CREATE TABLE IF NOT EXISTS learning_patterns (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id TEXT,
             pattern TEXT,
@@ -345,6 +345,19 @@ def generate_response(user_input: str, language: str) -> str:
 
 # ============ API ENDPOINTS ============
 
+@app.route('/', methods=['GET'])
+def root():
+    """Root endpoint"""
+    return jsonify({
+        'name': '💛 חי-אמת VOICE Backend',
+        'status': '✅ Running',
+        'endpoints': {
+            '/status': 'Health check',
+            '/exec': 'Main API endpoint (POST)',
+            '/user/<user_id>/stats': 'Get user statistics'
+        }
+    })
+
 @app.route('/exec', methods=['POST'])
 def execute():
     """Main execution endpoint - handles all requests"""
@@ -497,9 +510,12 @@ def get_user_profile(user_id):
         'timestamp': datetime.now().isoformat()
     })
 
+# ============ INITIALIZE ON STARTUP ============
+# Initialize database when module loads (for gunicorn)
+init_database()
+logger.info('💛 חי-אמת VOICE Learning Backend Initialized')
+logger.info('Binary: 0101-0101(0101)')
+
 # ============ MAIN ============
 if __name__ == '__main__':
-    init_database()
-    logger.info('💛 חי-אמת VOICE Learning Backend Started')
-    logger.info('Binary: 0101-0101(0101)')
     app.run(debug=True, host='0.0.0.0', port=5000)
