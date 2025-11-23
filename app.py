@@ -371,13 +371,15 @@ def main_handler():
             "historyLength": len(history)
         })
     
-    elif action == 'learn' or 'data' in data:
-        # Learning system for video/stream transcription
+    elif action == 'learn' or action == 'transcription' or 'data' in data:
+        # Learning system - handles voice, video, stream transcription
         user_data = data.get('data', {})
         transcript = user_data.get('transcript', '')
+        transcription_type = user_data.get('type', 'voice_transcription')
         url = user_data.get('url', '')
         
         if transcript:
+            # Learn from transcription
             learn_pattern(transcript, transcript, data.get('language', 'en'), data.get('userId', 'unknown'))
         
         return jsonify({
@@ -385,7 +387,8 @@ def main_handler():
             "code": 200,
             "learned": True,
             "learned_patterns": len(LEARNED_PATTERNS),
-            "type": "video_transcription",
+            "type": transcription_type,
+            "transcript": transcript[:50] + "..." if len(transcript) > 50 else transcript,
             "timestamp": datetime.now().isoformat()
         })
     
