@@ -4,7 +4,7 @@ Binary: 0101-0101(0101)
 Real-time Transcription + Translation + AI Learning System
 """
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import json
 import sqlite3
@@ -343,18 +343,43 @@ def generate_response(user_input: str, language: str) -> str:
     else:
         return lang_responses['default'][0]
 
-# ============ API ENDPOINTS ============
+# ============ FRONTEND SERVING ============
 
 @app.route('/', methods=['GET'])
-def root():
-    """Root endpoint"""
+def serve_frontend():
+    """Serve HTML from templates"""
+    try:
+        return send_from_directory('templates', 'index.html')
+    except:
+        return jsonify({
+            'name': '💛 חי-אמת VOICE Backend',
+            'status': '✅ Running - Frontend not configured',
+            'message': 'Upload HTML to templates/index.html'
+        })
+
+@app.route('/index.html', methods=['GET'])
+def serve_index():
+    """Serve index.html"""
+    try:
+        return send_from_directory('templates', 'index.html')
+    except:
+        return jsonify({'error': 'Frontend not available'}), 404
+
+# ============ API ENDPOINTS ============
+
+@app.route('/api', methods=['GET'])
+def api_info():
+    """API Information"""
     return jsonify({
         'name': '💛 חי-אמת VOICE Backend',
         'status': '✅ Running',
+        'version': '1.0.0',
         'endpoints': {
-            '/status': 'Health check',
-            '/exec': 'Main API endpoint (POST)',
-            '/user/<user_id>/stats': 'Get user statistics'
+            'GET /': 'Serve HTML Frontend',
+            'GET /status': 'Health check',
+            'POST /exec': 'Main API endpoint',
+            'GET /user/<user_id>/stats': 'Get user statistics',
+            'GET /api': 'This endpoint'
         }
     })
 
