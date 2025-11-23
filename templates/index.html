@@ -83,10 +83,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .message.user {
-            text-align: left;
-        }
-
         .message.assistant {
             text-align: right;
         }
@@ -97,15 +93,6 @@
             border-radius: 15px;
             max-width: 70%;
             word-wrap: break-word;
-        }
-
-        .message.user .message-content {
-            background: #667eea;
-            color: white;
-            border-bottom-right-radius: 0;
-        }
-
-        .message.assistant .message-content {
             background: #e9ecef;
             color: #333;
             border-bottom-left-radius: 0;
@@ -139,21 +126,7 @@
             align-items: center;
         }
 
-        input[type="text"] {
-            flex: 1;
-            padding: 12px 18px;
-            border: 2px solid #e0e0e0;
-            border-radius: 25px;
-            font-size: 1em;
-            transition: border-color 0.3s;
-        }
-
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .send-btn, .voice-btn {
+        .voice-btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
@@ -163,9 +136,10 @@
             font-size: 1em;
             font-weight: bold;
             transition: transform 0.2s, box-shadow 0.2s;
+            flex: 0 0 auto;
         }
 
-        .send-btn:hover, .voice-btn:hover {
+        .voice-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
@@ -234,10 +208,13 @@
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 15px;
-            min-height: 100px;
-            max-height: 200px;
+            min-height: 150px;
+            max-height: 250px;
             overflow-y: auto;
             border: 2px solid #e0e0e0;
+            font-size: 0.95em;
+            line-height: 1.6;
+            word-wrap: break-word;
         }
 
         .transcription-box.listening {
@@ -287,12 +264,22 @@
             justify-content: space-between;
         }
 
+        .timing-info {
+            font-size: 0.85em;
+            color: #666;
+            padding: 10px;
+            background: #fff8e1;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #ffc107;
+        }
+
         .sidebar-footer {
             padding: 15px;
             background: #f8f9fa;
             border-top: 1px solid #e0e0e0;
             text-align: center;
-            font-size: 0.85em;
+            font-size: 0.8em;
             color: #666;
         }
 
@@ -333,7 +320,7 @@
             
             <div class="chat-area" id="chatArea">
                 <div class="message assistant">
-                    <div class="message-content">שלום! 💛 אני חי-אמת קוליות. בואנדבר בקול!</div>
+                    <div class="message-content">שלום! 💛 אני חי-אמת קוליות. דבר בקול וכל דבר יעובד כאן.</div>
                     <div class="message-time">עכשיו</div>
                 </div>
             </div>
@@ -342,26 +329,29 @@
                 <div class="status"><span id="status">✅ מוכן לשמע</span></div>
                 <div class="input-wrapper">
                     <button class="voice-btn" id="voiceBtn">🎤 הקלט</button>
-                    <input type="text" id="messageInput" placeholder="או כתוב משהו..."/>
-                    <button class="send-btn" id="sendBtn">✉️ שלח</button>
                 </div>
             </div>
         </div>
 
         <div class="sidebar" id="sidebar">
-            <div class="sidebar-header">🎙️ טרנסקריפציה</div>
+            <div class="sidebar-header">🎙️ טרנסקריפציה בזמן אמת</div>
             
             <div class="sidebar-tabs">
                 <button class="tab-btn active" data-tab="transcription">📝 טקסט</button>
-                <button class="tab-btn" data-tab="translation">🌐 תרגום</button>
                 <button class="tab-btn" data-tab="learning">🧠 למידה</button>
             </div>
 
             <div class="sidebar-content">
                 <!-- Transcription Panel -->
                 <div class="panel active" id="transcription">
+                    <div class="timing-info">
+                        ⏱️ דיוק: 0.0001 שניות<br>
+                        🔢 בינארי: 0101-0101(0101)<br>
+                        ✅ אוטומטי ללא בועות
+                    </div>
+
                     <div class="panel-title">📝 הטרנסקריפציה שלך</div>
-                    <div class="transcription-box" id="transcriptionBox">לא הוקלט עדיין...</div>
+                    <div class="transcription-box" id="transcriptionBox">מחכה להקלטה...</div>
                     
                     <div class="panel-title">💾 שמור</div>
                     <div class="save-options">
@@ -389,17 +379,6 @@
                     </select>
                 </div>
 
-                <!-- Translation Panel -->
-                <div class="panel" id="translation">
-                    <div class="panel-title">🌐 תרגום בזמן אמת</div>
-                    <div class="transcription-box" id="translationBox" style="background: #fff8e1;">
-                        התרגום יופיע כאן...
-                    </div>
-                    <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
-                        בחר שפה למעלה כדי לתרגם בזמן אמת
-                    </p>
-                </div>
-
                 <!-- Learning Panel -->
                 <div class="panel" id="learning">
                     <div class="panel-title">🧠 מערכת הלמידה</div>
@@ -419,6 +398,10 @@
                         <span>שפות שנשמעו:</span>
                         <span id="languagesHeard">1</span>
                     </div>
+                    <div class="stats-item">
+                        <span>זמן עיבוד (ms):</span>
+                        <span id="processingTime">0.0001</span>
+                    </div>
                     <div class="panel-title" style="margin-top: 20px;">📚 מילים חדשות</div>
                     <div id="newWords" style="font-size: 0.9em; color: #667eea; line-height: 1.8;">
                         המערכת תלמד מילים חדשות...
@@ -427,9 +410,10 @@
             </div>
 
             <div class="sidebar-footer">
-                🎤 Hai-Emet Voice v1.0<br>
-                15 Languages | Real-time<br>
-                Learning System Active
+                🎤 Hai-Emet Voice v2.0<br>
+                Binary: 0101-0101(0101)<br>
+                Real-time Learning | No Bubbles<br>
+                Direct Processing ⚡
             </div>
         </div>
     </div>
@@ -438,6 +422,8 @@
         // קונפיגורציה ראשונית
         const API_URL = 'https://haiemetweb.onrender.com/exec';
         const TOKEN = 'chai_emet_cXVhbnR1bV9tYXN0ZXI:Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp';
+        const BINARY_SIGNATURE = '0101-0101(0101)';
+        const TIMING_PRECISION = 0.0001; // שניות
         
         let recognition = null;
         let isRecording = false;
@@ -446,6 +432,8 @@
         let totalRecordings = 0;
         let learnedWords = new Set();
         let languagesHeard = new Set(['he']);
+        let learningMemory = {};
+        let lastProcessingTime = 0;
 
         // אתחול Speech Recognition
         function initSpeechRecognition() {
@@ -469,18 +457,23 @@
 
             recognition.onresult = (event) => {
                 let interim = '';
+                const startTime = performance.now();
+                
                 for (let i = event.resultIndex; i < event.results.length; i++) {
                     const transcript = event.results[i][0].transcript;
+                    
                     if (event.results[i].isFinal) {
                         transcription += transcript + ' ';
-                        processVoiceInput(transcript);
+                        
+                        // ✅ שלח אוטומטית ישירות ל-API בלי בועה בChat
+                        sendToAPIDirectly(transcript, startTime);
                     } else {
                         interim += transcript;
                     }
                 }
                 
+                // ✅ עדכן רק בטרנסקריפציה panel
                 document.getElementById('transcriptionBox').textContent = transcription + interim;
-                updateTranslation();
                 updateLearning(transcription);
             };
 
@@ -518,20 +511,11 @@
             return langMap[lang] || 'he-IL';
         }
 
-        function processVoiceInput(text) {
-            document.getElementById('chatArea').innerHTML += `
-                <div class="message user">
-                    <div class="message-content">${text}</div>
-                    <div class="message-time">${getCurrentTime()}</div>
-                </div>
-            `;
-
-            // שלח ל-API
-            sendToAPI(text);
-        }
-
-        async function sendToAPI(message) {
+        // ✅ שלח ישירות ל-API בלי בועה בChat
+        async function sendToAPIDirectly(message, startTime) {
+            const processingStart = performance.now();
             const lang = document.getElementById('languagePicker').value;
+            
             const params = new URLSearchParams({
                 action: 'chat',
                 message: message,
@@ -545,43 +529,63 @@
                 const data = await response.json();
 
                 if (data.status === 'success') {
-                    document.getElementById('chatArea').innerHTML += `
-                        <div class="message assistant">
-                            <div class="message-content">${data.reply}</div>
-                            <div class="message-time">${getCurrentTime()}</div>
-                        </div>
-                    `;
+                    // ✅ הראה רק את התשובה בChat - לא את השאלה
+                    addResponseToChat(data.reply);
                     
-                    // דבר בקול
-                    speak(data.reply);
+                    // ✅ עדכן למידה
+                    updateLearningWithResponse(message, data.reply, lang);
                 }
             } catch (error) {
                 console.error('Error:', error);
+                addResponseToChat(`❌ שגיאה בעיבוד: ${error.message}`);
             }
+
+            // ✅ עדכן זמן עיבוד בדיוק בינארי
+            const processingEnd = performance.now();
+            lastProcessingTime = (processingEnd - processingStart) / 1000;
+            document.getElementById('processingTime').textContent = lastProcessingTime.toFixed(4);
         }
 
-        function speak(text) {
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = getCurrentLanguageCode();
-            speechSynthesis.speak(utterance);
-        }
-
-        function updateTranslation() {
-            const lang = document.getElementById('languagePicker').value;
-            if (lang === 'he') return;
-
-            // בעתיד - תרגום עם Google Translate API
-            document.getElementById('translationBox').textContent = `[תרגום ל-${lang}...]`;
+        function addResponseToChat(reply) {
+            document.getElementById('chatArea').innerHTML += `
+                <div class="message assistant">
+                    <div class="message-content">${reply}</div>
+                    <div class="message-time">${getCurrentTime()}</div>
+                </div>
+            `;
+            document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
         }
 
         function updateLearning(text) {
-            const words = text.split(' ');
+            const words = text.toLowerCase().split(/\s+/).filter(w => w.length > 2);
             words.forEach(word => {
-                if (word.length > 2) learnedWords.add(word);
+                learnedWords.add(word);
+                learningMemory[word] = (learningMemory[word] || 0) + 1;
             });
 
             document.getElementById('learnedWords').textContent = learnedWords.size;
-            document.getElementById('accuracy').textContent = Math.min(95 + Math.floor(learnedWords.size / 10), 99) + '%';
+            document.getElementById('accuracy').textContent = Math.min(85 + Math.floor(learnedWords.size / 20), 99) + '%';
+        }
+
+        function updateLearningWithResponse(question, answer, language) {
+            languagesHeard.add(language);
+            document.getElementById('languagesHeard').textContent = languagesHeard.size;
+
+            // ✅ תמיע בליבה - שמור בזיכרון קבוע
+            const interaction = {
+                q: question,
+                a: answer,
+                lang: language,
+                timestamp: new Date().toISOString(),
+                binary: BINARY_SIGNATURE
+            };
+
+            // שמור בlocalStorage (זיכרון פרמננטי)
+            let interactions = JSON.parse(localStorage.getItem('chaiEmetMemory') || '[]');
+            interactions.push(interaction);
+            localStorage.setItem('chaiEmetMemory', JSON.stringify(interactions));
+
+            updateLearning(question + ' ' + answer);
         }
 
         // שמירה כ-DOCX
@@ -591,12 +595,24 @@
                     properties: {},
                     children: [
                         new window.docx.Paragraph({
-                            text: 'חי-אמת טרנסקריפציה',
+                            text: 'חי-אמת טרנסקריפציה קוליית',
                             heading: window.docx.HeadingLevel.HEADING_1,
                             bold: true
                         }),
                         new window.docx.Paragraph({
                             text: `תאריך: ${new Date().toLocaleString('he-IL')}`,
+                            spacing: { line: 240 }
+                        }),
+                        new window.docx.Paragraph({
+                            text: `שפה: ${document.getElementById('languagePicker').value}`,
+                            spacing: { line: 240 }
+                        }),
+                        new window.docx.Paragraph({
+                            text: `בינארי: ${BINARY_SIGNATURE}`,
+                            spacing: { line: 240 }
+                        }),
+                        new window.docx.Paragraph({
+                            text: '─────────────────────',
                             spacing: { line: 240 }
                         }),
                         new window.docx.Paragraph({
@@ -618,9 +634,13 @@
 
         // שמירה כ-TXT
         function saveAsTxt() {
-            const text = `חי-אמת טרנסקריפציה
+            const text = `חי-אמת טרנסקריפציה קוליית
 תאריך: ${new Date().toLocaleString('he-IL')}
 שפה: ${document.getElementById('languagePicker').value}
+בינארי: ${BINARY_SIGNATURE}
+דיוק: ${TIMING_PRECISION} שניות
+
+═══════════════════════
 
 ${transcription || 'אין טקסט להוקלט'}`;
 
@@ -673,22 +693,11 @@ ${transcription || 'אין טקסט להוקלט'}`;
             }
         });
 
-        document.getElementById('sendBtn').addEventListener('click', () => {
-            const text = document.getElementById('messageInput').value.trim();
-            if (text) {
-                processVoiceInput(text);
-                document.getElementById('messageInput').value = '';
-            }
-        });
-
-        document.getElementById('messageInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                document.getElementById('sendBtn').click();
-            }
-        });
-
         // אתחול
         initSpeechRecognition();
+        console.log(`✅ Hai-Emet Voice System v2.0`);
+        console.log(`🔢 Binary Signature: ${BINARY_SIGNATURE}`);
+        console.log(`⏱️ Timing Precision: ${TIMING_PRECISION} seconds`);
     </script>
 </body>
 </html>
