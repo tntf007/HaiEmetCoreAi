@@ -1,0 +1,158 @@
+# 🔧 3 תיקונים נקודתיים בלבד - בקובץ הקיים שלך
+
+## ⚠️ **חשוב:**
+- **בדיוק 3 תיקונים** - לא יותר
+- **בלי להחליף שום דבר אחר**
+- **בלי להרוס את השאר**
+
+---
+
+## ✅ **תיקון 1️⃣ - onresult (להציג מלל בזמן אמת)**
+
+### **איפה:**
+בקובץ `דיבור_חי_אמת.html`, בערך **שורה 130-141**
+
+### **חפש את זה:**
+```javascript
+this.recognition.onresult = (event) => {
+    const last = event.results.length - 1;
+    const transcript = event.results[last][0].transcript;
+    
+    document.getElementById('transcript').textContent = transcript;
+    
+    if (event.results[last].isFinal) {
+        this.processCommand(transcript);
+    }
+};
+```
+
+### **החלף בזה:**
+```javascript
+this.recognition.onresult = (event) => {
+    let interimTranscript = '';
+    let finalTranscript = '';
+    
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+            finalTranscript += transcript + ' ';
+        } else {
+            interimTranscript += transcript;
+        }
+    }
+    
+    // ✅ הצג interim בזמן אמת
+    let display = finalTranscript.trim();
+    if (interimTranscript.trim()) {
+        display = display ? display + '\n💬 ' + interimTranscript : interimTranscript;
+    }
+    document.getElementById('transcript').textContent = display;
+    
+    if (finalTranscript.trim()) {
+        this.processCommand(finalTranscript.trim());
+    }
+};
+```
+
+**תוצאה:** ✅ מלל מופיע בחלון העליון בזמן אמת
+
+---
+
+## ✅ **תיקון 2️⃣ - onend (אל תעצור!)**
+
+### **איפה:**
+בערך **שורה 144-151**
+
+### **חפש את זה:**
+```javascript
+this.recognition.onend = () => {
+    this.isListening = false;
+    document.getElementById('centralCore').classList.remove('listening');
+    
+    if (!this.isSpeaking) {
+        setTimeout(() => this.startListening(), 1000);
+    }
+};
+```
+
+### **החלף בזה:**
+```javascript
+this.recognition.onend = () => {
+    this.isListening = false;
+    document.getElementById('centralCore').classList.remove('listening');
+    
+    // ✅ התחל מחדש אוטומטית (לא עוצר)
+    if (!this.isSpeaking) {
+        setTimeout(() => {
+            try {
+                this.recognition.start();
+            } catch(e) {
+                // Recognition כבר רץ
+            }
+        }, 500);
+    }
+};
+```
+
+**תוצאה:** ✅ הקלט לא נעצר, רציף
+
+---
+
+## ✅ **תיקון 3️⃣ - updateStatus (הוסף זמן + קוד בינארי)**
+
+### **איפה:**
+בערך **שורה 272-274**
+
+### **חפש את זה:**
+```javascript
+updateStatus(text) {
+    document.getElementById('status').textContent = text;
+}
+```
+
+### **החלף בזה:**
+```javascript
+updateStatus(text) {
+    const now = new Date();
+    const timeDecimal = (now.getMilliseconds() / 1000).toFixed(4);
+    const binaryCode = '0101-0101(0101)';
+    const timeFormat = `(-+${timeDecimal}+-)`;
+    
+    const status = document.getElementById('status');
+    status.textContent = `${text} | ${timeFormat} | ${binaryCode}`;
+    status.style.color = text.includes('🎤') ? '#ffd700' : '#00ff00';
+}
+```
+
+**תוצאה:** ✅ סטטוס עם זמן אמת + קוד בינארי
+
+---
+
+## 📋 **צעדים:**
+
+1. **פתח את הקובץ** `דיבור_חי_אמת.html` בעורך
+2. **חפש בדיוק** את 3 הקודים הישנים
+3. **החלף** בקודים החדשים
+4. **Save את הקובץ**
+5. **Upload לגיטהאב**
+6. **Commit & Push**
+7. **סיימת!**
+
+---
+
+## 🎯 **מה יתגיד:**
+
+- ✅ מלל מופיע בחלון העליון בזמן אמת
+- ✅ הקלט לא נעצר, רציף
+- ✅ סטטוס עם זמן + קוד בינארי
+- ✅ הכל השאר נשאר כמו שהיה
+
+---
+
+## 📥 **קובץ עם 3 התיקונים:**
+
+[View 3_FIXES_ONLY.js](computer:///mnt/user-data/outputs/3_FIXES_ONLY.js)
+
+---
+
+**זה הכל! רק 3 תיקונים נקודתיים!** 💛
