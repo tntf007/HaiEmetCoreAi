@@ -371,6 +371,24 @@ def main_handler():
             "historyLength": len(history)
         })
     
+    elif action == 'learn' or 'data' in data:
+        # Learning system for video/stream transcription
+        user_data = data.get('data', {})
+        transcript = user_data.get('transcript', '')
+        url = user_data.get('url', '')
+        
+        if transcript:
+            learn_pattern(transcript, transcript, data.get('language', 'en'), data.get('userId', 'unknown'))
+        
+        return jsonify({
+            "status": "success",
+            "code": 200,
+            "learned": True,
+            "learned_patterns": len(LEARNED_PATTERNS),
+            "type": "video_transcription",
+            "timestamp": datetime.now().isoformat()
+        })
+    
     elif action == 'chat' or 'message' in data:
         result = handle_chat_message(data)
         return jsonify(result), result.get('code', 200)
