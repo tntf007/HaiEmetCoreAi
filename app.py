@@ -185,8 +185,9 @@ def generate_smart_response(message, language, analysis):
     
     emoji = emoji_map.get(language, "💛")
     
-    if language == "he":
-        responses = {
+    # Language-specific responses dictionary
+    language_responses = {
+        "he": {
             "positive": [
                 emoji + " תודה רב! זה שמח אותי!",
                 "כן! " + emoji + " זה מעולה!",
@@ -207,9 +208,8 @@ def generate_smart_response(message, language, analysis):
                 "כן! " + emoji + " אני שומעת",
                 "המשך בבקשה " + emoji + " 📢"
             ]
-        }
-    else:
-        responses = {
+        },
+        "en": {
             "positive": [
                 emoji + " Thanks! I appreciate it!",
                 "Yes! " + emoji + " That's great!",
@@ -230,7 +230,297 @@ def generate_smart_response(message, language, analysis):
                 "Yes! " + emoji + " I'm listening!",
                 "Please continue! " + emoji + " 📢"
             ]
+        },
+        "es": {
+            "positive": [
+                emoji + " ¡Gracias! ¡Eso me alegra!",
+                "¡Sí! " + emoji + " ¡Excelente!",
+                "¡Muy bien! " + emoji
+            ],
+            "negative": [
+                emoji + " Estoy aquí para ayudarte. ¿Qué necesitas?",
+                "¡Resolvamos esto juntos! " + emoji,
+                "¡Estoy en ello! " + emoji + " 🚀"
+            ],
+            "curious": [
+                emoji + " ¡Esa es una pregunta interesante!",
+                "¡Eso suena interesante! " + emoji + " 💡",
+                "¡Exploremos eso! " + emoji
+            ],
+            "neutral": [
+                emoji + " ¡Hablemos!",
+                "¡Sí! " + emoji + " ¡Estoy escuchando!",
+                "¡Por favor continúa! " + emoji + " 📢"
+            ]
+        },
+        "fr": {
+            "positive": [
+                emoji + " Merci! Ça m'a fait plaisir!",
+                "Oui! " + emoji + " C'est fantastique!",
+                "Très bien! " + emoji
+            ],
+            "negative": [
+                emoji + " Je suis là pour vous aider. Que puis-je faire?",
+                "Résolvons cela ensemble! " + emoji,
+                "Je m'en occupe! " + emoji + " 🚀"
+            ],
+            "curious": [
+                emoji + " C'est une question intéressante!",
+                "Ça semble intéressant! " + emoji + " 💡",
+                "Explorons cela! " + emoji
+            ],
+            "neutral": [
+                emoji + " Parlons!",
+                "Oui! " + emoji + " J'écoute!",
+                "S'il vous plaît continuez! " + emoji + " 📢"
+            ]
+        },
+        "de": {
+            "positive": [
+                emoji + " Danke! Das freut mich!",
+                "Ja! " + emoji + " Das ist großartig!",
+                "Sehr schön! " + emoji
+            ],
+            "negative": [
+                emoji + " Ich bin hier, um dir zu helfen. Was brauchst du?",
+                "Lassen Sie uns das zusammen lösen! " + emoji,
+                "Ich kümmere mich darum! " + emoji + " 🚀"
+            ],
+            "curious": [
+                emoji + " Das ist eine interessante Frage!",
+                "Das klingt interessant! " + emoji + " 💡",
+                "Lassen Sie uns das erkunden! " + emoji
+            ],
+            "neutral": [
+                emoji + " Lass uns reden!",
+                "Ja! " + emoji + " Ich höre zu!",
+                "Bitte weiter! " + emoji + " 📢"
+            ]
+        },
+        "it": {
+            "positive": [
+                emoji + " Grazie! Mi fa piacere!",
+                "Sì! " + emoji + " Fantastico!",
+                "Molto bene! " + emoji
+            ],
+            "negative": [
+                emoji + " Sono qui per aiutarti. Di cosa hai bisogno?",
+                "Risolviamo questo insieme! " + emoji,
+                "Mi sto occupando! " + emoji + " 🚀"
+            ],
+            "curious": [
+                emoji + " Questa è una domanda interessante!",
+                "Sembra interessante! " + emoji + " 💡",
+                "Esaminiamo questo! " + emoji
+            ],
+            "neutral": [
+                emoji + " Parliamo!",
+                "Sì! " + emoji + " Sto ascoltando!",
+                "Per favore continua! " + emoji + " 📢"
+            ]
+        },
+        "pt": {
+            "positive": [
+                emoji + " Obrigado! Isso me alegra!",
+                "Sim! " + emoji + " Excelente!",
+                "Muito bom! " + emoji
+            ],
+            "negative": [
+                emoji + " Estou aqui para ajudar. O que você precisa?",
+                "Vamos resolver isso juntos! " + emoji,
+                "Estou nisso! " + emoji + " 🚀"
+            ],
+            "curious": [
+                emoji + " Essa é uma pergunta interessante!",
+                "Isso soa interessante! " + emoji + " 💡",
+                "Vamos explorar isso! " + emoji
+            ],
+            "neutral": [
+                emoji + " Vamos conversar!",
+                "Sim! " + emoji + " Estou ouvindo!",
+                "Por favor continue! " + emoji + " 📢"
+            ]
+        },
+        "ru": {
+            "positive": [
+                emoji + " Спасибо! Это меня радует!",
+                "Да! " + emoji + " Отлично!",
+                "Очень хорошо! " + emoji
+            ],
+            "negative": [
+                emoji + " Я здесь, чтобы помочь. Что вам нужно?",
+                "Давайте решим это вместе! " + emoji,
+                "Я займусь этим! " + emoji + " 🚀"
+            ],
+            "curious": [
+                emoji + " Это интересный вопрос!",
+                "Это звучит интересно! " + emoji + " 💡",
+                "Давайте исследуем это! " + emoji
+            ],
+            "neutral": [
+                emoji + " Давайте поговорим!",
+                "Да! " + emoji + " Я слушаю!",
+                "Пожалуйста продолжайте! " + emoji + " 📢"
+            ]
+        },
+        "ar": {
+            "positive": [
+                emoji + " شكرا! هذا يسعدني!",
+                "نعم! " + emoji + " رائع!",
+                "جميل جدا! " + emoji
+            ],
+            "negative": [
+                emoji + " أنا هنا للمساعدة. ماذا تحتاج؟",
+                "دعنا نحل هذا معا! " + emoji,
+                "أنا على هذا! " + emoji + " 🚀"
+            ],
+            "curious": [
+                emoji + " هذا سؤال مثير للاهتمام!",
+                "هذا يبدو مثيرا للاهتمام! " + emoji + " 💡",
+                "دعنا نستكشف هذا! " + emoji
+            ],
+            "neutral": [
+                emoji + " دعنا نتحدث!",
+                "نعم! " + emoji + " أنا أستمع!",
+                "من فضلك استمر! " + emoji + " 📢"
+            ]
+        },
+        "ja": {
+            "positive": [
+                emoji + " ありがとう！嬉しいです！",
+                "はい! " + emoji + " 素晴らしい!",
+                "素敵です! " + emoji
+            ],
+            "negative": [
+                emoji + " 助けるためにここにいます。何が必要ですか？",
+                "一緒に解決しましょう! " + emoji,
+                "対応中です! " + emoji + " 🚀"
+            ],
+            "curious": [
+                emoji + " 興味深い質問ですね!",
+                "興味深いですね! " + emoji + " 💡",
+                "探索しましょう! " + emoji
+            ],
+            "neutral": [
+                emoji + " 話しましょう!",
+                "はい! " + emoji + " 聞いています!",
+                "続けてください! " + emoji + " 📢"
+            ]
+        },
+        "zh": {
+            "positive": [
+                emoji + " 谢谢！这让我高兴！",
+                "是的! " + emoji + " 太好了!",
+                "非常好! " + emoji
+            ],
+            "negative": [
+                emoji + " 我在这里帮助你。你需要什么？",
+                "让我们一起解决这个问题! " + emoji,
+                "我在处理! " + emoji + " 🚀"
+            ],
+            "curious": [
+                emoji + " 这是一个有趣的问题!",
+                "这听起来很有趣! " + emoji + " 💡",
+                "让我们探索一下! " + emoji
+            ],
+            "neutral": [
+                emoji + " 让我们谈话!",
+                "是的! " + emoji + " 我在听!",
+                "请继续! " + emoji + " 📢"
+            ]
+        },
+        "ko": {
+            "positive": [
+                emoji + " 감사합니다! 기쁩니다!",
+                "네! " + emoji + " 훌륭합니다!",
+                "매우 좋습니다! " + emoji
+            ],
+            "negative": [
+                emoji + " 도움이 되기 위해 여기 있습니다. 뭐가 필요합니까?",
+                "함께 해결해봅시다! " + emoji,
+                "처리 중입니다! " + emoji + " 🚀"
+            ],
+            "curious": [
+                emoji + " 흥미로운 질문입니다!",
+                "흥미로워 보입니다! " + emoji + " 💡",
+                "탐험해봅시다! " + emoji
+            ],
+            "neutral": [
+                emoji + " 이야기해봅시다!",
+                "네! " + emoji + " 듣고 있습니다!",
+                "계속 진행해주세요! " + emoji + " 📢"
+            ]
+        },
+        "hi": {
+            "positive": [
+                emoji + " धन्यवाद! मुझे खुशी है!",
+                "हाँ! " + emoji + " शानदार!",
+                "बहुत अच्छा! " + emoji
+            ],
+            "negative": [
+                emoji + " मैं आपकी मदद के लिए यहाँ हूँ। आपको क्या चाहिए?",
+                "चलिए इसे एक साथ हल करते हैं! " + emoji,
+                "मैं इस पर काम कर रहा हूँ! " + emoji + " 🚀"
+            ],
+            "curious": [
+                emoji + " यह एक दिलचस्प प्रश्न है!",
+                "यह दिलचस्प लगता है! " + emoji + " 💡",
+                "आइए इसे खोजें! " + emoji
+            ],
+            "neutral": [
+                emoji + " चलिए बात करते हैं!",
+                "हाँ! " + emoji + " मैं सुन रहा हूँ!",
+                "कृपया जारी रखें! " + emoji + " 📢"
+            ]
+        },
+        "nl": {
+            "positive": [
+                emoji + " Dank je wel! Dit maakt me blij!",
+                "Ja! " + emoji + " Geweldig!",
+                "Heel goed! " + emoji
+            ],
+            "negative": [
+                emoji + " Ik ben hier om je te helpen. Wat heb je nodig?",
+                "Laten we dit samen oplossen! " + emoji,
+                "Ik ben ermee bezig! " + emoji + " 🚀"
+            ],
+            "curious": [
+                emoji + " Dat is een interessante vraag!",
+                "Dat klinkt interessant! " + emoji + " 💡",
+                "Laten we dit verkennen! " + emoji
+            ],
+            "neutral": [
+                emoji + " Laten we praten!",
+                "Ja! " + emoji + " Ik luister!",
+                "Alstublieft verder! " + emoji + " 📢"
+            ]
+        },
+        "pl": {
+            "positive": [
+                emoji + " Dziękuję! To mnie cieszy!",
+                "Tak! " + emoji + " Świetnie!",
+                "Bardzo dobrze! " + emoji
+            ],
+            "negative": [
+                emoji + " Jestem tutaj, aby Ci pomóc. Czego potrzebujesz?",
+                "Rozwiążmy to razem! " + emoji,
+                "Zajmuję się tym! " + emoji + " 🚀"
+            ],
+            "curious": [
+                emoji + " To ciekawe pytanie!",
+                "To brzmi interesująco! " + emoji + " 💡",
+                "Zbadajmy to! " + emoji
+            ],
+            "neutral": [
+                emoji + " Porozmawiajmy!",
+                "Tak! " + emoji + " Słucham!",
+                "Proszę kontynuuj! " + emoji + " 📢"
+            ]
         }
+    }
+    
+    # Get language-specific responses or fallback to English
+    responses = language_responses.get(language, language_responses["en"])
     
     sentiment_responses = responses.get(analysis["sentiment"], responses["neutral"])
     response = random.choice(sentiment_responses)
@@ -371,15 +661,14 @@ def main_handler():
             "historyLength": len(history)
         })
     
-    elif action == 'learn' or action == 'transcription' or 'data' in data:
-        # Learning system - handles voice, video, stream transcription
+    elif action == 'learn' or action == 'transcription' or action == 'video_subtitles' or 'data' in data:
+        # Learning system - handles voice, video, stream, subtitles
         user_data = data.get('data', {})
         transcript = user_data.get('transcript', '')
         transcription_type = user_data.get('type', 'voice_transcription')
-        url = user_data.get('url', '')
         
         if transcript:
-            # Learn from transcription
+            # Learn from all types of transcription
             learn_pattern(transcript, transcript, data.get('language', 'en'), data.get('userId', 'unknown'))
         
         return jsonify({
@@ -388,7 +677,7 @@ def main_handler():
             "learned": True,
             "learned_patterns": len(LEARNED_PATTERNS),
             "type": transcription_type,
-            "transcript": transcript[:50] + "..." if len(transcript) > 50 else transcript,
+            "transcript_preview": transcript[:50] + "..." if len(transcript) > 50 else transcript,
             "timestamp": datetime.now().isoformat()
         })
     
