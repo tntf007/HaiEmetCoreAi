@@ -392,6 +392,10 @@
                     🎤 הקלט
                 </button>
                 
+                <button class="control-btn" onclick="clearTranscription()" style="border-color: #ff9800; color: #ff9800; margin-top: 8px;">
+                    🔄 נקה טקסט
+                </button>
+                
                 <!-- VOICE LANGUAGE -->
                 <div class="section-title">שפת קול</div>
                 <select class="lang-select" id="voiceLang" onchange="changeVoiceLanguage()">
@@ -509,6 +513,15 @@
                         </button>
                     </div>
                     
+                    <div style="margin-bottom: 8px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                        <div style="font-weight: bold; margin-bottom: 6px; color: #667eea;">📝 טקסט מהסרטון:</div>
+                        <textarea id="videoSubtitles" placeholder="הדבק טקסט מהסרטון או הוספה ידנית..." 
+                            style="width: 100%; height: 80px; padding: 8px; border-radius: 6px; border: 1px solid #667eea; resize: vertical; font-size: 0.9em;"></textarea>
+                        <button class="control-btn" onclick="processVideoSubtitles()" style="width: 100%; margin-top: 8px; margin-bottom: 0;">
+                            ✅ עדכן כתוביות + תרגום
+                        </button>
+                    </div>
+                    
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
                         <button class="control-btn" id="audioStreamBtn" onclick="startAudioStreaming()" style="border-color: #667eea; color: #667eea; margin-bottom: 0; font-size: 0.9em;">
                             🎙️ הקלט אודיו
@@ -525,13 +538,42 @@
                             </video>
                         </div>
                         
-                        <div class="transcription-box" style="min-height: 100px; max-height: 180px; margin-bottom: 0;">
-                            <div class="transcription-label">סרטון + טקסט בזמן אמת</div>
-                            <div id="videoTranscript"></div>
+                        <div style="margin-bottom: 8px;">
+                            <div style="font-weight: bold; color: #667eea; margin-bottom: 4px;">🌍 בחר שפה לתרגום:</div>
+                            <select id="videoTranslang" onchange="updateVideoTranslation()" 
+                                style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #667eea; font-size: 0.9em;">
+                                <option value="">🌍 בחר שפה</option>
+                                <option value="he">🇮🇱 עברית</option>
+                                <option value="en">🇺🇸 English</option>
+                                <option value="es">🇪🇸 Español</option>
+                                <option value="fr">🇫🇷 Français</option>
+                                <option value="de">🇩🇪 Deutsch</option>
+                                <option value="it">🇮🇹 Italiano</option>
+                                <option value="pt">🇵🇹 Português</option>
+                                <option value="ru">🇷🇺 Русский</option>
+                                <option value="ar">🇸🇦 العربية</option>
+                                <option value="ja">🇯🇵 日本語</option>
+                                <option value="zh">🇨🇳 中文</option>
+                                <option value="ko">🇰🇷 한국어</option>
+                                <option value="hi">🇮🇳 हिन्दी</option>
+                                <option value="nl">🇳🇱 Nederlands</option>
+                                <option value="pl">🇵🇱 Polski</option>
+                            </select>
                         </div>
-                        <button class="control-btn" onclick="saveStreamTranscript()" style="border-color: #28a745; color: #28a745; width: 100%; margin-top: 8px;">
-                            💾 שמור תרגום סרטון
-                        </button>
+                        
+                        <div class="transcription-box" style="min-height: 120px; max-height: 200px; margin-bottom: 8px;">
+                            <div class="transcription-label">סרטון + כתוביות בזמן אמת</div>
+                            <div id="videoTranscript" style="line-height: 1.8;"></div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <button class="control-btn" onclick="saveVideoTranscriptTXT()" style="border-color: #28a745; color: #28a745; margin-bottom: 0;">
+                                📄 שמור TXT
+                            </button>
+                            <button class="control-btn" onclick="saveVideoTranscriptDOCX()" style="border-color: #28a745; color: #28a745; margin-bottom: 0;">
+                                📋 שמור DOCX
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -626,9 +668,26 @@
             return (Date.now() / 1000).toFixed(4);
         }
         
+        function getExactTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            return `${hours}:${minutes}:${seconds}`;
+        }
+        
         function togglePanel() {
             const panel = document.getElementById('voicePanel');
             panel.classList.toggle('open');
+        }
+        
+        function clearTranscription() {
+            if (confirm('בטוח שרוצה למחוק את כל הטקסט?')) {
+                document.getElementById('finalTranscript').textContent = '';
+                document.getElementById('finalTranscript').setAttribute('data-saved', '');
+                transcriptionHistory = [];
+                console.log('✅ Transcription cleared');
+            }
         }
         
         function toggleUploadAccordion(element) {
@@ -659,11 +718,8 @@
                 isRecording = false;
                 document.getElementById('recordBtn').classList.remove('recording');
             } else {
-                // Clear only old text when starting new recording
-                document.getElementById('finalTranscript').textContent = '';
-                if (selectedTranslateLang) {
-                    document.getElementById('translatedText').textContent = '';
-                }
+                // Do NOT clear - just reset interim display
+                // Saved text stays via data-saved attribute
                 
                 recognition.start();
                 isRecording = true;
@@ -689,21 +745,31 @@
                     }
                 }
                 
-                // Show interim text in real-time (immediately)
+                // Get current saved text (never delete)
+                const savedText = document.getElementById('finalTranscript').getAttribute('data-saved') || '';
+                
+                // Show saved text + interim (interim in lighter color)
                 if (interimTranscript.trim()) {
-                    document.getElementById('finalTranscript').textContent = interimTranscript;
+                    // Create display with saved + interim
+                    const display = savedText ? 
+                        savedText + '\n\n💬 ' + interimTranscript : 
+                        interimTranscript;
+                    document.getElementById('finalTranscript').textContent = display;
+                } else if (savedText) {
+                    document.getElementById('finalTranscript').textContent = savedText;
                 }
                 
-                // Append text continuously (not replace)
+                // ONLY APPEND on final - save permanently
                 if (finalTranscript.trim()) {
-                    const current = document.getElementById('finalTranscript').textContent;
-                    const newText = current ? current + ' ' + finalTranscript.trim() : finalTranscript.trim();
-                    document.getElementById('finalTranscript').textContent = newText;
+                    const newSavedText = savedText ? savedText + ' ' + finalTranscript.trim() : finalTranscript.trim();
+                    document.getElementById('finalTranscript').textContent = newSavedText;
+                    document.getElementById('finalTranscript').setAttribute('data-saved', newSavedText);
+                    
                     console.log(`[${getPrecisionTime()}s] Final: "${finalTranscript.trim()}"`);
                     
                     transcriptionHistory.push({
                         text: finalTranscript.trim(),
-                        time: getPrecisionTime(),
+                        time: getExactTime(),
                         lang: currentVoiceLang
                     });
                     
@@ -788,7 +854,7 @@
             
             const timeEl = document.createElement('div');
             timeEl.className = 'message-time';
-            timeEl.textContent = getPrecisionTime() + 's';
+            timeEl.textContent = getExactTime();
             
             wrapper.appendChild(contentEl);
             wrapper.appendChild(timeEl);
@@ -802,13 +868,13 @@
             const message = document.getElementById('messageInput').value.trim();
             if (!message) return;
             
-            // Show user message immediately
+            // Show user message immediately with timestamp
             addMessage(message, true);
             document.getElementById('messageInput').value = '';
             document.getElementById('statusIndicator').textContent = '⏳ משדרת תגובה...';
             
             try {
-                // Send to backend API with learning
+                // Send to backend API with current language
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -816,7 +882,7 @@
                         action: 'chat',
                         message: message,
                         token: TOKEN,
-                        language: currentVoiceLang,
+                        language: currentVoiceLang,  // Send current language
                         userId: userId,
                         timestamp: getPrecisionTime()
                     })
@@ -824,7 +890,7 @@
                 
                 const data = await response.json();
                 
-                // Show AI response
+                // Show AI response in SAME language
                 if (data.reply) {
                     addMessage(data.reply, false);
                     console.log('✅ Response:', data.reply);
@@ -1068,29 +1134,6 @@
             }
         }
         
-        function addMessage(text, isUser = false) {
-            const messageEl = document.createElement('div');
-            messageEl.className = `message ${isUser ? 'user' : 'assistant'}`;
-            
-            const wrapper = document.createElement('div');
-            wrapper.className = 'message-wrapper';
-            
-            const contentEl = document.createElement('div');
-            contentEl.className = 'message-content';
-            contentEl.textContent = text;
-            
-            const timeEl = document.createElement('div');
-            timeEl.className = 'message-time';
-            timeEl.textContent = getPrecisionTime() + 's';
-            
-            wrapper.appendChild(contentEl);
-            wrapper.appendChild(timeEl);
-            messageEl.appendChild(wrapper);
-            document.getElementById('chatArea').appendChild(messageEl);
-            
-            document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
-        }
-        
         function toggleStreamAccordion(element) {
             const accordion = document.getElementById('streamAccordion');
             const arrow = element.textContent.includes('▶') ? '▼' : '▶';
@@ -1156,42 +1199,179 @@
         }
         
         let videoTranscriptHistory = [];
+        let currentVideoSubtitles = '';
+        let currentVideoTranslations = {};
         
-        async function startVideoTranscription(url) {
-            // Real-time transcription simulation for video/stream
-            document.getElementById('videoTranscript').textContent = '🎬 סרטון בהשמעה - טקסט יופיע בזמן אמת...';
-            
-            // Simulate transcription loading
-            const messages = [
-                '▶ מתחיל להעלות סרטון...',
-                '📝 טוען טקסט...',
-                '✅ מוכן לשמעה'
-            ];
-            
-            for (let msg of messages) {
-                await new Promise(r => setTimeout(r, 1000));
-                document.getElementById('videoTranscript').textContent = msg;
+        async function processVideoSubtitles() {
+            const subtitles = document.getElementById('videoSubtitles').value.trim();
+            if (!subtitles) {
+                alert('הכנס טקסט מהסרטון');
+                return;
             }
             
-            // Initial transcript message
-            const transcript = `🔴 סרטון בהשמעה - טקסט בזמן אמת`;
-            document.getElementById('videoTranscript').textContent = transcript;
+            currentVideoSubtitles = subtitles;
+            currentVideoTranslations = {};
+            document.getElementById('videoTranscript').textContent = subtitles;
             
-            videoTranscriptHistory.push({
-                text: transcript,
+            videoTranscriptHistory = [{
+                text: subtitles,
                 time: getPrecisionTime(),
-                url: url,
                 lang: currentVoiceLang
-            });
+            }];
             
-            // Send to learning system
+            // Send to learning
             await sendToLearningSystem({
-                type: 'video_transcription',
-                url: url,
-                transcript: transcript,
+                type: 'video_subtitles',
+                transcript: subtitles,
                 language: currentVoiceLang,
                 timestamp: getPrecisionTime()
             });
+            
+            addMessage(`🎬 עדכן כתוביות: ${subtitles.substring(0, 30)}...`, false);
+        }
+        
+        async function updateVideoTranslation() {
+            const targetLang = document.getElementById('videoTranslang').value;
+            if (!targetLang || !currentVideoSubtitles) return;
+            
+            document.getElementById('videoTranscript').textContent = '⏳ מתרגם...';
+            
+            try {
+                const translated = await translateVideoText(currentVideoSubtitles, targetLang);
+                currentVideoTranslations[targetLang] = translated;
+                
+                const display = `📺 מקור:\n${currentVideoSubtitles}\n\n🌍 תרגום:\n${translated}`;
+                document.getElementById('videoTranscript').textContent = display;
+                
+                videoTranscriptHistory.push({
+                    text: translated,
+                    time: getPrecisionTime(),
+                    lang: targetLang,
+                    translated_from: currentVoiceLang
+                });
+                
+            } catch (e) {
+                document.getElementById('videoTranscript').textContent = '❌ שגיאה בתרגום';
+            }
+        }
+        
+        async function saveVideoTranscriptTXT() {
+            if (!currentVideoSubtitles) {
+                alert('אין כתוביות לשמור');
+                return;
+            }
+            
+            let content = `חי-אמת - כתוביות סרטון\n`;
+            content += `=${'='.repeat(50)}\n`;
+            content += `תאריך: ${new Date().toLocaleString('he-IL')}\n`;
+            content += `שפה מקור: ${LANGUAGES_CONFIG[currentVoiceLang]?.name || 'Unknown'}\n`;
+            content += `=${'='.repeat(50)}\n\n`;
+            content += `📺 טקסט מקור:\n${currentVideoSubtitles}\n\n`;
+            
+            // Add all translations
+            if (Object.keys(currentVideoTranslations).length > 0) {
+                content += `🌍 תרגומים:\n${'-'.repeat(50)}\n`;
+                for (const [lang, text] of Object.entries(currentVideoTranslations)) {
+                    content += `\n[${lang.toUpperCase()}]\n${text}\n`;
+                }
+            }
+            
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            const filename = `video_subtitles_${Date.now()}.txt`;
+            link.download = filename;
+            link.click();
+            
+            uploadedFiles.push({
+                name: filename,
+                time: getPrecisionTime(),
+                type: 'video_txt',
+                size: (blob.size / 1024).toFixed(2) + ' KB'
+            });
+            updateFilesList();
+            addMessage(`📄 שמור: ${filename}`, false);
+        }
+        
+        async function saveVideoTranscriptDOCX() {
+            if (!currentVideoSubtitles) {
+                alert('אין כתוביות לשמור');
+                return;
+            }
+            
+            const sections = [];
+            
+            sections.push(new docx.Paragraph({
+                text: '📺 כתוביות סרטון - חי-אמת',
+                heading: docx.HeadingLevel.HEADING_1,
+                spacing: { after: 200 }
+            }));
+            
+            sections.push(new docx.Paragraph({
+                text: `תאריך: ${new Date().toLocaleString('he-IL')} | שפה: ${LANGUAGES_CONFIG[currentVoiceLang]?.name || 'Unknown'}`,
+                spacing: { after: 400 }
+            }));
+            
+            sections.push(new docx.Paragraph({
+                text: 'טקסט מקור:',
+                heading: docx.HeadingLevel.HEADING_2,
+                spacing: { after: 200 }
+            }));
+            
+            sections.push(new docx.Paragraph({
+                text: currentVideoSubtitles,
+                spacing: { after: 400 }
+            }));
+            
+            // Add translations
+            if (Object.keys(currentVideoTranslations).length > 0) {
+                sections.push(new docx.Paragraph({
+                    text: 'תרגומים:',
+                    heading: docx.HeadingLevel.HEADING_2,
+                    spacing: { after: 200 }
+                }));
+                
+                for (const [lang, text] of Object.entries(currentVideoTranslations)) {
+                    sections.push(new docx.Paragraph({
+                        text: lang.toUpperCase(),
+                        heading: docx.HeadingLevel.HEADING_3,
+                        spacing: { after: 100 }
+                    }));
+                    
+                    sections.push(new docx.Paragraph({
+                        text: text,
+                        spacing: { after: 200 }
+                    }));
+                }
+            }
+            
+            const doc = new docx.Document({
+                sections: [{ children: sections }]
+            });
+            
+            docx.Packer.toBlob(doc).then(blob => {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                const filename = `video_subtitles_${Date.now()}.docx`;
+                link.download = filename;
+                link.click();
+                
+                uploadedFiles.push({
+                    name: filename,
+                    time: getPrecisionTime(),
+                    type: 'video_docx',
+                    size: (blob.size / 1024).toFixed(2) + ' KB'
+                });
+                updateFilesList();
+                addMessage(`📋 שמור: ${filename}`, false);
+            });
+        }
+        
+        async function startVideoTranscription(url) {
+            // Video started - show message
+            document.getElementById('videoTranscript').textContent = '🎬 סרטון בהשמעה\n\n👇 הכנס את הטקסט/הכתוביות מהסרטון למעלה ובחר תרגום';
+            
+            addMessage(`🎬 סרטון: ${url}`, false);
         }
         
         async function translateVideoText(text, targetLang) {
@@ -1223,32 +1403,6 @@
             }
         }
         
-        function saveStreamTranscript() {
-            if (videoTranscriptHistory.length === 0) {
-                alert('אין תרגום לשמור');
-                return;
-            }
-            
-            const content = videoTranscriptHistory.map((t, i) => 
-                `${i + 1}. [${t.time}s] ${t.text}`
-            ).join('\n');
-            
-            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            const filename = `stream_transcript_${Date.now()}.txt`;
-            link.download = filename;
-            link.click();
-            
-            uploadedFiles.push({
-                name: filename,
-                time: getPrecisionTime(),
-                type: 'stream_txt',
-                size: (blob.size / 1024).toFixed(2) + ' KB'
-            });
-            updateFilesList();
-            addMessage(`💾 שמור: ${filename}`, false);
-        }
         
         let mediaRecorder = null;
         let audioChunks = [];
