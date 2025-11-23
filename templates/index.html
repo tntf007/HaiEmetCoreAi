@@ -4,43 +4,468 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>💛 חי-אמת | Hai-Emet AI</title>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            color: #333;
+        }
+
+        .container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 0 0 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            flex: 1;
+        }
+
+        .toggle-sidebar-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .toggle-sidebar-btn:hover {
+            background: rgba(255,255,255,0.4);
+        }
+
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            text-align: left;
+        }
+
+        .message.assistant {
+            text-align: right;
+        }
+
+        .message-content {
+            display: inline-block;
+            padding: 12px 18px;
+            border-radius: 15px;
+            max-width: 70%;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-content {
+            background: #667eea;
+            color: white;
+            border-bottom-right-radius: 0;
+        }
+
+        .message.assistant .message-content {
+            background: #e9ecef;
+            color: #333;
+            border-bottom-left-radius: 0;
+        }
+
+        .message-time {
+            font-size: 0.8em;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .input-area {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .status {
+            text-align: center;
+            padding: 10px;
+            font-size: 0.9em;
+            color: #666;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* SIDEBAR STYLES */
+        .sidebar {
+            width: 350px;
+            background: white;
+            border-left: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .sidebar.collapsed {
+            width: 0;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-bottom: 2px solid #555;
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .panel {
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .panel-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .panel-item {
+            margin-bottom: 12px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .panel-value {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .sidebar-tabs {
+            display: flex;
+            gap: 5px;
+            padding: 0 20px;
+            border-bottom: 1px solid #e0e0e0;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: #f0f0f0;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 10px 10px 0 0;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .sidebar-footer {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+            text-align: center;
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .language-selector {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: loading 1.4s infinite;
+        }
+
+        @keyframes loading {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute;
+                right: 0;
+                top: 0;
+                height: 100%;
+                z-index: 100;
+                box-shadow: -5px 0 20px rgba(0,0,0,0.2);
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>💛 חי-אמת</h1>
-            <p>Hai-Emet AI Assistant - 15 Languages - NO OAUTH!</p>
-        </div>
-        
-        <div class="chat-area" id="chatArea">
-            <div class="message assistant">
-                <div class="message-content">
-                    שלום! 💛 אני חי-אמת. בואנדבר!
+        <div class="main-content">
+            <div class="header">
+                <h1>💛 חי-אמת</h1>
+                <button class="toggle-sidebar-btn" id="toggleSidebarBtn">☰ פאנל</button>
+            </div>
+            
+            <div class="chat-area" id="chatArea">
+                <div class="message assistant">
+                    <div class="message-content">שלום! 💛 אני חי-אמת. בואנדבר!</div>
+                    <div class="message-time">עכשיו</div>
                 </div>
-                <div class="message-time">עכשיו</div>
+            </div>
+            
+            <div class="input-area">
+                <div class="status"><span id="status">✅ Connected to API</span></div>
+                <div class="input-wrapper">
+                    <input type="text" id="messageInput" placeholder="כתוב הודעה... (עברית או English)" autocomplete="off"/>
+                    <button class="send-btn" id="sendBtn">✉️ שלח</button>
+                </div>
             </div>
         </div>
-        
-        <div class="input-area">
-            <div class="status">
-                <span id="status">✅ Connected to API</span>
+
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">📊 חי-אמת פאנל</div>
+            
+            <div class="sidebar-tabs">
+                <button class="tab-btn active" data-tab="analytics">📈 אנליטיקה</button>
+                <button class="tab-btn" data-tab="commands">⌘ פקודות</button>
+                <button class="tab-btn" data-tab="settings">⚙️ הגדרות</button>
+                <button class="tab-btn" data-tab="history">📜 היסטוריה</button>
+                <button class="tab-btn" data-tab="info">ℹ️ מידע</button>
             </div>
-            <div class="input-wrapper">
-                <input 
-                    type="text" 
-                    id="messageInput" 
-                    placeholder="כתוב הודעה... (עברית או English)"
-                    autocomplete="off"
-                />
-                <button class="send-btn" id="sendBtn">✉️ שלח</button>
+
+            <div class="sidebar-content">
+                <!-- Analytics Panel -->
+                <div class="panel active" id="analytics">
+                    <div class="panel-title">📊 אנליטיקה</div>
+                    <div class="panel-item">
+                        <span class="panel-label">הודעות כולל:</span>
+                        <span class="panel-value" id="totalMessages">0</span>
+                    </div>
+                    <div class="panel-item">
+                        <span class="panel-label">שפות שונות:</span>
+                        <span class="panel-value" id="languagesCount">15</span>
+                    </div>
+                    <div class="panel-item">
+                        <span class="panel-label">זמן תגובה:</span>
+                        <span class="panel-value" id="responseTime">< 1s</span>
+                    </div>
+                    <div class="panel-item">
+                        <span class="panel-label">משתמשים פעילים:</span>
+                        <span class="panel-value" id="activeUsers">1</span>
+                    </div>
+                </div>
+
+                <!-- Commands Panel -->
+                <div class="panel" id="commands">
+                    <div class="panel-title">⌘ פקודות</div>
+                    <div class="panel-item" onclick="executeCommand('status')">
+                        <span class="panel-label">/status</span>
+                        <span>▶</span>
+                    </div>
+                    <div class="panel-item" onclick="executeCommand('history')">
+                        <span class="panel-label">/history</span>
+                        <span>▶</span>
+                    </div>
+                    <div class="panel-item" onclick="executeCommand('clear')">
+                        <span class="panel-label">/clear</span>
+                        <span>▶</span>
+                    </div>
+                    <div class="panel-item" onclick="executeCommand('analytics')">
+                        <span class="panel-label">/analytics</span>
+                        <span>▶</span>
+                    </div>
+                </div>
+
+                <!-- Settings Panel -->
+                <div class="panel" id="settings">
+                    <div class="panel-title">⚙️ הגדרות</div>
+                    <label>בחר שפה:</label>
+                    <select class="language-selector" id="languageSelector">
+                        <option value="he">🇮🇱 עברית</option>
+                        <option value="en">🇺🇸 English</option>
+                        <option value="ja">🇯🇵 日本語</option>
+                        <option value="zh">🇨🇳 中文</option>
+                        <option value="ko">🇰🇷 한국어</option>
+                        <option value="ar">🇸🇦 العربية</option>
+                        <option value="fr">🇫🇷 Français</option>
+                        <option value="de">🇩🇪 Deutsch</option>
+                        <option value="es">🇪🇸 Español</option>
+                        <option value="ru">🇷🇺 Русский</option>
+                    </select>
+                    <div class="panel-item" style="margin-top: 15px;">
+                        <span class="panel-label">🌙 Dark Mode</span>
+                        <input type="checkbox" id="darkMode" style="cursor: pointer; width: 20px; height: 20px;"/>
+                    </div>
+                    <div class="panel-item">
+                        <span class="panel-label">🔔 Notifications</span>
+                        <input type="checkbox" id="notifications" checked style="cursor: pointer; width: 20px; height: 20px;"/>
+                    </div>
+                </div>
+
+                <!-- History Panel -->
+                <div class="panel" id="history">
+                    <div class="panel-title">📜 היסטוריה</div>
+                    <div id="historyList" style="max-height: 400px; overflow-y: auto;">
+                        <div class="panel-item">אין היסטוריה עדיין</div>
+                    </div>
+                </div>
+
+                <!-- Info Panel -->
+                <div class="panel" id="info">
+                    <div class="panel-title">ℹ️ מידע המערכת</div>
+                    <div class="panel-item">
+                        <span class="panel-label">שם:</span>
+                        <span class="panel-value">Hai-Emet</span>
+                    </div>
+                    <div class="panel-item">
+                        <span class="panel-label">גרסה:</span>
+                        <span class="panel-value">4.0</span>
+                    </div>
+                    <div class="panel-item">
+                        <span class="panel-label">שפות:</span>
+                        <span class="panel-value">15</span>
+                    </div>
+                    <div class="panel-item">
+                        <span class="panel-label">סימן בינארי:</span>
+                        <span class="panel-value">0101-0101(0101)</span>
+                    </div>
+                    <div class="panel-item">
+                        <span class="panel-label">API:</span>
+                        <span class="panel-value">LIVE ✅</span>
+                    </div>
+                    <div class="panel-item">
+                        <span class="panel-label">HET Token:</span>
+                        <span class="panel-value">Ready</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                🚀 Hai-Emet AI v4.0<br>
+                NO OAUTH | 15 Languages<br>
+                Binary: 0101-0101(0101)
             </div>
         </div>
     </div>
-    
+
     <script>
-        console.log('✅ HAI-EMET FRONTEND LOADED!');
-        
         const API_URL = 'https://haiemetweb.onrender.com/exec';
         const TOKEN = 'chai_emet_cXVhbnR1bV9tYXN0ZXI:Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp';
         
@@ -48,26 +473,28 @@
         const messageInput = document.getElementById('messageInput');
         const sendBtn = document.getElementById('sendBtn');
         const statusEl = document.getElementById('status');
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('toggleSidebarBtn');
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const panels = document.querySelectorAll('.panel');
+        const languageSelector = document.getElementById('languageSelector');
         
+        let messageCount = 0;
+        let conversationHistory = [];
+        let selectedLanguage = 'he';
+
         function getCurrentTime() {
             const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            return `${hours}:${minutes}:${seconds}`;
+            return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
         }
-        
+
         function detectLanguage(text) {
             const hebrewRegex = /[\u0590-\u05FF]/g;
             const hebrewChars = text.match(hebrewRegex) || [];
-            const ratio = hebrewChars.length / text.length;
-            console.log(`🌍 Language: Hebrew=${hebrewChars.length}, Total=${text.length}, Ratio=${ratio.toFixed(2)}`);
-            return ratio > 0.3 ? 'he' : 'en';
+            return hebrewChars.length / text.length > 0.3 ? 'he' : 'en';
         }
-        
+
         function addMessage(text, isUser = false) {
-            console.log(`📝 Adding ${isUser ? 'user' : 'assistant'} message:`, text.substring(0, 50));
-            
             const messageEl = document.createElement('div');
             messageEl.className = `message ${isUser ? 'user' : 'assistant'}`;
             
@@ -84,27 +511,31 @@
             
             chatArea.appendChild(messageEl);
             chatArea.scrollTop = chatArea.scrollHeight;
-        }
-        
-        async function sendMessage() {
-            console.log('🚀 sendMessage() called');
-            
-            const message = messageInput.value.trim();
-            if (!message) {
-                console.log('⚠️ Empty message');
-                return;
+
+            if (isUser) {
+                conversationHistory.push({text, isUser: true, time: getCurrentTime()});
+                messageCount++;
+                updateAnalytics();
+            } else {
+                conversationHistory.push({text, isUser: false, time: getCurrentTime()});
             }
-            
-            console.log(`📨 Sending: "${message}"`);
+        }
+
+        function updateAnalytics() {
+            document.getElementById('totalMessages').textContent = messageCount;
+            document.getElementById('activeUsers').textContent = '1';
+        }
+
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
             addMessage(message, true);
             messageInput.value = '';
-            
             statusEl.innerHTML = '<span class="loading"></span> שולח...';
-            
+
             try {
                 const language = detectLanguage(message);
-                console.log(`🌍 Detected language: ${language}`);
-                
                 const params = new URLSearchParams({
                     action: 'chat',
                     message: message,
@@ -112,55 +543,89 @@
                     language: language,
                     userId: 'web-' + Date.now()
                 });
-                
-                const fullURL = API_URL + '?' + params.toString();
-                console.log('📤 Sending to:', fullURL);
-                
-                const response = await fetch(fullURL, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json; charset=utf-8',
-                    }
-                });
-                
-                console.log(`📡 Response status: ${response.status}`);
+
+                const response = await fetch(API_URL + '?' + params.toString());
                 const data = await response.json();
-                console.log('📥 Response data:', data);
-                
-                if (data.status === 'success' && data.code === 200) {
+
+                if (data.status === 'success') {
                     addMessage(data.reply, false);
                     statusEl.textContent = '✅ Connected to API';
-                    console.log('✅ Message processed successfully');
                 } else {
-                    const errorMsg = `❌ ${data.reply || 'שגיאה בשליחת ההודעה'}`;
-                    addMessage(errorMsg, false);
-                    statusEl.textContent = '⚠️ Error: ' + (data.code || 'Unknown');
+                    addMessage(`❌ ${data.reply}`, false);
+                    statusEl.textContent = '⚠️ Error';
                 }
             } catch (error) {
-                console.error('❌ Error:', error.message);
                 addMessage(`❌ Error: ${error.message}`, false);
-                statusEl.textContent = '❌ Disconnected from API';
+                statusEl.textContent = '❌ Disconnected';
             }
         }
-        
-        if (sendBtn) {
-            sendBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                sendMessage();
-            });
+
+        function executeCommand(cmd) {
+            switch(cmd) {
+                case 'status':
+                    addMessage('📊 Status: System operational ✅', false);
+                    break;
+                case 'history':
+                    const hist = conversationHistory.map(h => h.text).join('\n');
+                    addMessage(`📜 History:\n${hist || 'Empty'}`, false);
+                    break;
+                case 'clear':
+                    chatArea.innerHTML = '';
+                    conversationHistory = [];
+                    messageCount = 0;
+                    updateAnalytics();
+                    addMessage('🗑️ History cleared!', false);
+                    break;
+                case 'analytics':
+                    addMessage(`📈 Analytics:\nMessages: ${messageCount}\nLanguages: 15\nUsers: 1`, false);
+                    break;
+            }
         }
-        
+
+        // Sidebar Toggle
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+        });
+
+        // Tab Navigation
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                panels.forEach(p => p.classList.remove('active'));
+                
+                btn.classList.add('active');
+                const tabId = btn.dataset.tab;
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Language Selector
+        languageSelector.addEventListener('change', (e) => {
+            selectedLanguage = e.target.value;
+        });
+
+        // Message Input
+        if (sendBtn) sendBtn.addEventListener('click', sendMessage);
         if (messageInput) {
-            messageInput.addEventListener('keypress', function(e) {
+            messageInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     sendMessage();
                 }
             });
+            messageInput.focus();
         }
-        
-        messageInput.focus();
-        console.log('✅ Chat interface ready! API:', API_URL);
+
+        // Dark Mode
+        document.getElementById('darkMode').addEventListener('change', (e) => {
+            if (e.target.checked) {
+                document.body.style.background = '#1a1a1a';
+            } else {
+                document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            }
+        });
+
+        updateAnalytics();
     </script>
 </body>
 </html>
