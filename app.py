@@ -78,17 +78,48 @@ LANGUAGES = {
 
 CONVERSATION_HISTORY = {}
 USER_PROFILES = {}
+LEARNED_PATTERNS = {}  # ✅ Learning System
 ANALYTICS = {
     "total_requests": 0,
     "success_count": 0,
     "error_count": 0,
     "requests_by_language": {},
     "requests_by_token": {},
+    "learned_responses": 0,  # ✅ Track learning
     "uptime_start": datetime.now().isoformat(),
     "last_update": datetime.now().isoformat()
 }
 
-def verify_token(token):
+def learn_pattern(message, reply, language, user_id):
+    """Learn from conversation patterns"""
+    try:
+        key = f"{language}_{message[:20]}"  # Pattern key
+        
+        if key not in LEARNED_PATTERNS:
+            LEARNED_PATTERNS[key] = {
+                "message": message,
+                "reply": reply,
+                "count": 1,
+                "language": language,
+                "learned_at": datetime.now().isoformat()
+            }
+        else:
+            LEARNED_PATTERNS[key]["count"] += 1
+            LEARNED_PATTERNS[key]["learned_at"] = datetime.now().isoformat()
+        
+        ANALYTICS["learned_responses"] = len(LEARNED_PATTERNS)
+        return True
+    except Exception as e:
+        print(f"Learning error: {e}")
+        return False
+
+def get_learned_response(message, language):
+    """Get response from learned patterns"""
+    key = f"{language}_{message[:20]}"
+    
+    if key in LEARNED_PATTERNS:
+        return LEARNED_PATTERNS[key]["reply"]
+    return None
     if not token:
         return {"valid": False, "type": None}
     
@@ -224,8 +255,15 @@ def handle_chat_message(data):
                 "code": 401
             }
         
-        analysis = analyze_message(message, language)
-        reply = generate_smart_response(message, language, analysis)
+        # ✅ Check if already learned this pattern
+        learned_reply = get_learned_response(message, language)
+        if learned_reply:
+            reply = learned_reply
+            learned = True
+        else:
+            analysis = analyze_message(message, language)
+            reply = generate_smart_response(message, language, analysis)
+            learned = False
         
         if user_id not in CONVERSATION_HISTORY:
             CONVERSATION_HISTORY[user_id] = []
@@ -234,8 +272,12 @@ def handle_chat_message(data):
             "timestamp": datetime.now().isoformat(),
             "message": encrypt(message),
             "reply": encrypt(reply),
-            "language": language
+            "language": language,
+            "learned": learned
         })
+        
+        # ✅ Learn from this interaction
+        learn_pattern(message, reply, language, user_id)
         
         ANALYTICS["total_requests"] += 1
         ANALYTICS["success_count"] += 1
@@ -258,7 +300,8 @@ def handle_chat_message(data):
             "language": lang["name"],
             "token_type": token_check["type"],
             "userId": user_id,
-            "analysis": analysis,
+            "learned": learned,  # ✅ Tell frontend it was learned
+            "learned_patterns_count": len(LEARNED_PATTERNS),
             "system": TNTF_SYSTEM_CONFIG["name"],
             "version": TNTF_SYSTEM_CONFIG["version"],
             "timestamp": datetime.now().isoformat(),
@@ -276,7 +319,7 @@ def handle_chat_message(data):
 
 @app.route('/')
 def home():
-    return render_template('index_advanced.html')
+    return render_template('index_responsive.html')
 
 @app.route('/voice')
 def voice():
@@ -310,7 +353,9 @@ def main_handler():
         return jsonify({
             "status": "success",
             "code": 200,
-            "data": ANALYTICS
+            "data": ANALYTICS,
+            "learned_patterns": len(LEARNED_PATTERNS),
+            "learning_enabled": True
         })
     
     elif action == 'history':
