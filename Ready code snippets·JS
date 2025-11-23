@@ -1,134 +1,107 @@
 // ============================================
-// 🔧 קוד מוכן #1 - משתנה גלובל
+// 🔧 תיקון #1 - זמן אמת עם נוסחה בינארית
 // ============================================
-// הוסף בדיוק אחרי שורה: let userId = 'user_' + Math.random().toString(36).substr(2, 9);
+// החלף את getPrecisionTime()
 
-let currentTranscriptionText = '';  // ✅ משתנה גלובל לטקסט ההקלטה
-
-
-// ============================================
-// 🔧 קוד מוכן #2 - clearTranscription()
-// ============================================
-// החלף את כל הפונקציה הזו:
-
-function clearTranscription() {
-    if (confirm('בטוח שרוצה למחוק את כל הטקסט?')) {
-        currentTranscriptionText = '';
-        document.getElementById('finalTranscript').textContent = '';
-        document.getElementById('finalTranscript').setAttribute('data-saved', '');
-        transcriptionHistory = [];
-    }
+function getPrecisionTime() {
+    const now = Date.now();
+    const seconds = (now / 1000).toFixed(4);
+    const binarySignature = "0101-0101(0101)";
+    const timeFormat = `(-+${parseFloat(seconds).toFixed(4)}+-)`;
+    return timeFormat;
 }
 
-
 // ============================================
-// 🔧 קוד מוכן #3 - recognition.onresult
+// 🔧 תיקון #2 - toggleRecording() - הקלט רציף
 // ============================================
-// החלף את כל בלוק ה-recognition.onresult (מ-recognition.onstart עד recognition.onerror)
+// החלף את כל הפונקציה toggleRecording():
 
-recognition.onstart = () => {
-    document.getElementById('statusIndicator').textContent = '🎧 מאזין... דבר עכשיו!';
-};
-
-recognition.onresult = (event) => {
-    let interimTranscript = '';
-    let finalTranscript = '';
-    
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        
-        if (event.results[i].isFinal) {
-            finalTranscript += transcript + ' ';
-        } else {
-            interimTranscript += transcript;
-        }
-    }
-    
-    // עדכן את התצוגה
-    if (interimTranscript.trim()) {
-        const display = currentTranscriptionText ? 
-            currentTranscriptionText + '\n\n💬 ' + interimTranscript : 
-            interimTranscript;
-        document.getElementById('finalTranscript').textContent = display;
-    } else if (currentTranscriptionText) {
-        document.getElementById('finalTranscript').textContent = currentTranscriptionText;
-    }
-    
-    // שמור את הטקסט הסופי
-    if (finalTranscript.trim()) {
-        currentTranscriptionText = currentTranscriptionText ? 
-            currentTranscriptionText + ' ' + finalTranscript.trim() : 
-            finalTranscript.trim();
-        
-        document.getElementById('finalTranscript').textContent = currentTranscriptionText;
-        
-        transcriptionHistory.push({
-            text: finalTranscript.trim(),
-            time: getExactTime(),
-            lang: currentVoiceLang
-        });
-        
-        if (selectedTranslateLang && finalTranscript.trim()) {
-            translateText(finalTranscript.trim(), selectedTranslateLang);
-        }
-    }
-};
-
-recognition.onend = () => {
-    isRecording = false;
-    document.getElementById('recordBtn').classList.remove('recording');
-    document.getElementById('statusIndicator').textContent = '✅ Ready';
-};
-
-recognition.onerror = (event) => {
-    document.getElementById('statusIndicator').textContent = '❌ Error: ' + event.error;
-};
-
-
-// ============================================
-// 🔧 קוד מוכן #4 - saveTranscriptionTXT()
-// ============================================
-// החלף את כל הפונקציה הזו:
-
-function saveTranscriptionTXT() {
-    if (!currentTranscriptionText || currentTranscriptionText.trim().length === 0) {
-        alert('אין טקסט לשמור');
+function toggleRecording() {
+    if (!recognition) {
+        alert('Speech Recognition not supported');
         return;
     }
     
-    const allText = currentTranscriptionText.trim();
-    const lines = allText.split('\n').filter(l => l.trim());
+    if (isRecording) {
+        // ❌ אל תעצור - תמשיך להקלט
+        // recognition.stop();  ← מחק את השורה הזו
+        isRecording = false;
+        document.getElementById('recordBtn').classList.remove('recording');
+        document.getElementById('recordBtn').textContent = '🎤 התחל הקלט';
+    } else {
+        recognition.start();
+        isRecording = true;
+        document.getElementById('recordBtn').classList.add('recording');
+        document.getElementById('recordBtn').textContent = '⏹️ עצור הקלט';
+        document.getElementById('statusIndicator').textContent = '🎧 מאזין...';
+    }
     
-    const content = lines.map((line, i) => 
-        `${i + 1}. ${line}`
-    ).join('\n');
+    recognition.onstart = () => {
+        document.getElementById('statusIndicator').textContent = '🎧 מאזין... דבר עכשיו!';
+    };
     
-    const header = `חי-אמת Transcription\n`;
-    const metadata = `שפה: ${LANGUAGES_CONFIG[currentVoiceLang]?.name || 'Unknown'}\nזמן: ${new Date().toLocaleString('he-IL')}\n${'='.repeat(50)}\n`;
-    const fullContent = header + metadata + content;
+    recognition.onresult = (event) => {
+        let interimTranscript = '';
+        let finalTranscript = '';
+        
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript;
+            
+            if (event.results[i].isFinal) {
+                finalTranscript += transcript + ' ';
+            } else {
+                interimTranscript += transcript;
+            }
+        }
+        
+        // ✅ עדכן את התצוגה בזמן אמת
+        if (interimTranscript.trim()) {
+            const display = currentTranscriptionText ? 
+                currentTranscriptionText + '\n\n💬 ' + interimTranscript : 
+                interimTranscript;
+            document.getElementById('finalTranscript').textContent = display;
+        } else if (currentTranscriptionText) {
+            document.getElementById('finalTranscript').textContent = currentTranscriptionText;
+        }
+        
+        // ✅ שמור את הטקסט הסופי
+        if (finalTranscript.trim()) {
+            currentTranscriptionText = currentTranscriptionText ? 
+                currentTranscriptionText + ' ' + finalTranscript.trim() : 
+                finalTranscript.trim();
+            
+            document.getElementById('finalTranscript').textContent = currentTranscriptionText;
+            
+            transcriptionHistory.push({
+                text: finalTranscript.trim(),
+                time: getPrecisionTime(),
+                lang: currentVoiceLang
+            });
+            
+            if (selectedTranslateLang && finalTranscript.trim()) {
+                translateText(finalTranscript.trim(), selectedTranslateLang);
+            }
+        }
+    };
     
-    const blob = new Blob([fullContent], { type: 'text/plain;charset=utf-8' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    const filename = `transcription_${Date.now()}.txt`;
-    link.download = filename;
-    link.click();
+    recognition.onend = () => {
+        // ✅ אל תעצור - התחל מחדש אם עדיין מקליטים
+        if (isRecording) {
+            recognition.start();
+        } else {
+            document.getElementById('statusIndicator').textContent = '✅ עצור';
+        }
+    };
     
-    uploadedFiles.push({
-        name: filename,
-        time: getPrecisionTime(),
-        type: 'txt',
-        size: (blob.size / 1024).toFixed(2) + ' KB'
-    });
-    updateFilesList();
-    addMessage(`📄 שמור: ${filename}`, false);
+    recognition.onerror = (event) => {
+        document.getElementById('statusIndicator').textContent = '❌ Error: ' + event.error;
+    };
 }
 
-
 // ============================================
-// 🔧 קוד מוכן #5 - saveTranscriptionDOCX()
+// 🔧 תיקון #3 - saveTranscriptionDOCX() - תיקון
 // ============================================
-// החלף את כל הפונקציה הזו:
+// החלף את כל הפונקציה:
 
 function saveTranscriptionDOCX() {
     if (!currentTranscriptionText || currentTranscriptionText.trim().length === 0) {
@@ -136,51 +109,150 @@ function saveTranscriptionDOCX() {
         return;
     }
     
-    const allText = currentTranscriptionText.trim();
-    const lines = allText.split('\n').filter(l => l.trim());
-    
-    const sections = lines.map((line, i) => 
-        new docx.Paragraph({
-            text: `${i + 1}. ${line}`,
-            spacing: { line: 360 }
-        })
-    );
-    
-    const doc = new docx.Document({
-        sections: [{
-            children: [
+    try {
+        const allText = currentTranscriptionText.trim();
+        const lines = allText.split('\n').filter(l => l.trim());
+        
+        const sections = [
+            new docx.Paragraph({
+                text: '💛 חי-אמת - Transcription',
+                heading: docx.HeadingLevel.HEADING_1,
+                spacing: { after: 400 }
+            }),
+            new docx.Paragraph({
+                text: `שפה: ${LANGUAGES_CONFIG[currentVoiceLang]?.name || 'Unknown'}`,
+                spacing: { after: 200 }
+            }),
+            new docx.Paragraph({
+                text: `זמן: ${new Date().toLocaleString('he-IL')}`,
+                spacing: { after: 200 }
+            }),
+            new docx.Paragraph({
+                text: `קוד בינארי: 0101-0101(0101)`,
+                spacing: { after: 400 }
+            })
+        ];
+        
+        // הוסף שורות
+        lines.forEach((line, i) => {
+            sections.push(
                 new docx.Paragraph({
-                    text: '💛 חי-אמת - Transcription',
-                    heading: docx.HeadingLevel.HEADING_1,
-                    spacing: { after: 400 }
-                }),
-                new docx.Paragraph({
-                    text: `שפה: ${LANGUAGES_CONFIG[currentVoiceLang]?.name || 'Unknown'}`,
-                    spacing: { after: 200 }
-                }),
-                new docx.Paragraph({
-                    text: `זמן: ${new Date().toLocaleString('he-IL')}`,
-                    spacing: { after: 400 }
-                }),
-                ...sections
-            ]
-        }]
-    });
+                    text: `${i + 1}. ${line}`,
+                    spacing: { line: 360 }
+                })
+            );
+        });
+        
+        const doc = new docx.Document({
+            sections: [{
+                children: sections
+            }]
+        });
+        
+        docx.Packer.toBlob(doc).then(blob => {
+            if (!blob) {
+                throw new Error('Failed to create blob');
+            }
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            const filename = `transcription_${Date.now()}.docx`;
+            link.download = filename;
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // שמור במערכת
+            uploadedFiles.push({
+                name: filename,
+                time: getPrecisionTime(),
+                type: 'docx',
+                size: (blob.size / 1024).toFixed(2) + ' KB'
+            });
+            updateFilesList();
+            addMessage(`📋 שמור: ${filename}`, false);
+            
+        }).catch(err => {
+            console.error('Error saving DOCX:', err);
+            alert('שגיאה בשמירת קובץ DOCX: ' + err.message);
+        });
+        
+    } catch (error) {
+        console.error('Error in saveTranscriptionDOCX:', error);
+        alert('שגיאה: ' + error.message);
+    }
+}
+
+// ============================================
+// 🔧 תיקון #4 - saveTranscriptionTXT() - עדכן
+// ============================================
+// החלף את כל הפונקציה:
+
+function saveTranscriptionTXT() {
+    if (!currentTranscriptionText || currentTranscriptionText.trim().length === 0) {
+        alert('אין טקסט לשמור');
+        return;
+    }
     
-    docx.Packer.toBlob(doc).then(blob => {
+    try {
+        const allText = currentTranscriptionText.trim();
+        const lines = allText.split('\n').filter(l => l.trim());
+        
+        const header = `💛 חי-אמת VOICE - Transcription\n`;
+        const metadata = `שפה: ${LANGUAGES_CONFIG[currentVoiceLang]?.name || 'Unknown'}\nתאריך: ${new Date().toLocaleString('he-IL')}\nקוד בינארי: 0101-0101(0101)\nזמן אמת: ${getPrecisionTime()}\n${'='.repeat(50)}\n\n`;
+        
+        const content = lines.map((line, i) => 
+            `${i + 1}. ${line}`
+        ).join('\n');
+        
+        const fullContent = header + metadata + content;
+        
+        const blob = new Blob([fullContent], { type: 'text/plain;charset=utf-8' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        const filename = `transcription_${Date.now()}.docx`;
+        const filename = `transcription_${Date.now()}.txt`;
         link.download = filename;
+        
+        document.body.appendChild(link);
         link.click();
+        document.body.removeChild(link);
         
         uploadedFiles.push({
             name: filename,
             time: getPrecisionTime(),
-            type: 'docx',
+            type: 'txt',
             size: (blob.size / 1024).toFixed(2) + ' KB'
         });
         updateFilesList();
-        addMessage(`📋 שמור: ${filename}`, false);
-    });
+        addMessage(`📄 שמור: ${filename}`, false);
+        
+    } catch (error) {
+        console.error('Error in saveTranscriptionTXT:', error);
+        alert('שגיאה: ' + error.message);
+    }
 }
+
+// ============================================
+// 🔧 תיקון #5 - clearTranscription() - עדכן
+// ============================================
+
+function clearTranscription() {
+    if (confirm('בטוח שרוצה למחוק את כל הטקסט?')) {
+        currentTranscriptionText = '';
+        document.getElementById('finalTranscript').textContent = '';
+        transcriptionHistory = [];
+        addMessage('🔄 טקסט נמחק', false);
+    }
+}
+
+// ============================================
+// 🔧 תיקון #6 - HTML Button Text
+// ============================================
+// בתוך ה-HTML, בחפש את הכפתור:
+// <button class="control-btn" id="recordBtn" onclick="toggleRecording()">
+//     🎤 הקלט
+// </button>
+
+// זה יתחזק עצמו - הטקסט ישתנה אוטומטית בקוד ל:
+// 🎤 התחל הקלט → ⏹️ עצור הקלט
