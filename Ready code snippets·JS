@@ -1,107 +1,79 @@
 // ============================================
-// 🔧 תיקון נקודתי #1 - onresult (להציג מלל בזמן אמת)
+// 🔧 תיקון נקודתי - Watchdog Timer
+// (שמירה על הקלטה רציפה בכל עת)
 // ============================================
-// חפש את השורות 130-141 בקובץ:
-// 
-// הקוד הישן:
-/*
-this.recognition.onresult = (event) => {
-    const last = event.results.length - 1;
-    const transcript = event.results[last][0].transcript;
-    
-    document.getElementById('transcript').textContent = transcript;
-    
-    if (event.results[last].isFinal) {
-        this.processCommand(transcript);
-    }
-};
-*/
 
-// ✅ החלף ל:
+// הוסף בתוך init() בקונסטרוקטור (אחרי this.startListening()):
 
-this.recognition.onresult = (event) => {
-    let interimTranscript = '';
-    let finalTranscript = '';
-    
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-            finalTranscript += transcript + ' ';
-        } else {
-            interimTranscript += transcript;
+this.watchdog = setInterval(() => {
+    if (!this.isListening && !this.isSpeaking) {
+        // ✅ אם recognition נעצר ולא מדברים - התחל מחדש
+        try {
+            this.recognition.start();
+        } catch(e) {
+            // Recognition כבר רץ
         }
     }
-    
-    // ✅ הצג interim בזמן אמת
-    let display = finalTranscript.trim();
-    if (interimTranscript.trim()) {
-        display = display ? display + '\n💬 ' + interimTranscript : interimTranscript;
-    }
-    document.getElementById('transcript').textContent = display;
-    
-    if (finalTranscript.trim()) {
-        this.processCommand(finalTranscript.trim());
-    }
-};
+}, 3000); // ✅ בדוק כל 3 שניות
 
 
 // ============================================
-// 🔧 תיקון נקודתי #2 - onend (לא עוצר, מתחיל מחדש)
+// ✅ תיקון בחלק ה-startListening():
 // ============================================
-// חפש את השורות 144-151 בקובץ:
-//
-// הקוד הישן:
-/*
-this.recognition.onend = () => {
-    this.isListening = false;
-    document.getElementById('centralCore').classList.remove('listening');
-    
-    if (!this.isSpeaking) {
-        setTimeout(() => this.startListening(), 1000);
+// חפש את הפונקציה startListening ותעדכן:
+
+startListening() {
+    if (this.recognition && !this.isListening && !this.isSpeaking) {
+        try {
+            this.recognition.start();
+            this.isListening = true;  // ✅ הוסף את השורה הזו
+        } catch (e) {
+            console.log('🎤 Recognition started already');
+        }
     }
-};
-*/
-
-// ✅ החלף ל:
-
-this.recognition.onend = () => {
-    this.isListening = false;
-    document.getElementById('centralCore').classList.remove('listening');
-    
-    // ✅ התחל מחדש אוטומטית (לא עוצר)
-    if (!this.isSpeaking) {
-        setTimeout(() => {
-            try {
-                this.recognition.start();
-            } catch(e) {
-                // Recognition כבר רץ
-            }
-        }, 500);
-    }
-};
-
-
-// ============================================
-// 🔧 תיקון נקודתי #3 - updateStatus (הוסף זמן + קוד בינארי)
-// ============================================
-// חפש את השורות 272-274 בקובץ:
-//
-// הקוד הישן:
-/*
-updateStatus(text) {
-    document.getElementById('status').textContent = text;
 }
-*/
 
-// ✅ החלף ל:
 
-updateStatus(text) {
-    const now = new Date();
-    const timeDecimal = (now.getMilliseconds() / 1000).toFixed(4);
-    const binaryCode = '0101-0101(0101)';
-    const timeFormat = `(-+${timeDecimal}+-)`;
-    
-    const status = document.getElementById('status');
-    status.textContent = `${text} | ${timeFormat} | ${binaryCode}`;
-    status.style.color = text.includes('🎤') ? '#ffd700' : '#00ff00';
+// ============================================
+// ✅ תיקון בחלק ה-onend (החלפה מלאה):
+// ============================================
+// החלף את onend לפשוט יותר:
+
+this.recognition.onend = () => {
+    this.isListening = false;
+    document.getElementById('centralCore').classList.remove('listening');
+    // ✅ Watchdog ידאג שיתחיל מחדש!
+};
+
+
+// ============================================
+// ✅ תיקון בחלק ה-speak (סגירה טובה יותר):
+// ============================================
+
+speak(text) {
+    if ('speechSynthesis' in window) {
+        this.isSpeaking = true;
+        
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'he-IL';
+        utterance.rate = 0.9;
+        utterance.pitch = 1.1;
+        utterance.volume = 0.9;
+        
+        utterance.onstart = () => {
+            this.updateStatus('🗣️ מדברת...');
+        };
+        
+        utterance.onend = () => {
+            this.isSpeaking = false;
+            this.updateStatus('🎤 מאזין...');
+            // ✅ Watchdog יטפל בהתחלה מחדש
+        };
+        
+        utterance.onerror = () => {
+            this.isSpeaking = false;
+        };
+        
+        this.synthesis.speak(utterance);
+    }
 }
