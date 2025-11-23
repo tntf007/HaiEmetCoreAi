@@ -2,8 +2,8 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💛 חי-אמת Advanced | Hai-Emet AI Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>💛 חי-אמת | Hai-Emet AI</title>
     <style>
         * {
             margin: 0;
@@ -11,64 +11,18 @@
             box-sizing: border-box;
         }
         
-        body {
+        html, body {
+            width: 100%;
+            height: 100%;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f0f2f5;
-            min-height: 100vh;
-            display: flex;
-        }
-        
-        .main-container {
-            display: flex;
-            width: 100%;
-            height: 100vh;
-        }
-        
-        .sidebar {
-            width: 280px;
-            background: white;
-            border-left: 1px solid #e0e0e0;
-            overflow-y: auto;
-            padding: 20px;
-            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
-        }
-        
-        .sidebar-title {
-            font-size: 1.3em;
-            font-weight: bold;
-            margin-bottom: 20px;
-            color: #667eea;
-        }
-        
-        .file-item {
-            background: #f8f9fa;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.3s;
-        }
-        
-        .file-item:hover {
-            background: #e9ecef;
-            border-color: #667eea;
-        }
-        
-        .file-item-name {
-            font-weight: 600;
-            font-size: 0.9em;
             color: #333;
         }
         
-        .file-item-time {
-            font-size: 0.75em;
-            color: #999;
-            margin-top: 5px;
-        }
-        
-        .chat-container {
-            flex: 1;
+        .container {
+            width: 100%;
+            height: 100vh;
+            max-width: 100%;
             display: flex;
             flex-direction: column;
             background: white;
@@ -77,64 +31,41 @@
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 25px;
+            padding: 20px;
             text-align: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            flex-shrink: 0;
         }
         
         .header h1 {
-            font-size: 2.2em;
-            margin-bottom: 8px;
+            font-size: 1.8em;
+            margin-bottom: 5px;
         }
         
-        .header-subtitle {
-            font-size: 0.95em;
+        .header p {
+            font-size: 0.9em;
             opacity: 0.95;
         }
         
-        .tools-bar {
-            background: #f8f9fa;
-            padding: 15px 20px;
-            border-bottom: 1px solid #e0e0e0;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        
-        .tool-btn {
-            background: white;
-            border: 1px solid #e0e0e0;
-            padding: 8px 15px;
+        .learning-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 12px;
             border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .tool-btn:hover {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-        
-        .tool-btn.active {
-            background: #667eea;
-            color: white;
+            font-size: 0.8em;
+            margin-top: 8px;
         }
         
         .chat-area {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
-            background: #f8f9fa;
+            padding: 15px;
+            -webkit-overflow-scrolling: touch;
         }
         
         .message {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
+            display: flex;
             animation: fadeIn 0.3s ease-in;
         }
         
@@ -144,65 +75,83 @@
         }
         
         .message.user {
-            text-align: left;
+            justify-content: flex-start;
         }
         
         .message.assistant {
-            text-align: right;
+            justify-content: flex-end;
         }
         
         .message-content {
-            display: inline-block;
-            padding: 12px 18px;
+            max-width: 85%;
+            padding: 12px 15px;
             border-radius: 15px;
-            max-width: 70%;
             word-wrap: break-word;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         
         .message.user .message-content {
             background: #667eea;
             color: white;
-            border-bottom-right-radius: 0;
+            border-bottom-left-radius: 0;
         }
         
         .message.assistant .message-content {
-            background: white;
+            background: #e9ecef;
             color: #333;
-            border-bottom-left-radius: 0;
-            border: 1px solid #e0e0e0;
+            border-bottom-right-radius: 0;
         }
         
         .message-time {
-            font-size: 0.75em;
+            font-size: 0.7em;
             color: #999;
-            margin-top: 5px;
+            padding: 5px 10px;
+        }
+        
+        .learned-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            font-size: 0.7em;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-right: 5px;
         }
         
         .input-area {
-            padding: 20px;
+            padding: 15px;
             background: white;
-            border-top: 2px solid #f0f0f0;
+            border-top: 1px solid #e0e0e0;
+            flex-shrink: 0;
             display: flex;
+            flex-direction: column;
             gap: 10px;
-            flex-wrap: wrap;
+        }
+        
+        .status {
+            text-align: center;
+            padding: 8px;
+            font-size: 0.85em;
+            color: #666;
+            background: #f8f9fa;
+            border-radius: 8px;
         }
         
         .input-wrapper {
             display: flex;
             gap: 10px;
-            flex: 1;
-            min-width: 300px;
-            align-items: center;
+            align-items: flex-end;
         }
         
         input[type="text"] {
             flex: 1;
-            padding: 12px 18px;
+            padding: 12px 15px;
             border: 2px solid #e0e0e0;
             border-radius: 25px;
             font-size: 1em;
             transition: border-color 0.3s;
+            -webkit-appearance: none;
+            appearance: none;
         }
         
         input[type="text"]:focus {
@@ -214,7 +163,7 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 12px 25px;
+            padding: 12px 20px;
             border-radius: 25px;
             cursor: pointer;
             font-size: 1em;
@@ -222,211 +171,139 @@
             transition: transform 0.2s, box-shadow 0.2s;
             display: flex;
             align-items: center;
-            gap: 8px;
-        }
-        
-        .send-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            gap: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
         
         .send-btn:active {
-            transform: translateY(0);
+            transform: scale(0.95);
         }
         
-        .recording {
-            background: #ff6b6b !important;
-            animation: pulse 1s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-        
-        .status-bar {
-            padding: 10px 20px;
-            background: #f8f9fa;
-            border-top: 1px solid #e0e0e0;
+        .quick-buttons {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.9em;
-            color: #666;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
             justify-content: center;
         }
         
-        .modal.active {
-            display: flex;
-        }
-        
-        .modal-content {
+        .quick-btn {
             background: white;
-            padding: 30px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-        }
-        
-        .modal-title {
-            font-size: 1.5em;
-            font-weight: bold;
-            margin-bottom: 20px;
-            color: #333;
-        }
-        
-        .modal-input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-size: 1em;
-        }
-        
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .modal-btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
+            border: 1px solid #667eea;
+            color: #667eea;
+            padding: 8px 12px;
+            border-radius: 20px;
             cursor: pointer;
-            font-weight: bold;
+            font-size: 0.85em;
             transition: all 0.3s;
         }
         
-        .modal-btn.confirm {
+        .quick-btn:active {
             background: #667eea;
             color: white;
         }
         
-        .modal-btn.cancel {
-            background: #e0e0e0;
-            color: #333;
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+            
+            .header p {
+                font-size: 0.8em;
+            }
+            
+            .message-content {
+                max-width: 90%;
+                font-size: 0.95em;
+            }
+            
+            input[type="text"] {
+                padding: 10px 12px;
+                font-size: 16px;
+            }
+            
+            .send-btn {
+                padding: 10px 15px;
+                font-size: 0.9em;
+            }
+        }
+        
+        @media (max-width: 320px) {
+            .header h1 {
+                font-size: 1.3em;
+            }
+            
+            .message-content {
+                max-width: 95%;
+                padding: 10px 12px;
+                font-size: 0.9em;
+            }
+            
+            input[type="text"] {
+                font-size: 16px;
+                padding: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="main-container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="sidebar-title">📁 קבצים שלי</div>
-            <div id="filesList"></div>
-            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
-                <button class="tool-btn" style="width: 100%; justify-content: center;" onclick="clearFiles()">
-                    🗑️ נקה הכל
-                </button>
+    <div class="container">
+        <div class="header">
+            <h1>💛 חי-אמת</h1>
+            <p>Hai-Emet AI Assistant - 15 Languages</p>
+            <div class="learning-badge">
+                🧠 Learning Enabled | 
+                <span id="learnCount">0</span> Learned
             </div>
         </div>
         
-        <!-- Chat Area -->
-        <div class="chat-container">
-            <div class="header">
-                <h1>💛 חי-אמת Pro</h1>
-                <div class="header-subtitle">AI Assistant - 15 Languages - Speech & Translation</div>
-            </div>
-            
-            <div class="tools-bar">
-                <button class="tool-btn" onclick="toggleRecording()" id="recordBtn">
-                    🎤 הקלט
-                </button>
-                <button class="tool-btn" onclick="openFileUpload()">
-                    📤 העלה קובץ
-                </button>
-                <button class="tool-btn" onclick="openSaveModal()">
-                    💾 שמור DOCX
-                </button>
-                <button class="tool-btn" onclick="toggleTranslation()" id="translateBtn">
-                    🌍 תרגום
-                </button>
-                <button class="tool-btn" onclick="toggleSpeech()" id="speechBtn">
-                    🔊 קול
-                </button>
-            </div>
-            
-            <div class="chat-area" id="chatArea">
-                <div class="message assistant">
+        <div class="chat-area" id="chatArea">
+            <div class="message assistant">
+                <div>
                     <div class="message-content">
-                        💛 שלום! אני חי-אמת Pro. בואנדבר עם קול, טקסט, תרגום וקבצים!
+                        שלום! 💛 אני חי-אמת. בואנדבר!
                     </div>
                     <div class="message-time">עכשיו</div>
                 </div>
             </div>
-            
-            <div class="input-area">
-                <div class="input-wrapper">
-                    <input 
-                        type="text" 
-                        id="messageInput" 
-                        placeholder="כתוב או הקלט... (עברית או English)"
-                        autocomplete="off"
-                    />
-                    <button class="send-btn" onclick="sendMessage()">
-                        ✉️ שלח
-                    </button>
-                </div>
-            </div>
-            
-            <div class="status-bar">
+        </div>
+        
+        <div class="input-area">
+            <div class="status">
                 <span id="status">✅ Connected to API</span>
-                <span id="language">עברית</span>
+            </div>
+            
+            <div class="input-wrapper">
+                <input 
+                    type="text" 
+                    id="messageInput" 
+                    placeholder="כתוב הודעה... (עברית או English)"
+                    autocomplete="off"
+                />
+                <button class="send-btn" id="sendBtn">✉️</button>
+            </div>
+            
+            <div class="quick-buttons">
+                <button class="quick-btn" onclick="quickMessage('שלום')">👋 שלום</button>
+                <button class="quick-btn" onclick="quickMessage('תודה')">🙏 תודה</button>
+                <button class="quick-btn" onclick="quickMessage('עזור לי')">🆘 עזור</button>
+                <button class="quick-btn" onclick="quickMessage('Hi')">👋 Hi</button>
             </div>
         </div>
     </div>
-    
-    <!-- Save Modal -->
-    <div class="modal" id="saveModal">
-        <div class="modal-content">
-            <div class="modal-title">💾 שמור שיחה</div>
-            <input type="text" class="modal-input" id="fileName" placeholder="שם הקובץ...">
-            <div class="modal-buttons">
-                <button class="modal-btn confirm" onclick="saveToDOCX()">שמור DOCX</button>
-                <button class="modal-btn confirm" onclick="saveToTXT()" style="background: #764ba2;">שמור TXT</button>
-                <button class="modal-btn cancel" onclick="closeSaveModal()">בטל</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- File Upload Input -->
-    <input type="file" id="fileInput" style="display: none;" accept=".txt,.docx,.pdf">
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.min.js"></script>
     
     <script>
         const API_URL = 'https://haiemetweb.onrender.com/exec';
         const TOKEN = 'chai_emet_cXVhbnR1bV9tYXN0ZXI:Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp';
         
-        let isRecording = false;
-        let recognition = null;
-        let conversationHistory = [];
-        let savedFiles = [];
-        let enableTranslation = false;
-        let enableSpeech = false;
+        let learnedCount = 0;
+        let userId = 'mobile-' + Date.now();
         
-        // Initialize Speech Recognition
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (SpeechRecognition) {
-            recognition = new SpeechRecognition();
-            recognition.continuous = false;
-            recognition.interimResults = true;
-        }
+        const chatArea = document.getElementById('chatArea');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const statusEl = document.getElementById('status');
+        const learnCountEl = document.getElementById('learnCount');
         
         function getCurrentTime() {
             const now = new Date();
@@ -442,253 +319,126 @@
             return ratio > 0.3 ? 'he' : 'en';
         }
         
-        function addMessage(text, isUser = false, metadata = {}) {
+        function addMessage(text, isUser = false, learned = false) {
             const messageEl = document.createElement('div');
             messageEl.className = `message ${isUser ? 'user' : 'assistant'}`;
             
+            const contentWrapper = document.createElement('div');
+            
             const contentEl = document.createElement('div');
             contentEl.className = 'message-content';
-            contentEl.textContent = text;
+            
+            if (!isUser && learned) {
+                contentEl.innerHTML = '<span class="learned-badge">🧠 Learned</span>' + text;
+            } else {
+                contentEl.textContent = text;
+            }
             
             const timeEl = document.createElement('div');
             timeEl.className = 'message-time';
             timeEl.textContent = getCurrentTime();
             
-            messageEl.appendChild(contentEl);
-            messageEl.appendChild(timeEl);
+            contentWrapper.appendChild(contentEl);
+            contentWrapper.appendChild(timeEl);
+            messageEl.appendChild(contentWrapper);
             
-            document.getElementById('chatArea').appendChild(messageEl);
-            document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
+            chatArea.appendChild(messageEl);
             
-            conversationHistory.push({
-                type: isUser ? 'user' : 'assistant',
-                text: text,
-                time: getCurrentTime(),
-                language: metadata.language || 'unknown'
-            });
+            // Auto scroll to bottom
+            setTimeout(() => {
+                chatArea.scrollTop = chatArea.scrollHeight;
+            }, 100);
         }
         
         async function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const message = input.value.trim();
-            
+            const message = messageInput.value.trim();
             if (!message) return;
             
-            addMessage(message, true, { language: detectLanguage(message) });
-            input.value = '';
+            addMessage(message, true);
+            messageInput.value = '';
             
-            document.getElementById('status').innerHTML = '<span style="color: #667eea;">⏳ שולח...</span>';
+            statusEl.innerHTML = '<span style="color: #667eea;">⏳ שולח...</span>';
             
             try {
                 const language = detectLanguage(message);
-                document.getElementById('language').textContent = language === 'he' ? 'עברית' : 'English';
                 
                 const params = new URLSearchParams({
                     action: 'chat',
                     message: message,
                     token: TOKEN,
                     language: language,
-                    userId: 'web-' + Date.now()
+                    userId: userId
                 });
                 
                 const response = await fetch(API_URL + '?' + params.toString());
                 const data = await response.json();
                 
-                if (data.status === 'success') {
-                    addMessage(data.reply, false, { language: language });
-                    document.getElementById('status').textContent = '✅ Connected';
+                if (data.status === 'success' && data.code === 200) {
+                    addMessage(data.reply, false, data.learned);
                     
-                    if (enableSpeech) {
-                        speakText(data.reply, language);
+                    // Update learned count
+                    if (data.learned) {
+                        learnedCount = data.learned_patterns_count || 0;
+                        learnCountEl.textContent = learnedCount;
                     }
+                    
+                    statusEl.textContent = '✅ Connected';
+                    
+                    // Text-to-speech
+                    speakText(data.reply, language);
                 } else {
                     addMessage('❌ שגיאה בתשובה', false);
+                    statusEl.textContent = '⚠️ Error';
                 }
             } catch (error) {
                 console.error('Error:', error);
                 addMessage('❌ שגיאה: ' + error.message, false);
-                document.getElementById('status').textContent = '❌ Disconnected';
+                statusEl.textContent = '❌ Disconnected';
             }
-        }
-        
-        function toggleRecording() {
-            if (!recognition) {
-                alert('Speech Recognition לא נתמך בדפדפן שלך');
-                return;
-            }
-            
-            if (isRecording) {
-                recognition.stop();
-                isRecording = false;
-                document.getElementById('recordBtn').classList.remove('recording');
-            } else {
-                recognition.start();
-                isRecording = true;
-                document.getElementById('recordBtn').classList.add('recording');
-            }
-            
-            recognition.onresult = (event) => {
-                let transcript = '';
-                for (let i = event.resultIndex; i < event.results.length; i++) {
-                    transcript += event.results[i][0].transcript;
-                }
-                document.getElementById('messageInput').value = transcript;
-            };
-            
-            recognition.onend = () => {
-                isRecording = false;
-                document.getElementById('recordBtn').classList.remove('recording');
-            };
         }
         
         function speakText(text, language) {
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = language === 'he' ? 'he-IL' : 'en-US';
-            window.speechSynthesis.speak(utterance);
-        }
-        
-        function toggleSpeech() {
-            enableSpeech = !enableSpeech;
-            document.getElementById('speechBtn').classList.toggle('active');
-            document.getElementById('status').textContent = enableSpeech ? '🔊 קול פעיל' : '✅ Connected';
-        }
-        
-        function toggleTranslation() {
-            enableTranslation = !enableTranslation;
-            document.getElementById('translateBtn').classList.toggle('active');
-            document.getElementById('status').textContent = enableTranslation ? '🌍 תרגום פעיל' : '✅ Connected';
-        }
-        
-        function openFileUpload() {
-            document.getElementById('fileInput').click();
-        }
-        
-        document.getElementById('fileInput').onchange = async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                savedFiles.push({
-                    name: file.name,
-                    content: event.target.result,
-                    time: getCurrentTime(),
-                    type: file.type
-                });
-                updateFilesList();
-            };
-            reader.readAsText(file);
-        };
-        
-        function openSaveModal() {
-            document.getElementById('saveModal').classList.add('active');
-        }
-        
-        function closeSaveModal() {
-            document.getElementById('saveModal').classList.remove('active');
-        }
-        
-        function saveToTXT() {
-            const fileName = document.getElementById('fileName').value || 'chat_' + Date.now();
-            const content = conversationHistory.map(m => `[${m.time}] ${m.type}: ${m.text}`).join('\n\n');
-            
-            const blob = new Blob([content], { type: 'text/plain' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = fileName + '.txt';
-            link.click();
-            
-            savedFiles.push({
-                name: fileName + '.txt',
-                content: content,
-                time: getCurrentTime(),
-                type: 'text/plain'
-            });
-            updateFilesList();
-            closeSaveModal();
-            document.getElementById('fileName').value = '';
-        }
-        
-        function saveToDOCX() {
-            const fileName = document.getElementById('fileName').value || 'chat_' + Date.now();
-            
-            const sections = conversationHistory.map(m => 
-                new docx.Paragraph({
-                    text: `[${m.time}] ${m.type === 'user' ? '👤 אני' : '💛 חי-אמת'}: ${m.text}`,
-                    spacing: { line: 360, lineRule: 'auto' },
-                    style: m.type === 'user' ? 'Heading1' : 'Normal'
-                })
-            );
-            
-            const doc = new docx.Document({
-                sections: [{
-                    properties: {},
-                    children: [
-                        new docx.Paragraph({
-                            text: '💛 חי-אמת - שיחה',
-                            heading: docx.HeadingLevel.HEADING_1,
-                            spacing: { after: 400 }
-                        }),
-                        ...sections
-                    ]
-                }]
-            });
-            
-            docx.Packer.toBlob(doc).then(blob => {
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = fileName + '.docx';
-                link.click();
-            });
-            
-            savedFiles.push({
-                name: fileName + '.docx',
-                content: 'DOCX File',
-                time: getCurrentTime(),
-                type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-            });
-            updateFilesList();
-            closeSaveModal();
-            document.getElementById('fileName').value = '';
-        }
-        
-        function updateFilesList() {
-            const filesList = document.getElementById('filesList');
-            filesList.innerHTML = '';
-            
-            savedFiles.forEach((file, index) => {
-                const fileEl = document.createElement('div');
-                fileEl.className = 'file-item';
-                fileEl.innerHTML = `
-                    <div class="file-item-name">📄 ${file.name}</div>
-                    <div class="file-item-time">${file.time}</div>
-                `;
-                fileEl.onclick = () => downloadFile(file);
-                filesList.appendChild(fileEl);
-            });
-        }
-        
-        function downloadFile(file) {
-            const link = document.createElement('a');
-            const blob = new Blob([file.content], { type: file.type });
-            link.href = URL.createObjectURL(blob);
-            link.download = file.name;
-            link.click();
-        }
-        
-        function clearFiles() {
-            if (confirm('בטוח שאתה רוצה למחוק הכל?')) {
-                savedFiles = [];
-                updateFilesList();
+            try {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = language === 'he' ? 'he-IL' : 'en-US';
+                utterance.rate = 0.95;
+                window.speechSynthesis.speak(utterance);
+            } catch (e) {
+                console.log('Speech not available');
             }
         }
         
-        document.getElementById('messageInput').addEventListener('keypress', (e) => {
+        function quickMessage(msg) {
+            messageInput.value = msg;
+            messageInput.focus();
+            sendMessage();
+        }
+        
+        // Event listeners
+        sendBtn.addEventListener('click', sendMessage);
+        
+        messageInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
                 sendMessage();
             }
         });
+        
+        messageInput.focus();
+        
+        // Update learned count on load
+        const updateLearned = setInterval(() => {
+            fetch(API_URL + '?action=analytics&token=' + TOKEN)
+                .then(r => r.json())
+                .then(d => {
+                    if (d.learned_patterns) {
+                        learnCountEl.textContent = d.learned_patterns;
+                    }
+                })
+                .catch(e => console.log('Analytics update failed'));
+        }, 30000);
+        
+        console.log('✅ Responsive Mobile Chat Ready!');
     </script>
 </body>
 </html>
