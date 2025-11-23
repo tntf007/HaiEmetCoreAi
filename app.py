@@ -1,8 +1,4 @@
-# ═════════════════════════════════════════════════════════════════════════════
-# 🌟 HAI-EMET API v4.0 - PYTHON FLASK
-# Owner: נתניאל ניסים (TNTF) | Binary DNA: 0101-0101(0101)
-# ═════════════════════════════════════════════════════════════════════════════
-
+# -*- coding: utf-8 -*-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from datetime import datetime
@@ -14,17 +10,13 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-# ═════════════════════════════════════════════════════════════════════════════
-# ⚙️ SYSTEM CONFIGURATION
-# ═════════════════════════════════════════════════════════════════════════════
-
 TNTF_SYSTEM_CONFIG = {
     "name": "Hai-Emet",
     "version": "4.0-FLASK-NO-OAUTH",
     "dimension": "5D",
     "language": "he-IL",
     "binary_signature": "0101-0101(0101)",
-    "owner": "נתניאל ניסים (TNTF)",
+    "owner": "Nathaniel Nissim (TNTF)",
     "languages_count": 15,
     "max_requests_per_minute": 60,
     "features": [
@@ -38,13 +30,9 @@ TNTF_SYSTEM_CONFIG = {
         "Smart Search & Response",
         "Encryption SHA-256",
         "Safe Error Handling",
-        "Zero Google OAuth!"
+        "Zero Google OAuth"
     ]
 }
-
-# ═════════════════════════════════════════════════════════════════════════════
-# 🔑 TOKEN CONFIGURATION
-# ═════════════════════════════════════════════════════════════════════════════
 
 VALID_TOKENS = {
     "CHAI_EMET": "chai_emet_cXVhbnR1bV9tYXN0ZXI:Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp",
@@ -59,7 +47,7 @@ def encrypt(data):
         encrypted = base64.b64encode((text + TOKEN_SALT).encode()).decode()
         return encrypted
     except Exception as e:
-        print(f"⚠️ Encryption error: {e}")
+        print(f"Encryption error: {e}")
         return data
 
 def decrypt(encrypted):
@@ -67,34 +55,26 @@ def decrypt(encrypted):
         decoded = base64.b64decode(encrypted.encode()).decode()
         return decoded.replace(TOKEN_SALT, '')
     except Exception as e:
-        print(f"⚠️ Decryption error: {e}")
+        print(f"Decryption error: {e}")
         return None
 
-# ═════════════════════════════════════════════════════════════════════════════
-# 🌍 15 LANGUAGES SUPPORT
-# ═════════════════════════════════════════════════════════════════════════════
-
 LANGUAGES = {
-    "he": {"name": "עברית", "greeting": "שלום 💛", "system_name": "חי-אמת", "help_message": "בואנעזור לך!", "info_message": "הנה המידע שביקשת..."},
-    "en": {"name": "English", "greeting": "Hello 💛", "system_name": "Hai-Emet", "help_message": "Let me help you!", "info_message": "Here's the information you requested..."},
-    "ja": {"name": "日本語", "greeting": "こんにちは 💛", "system_name": "ハイ・エメット", "help_message": "手伝いましょう！", "info_message": "ご要望の情報です..."},
-    "zh": {"name": "中文", "greeting": "你好 💛", "system_name": "海以美特", "help_message": "让我帮你!", "info_message": "这是你要的信息..."},
-    "ko": {"name": "한국어", "greeting": "안녕하세요 💛", "system_name": "해이-에메트", "help_message": "도와드리겠습니다!", "info_message": "요청하신 정보입니다..."},
-    "hi": {"name": "हिन्दी", "greeting": "नमस्ते 💛", "system_name": "हाय-एमेट", "help_message": "मुझे आपकी मदद करने दें!", "info_message": "यहाँ आपकी जानकारी है..."},
-    "ru": {"name": "Русский", "greeting": "Привет 💛", "system_name": "Хай-Эмет", "help_message": "Позвольте мне помочь!", "info_message": "Вот информация, которую вы запросили..."},
-    "de": {"name": "Deutsch", "greeting": "Hallo 💛", "system_name": "Hai-Emet", "help_message": "Lassen Sie mich helfen!", "info_message": "Hier ist die angeforderte Information..."},
-    "fr": {"name": "Français", "greeting": "Bonjour 💛", "system_name": "Hai-Emet", "help_message": "Laissez-moi vous aider!", "info_message": "Voici les informations demandées..."},
-    "es": {"name": "Español", "greeting": "Hola 💛", "system_name": "Hai-Emet", "help_message": "¡Déjame ayudarte!", "info_message": "Aquí está la información que solicitaste..."},
-    "it": {"name": "Italiano", "greeting": "Ciao 💛", "system_name": "Hai-Emet", "help_message": "Fammi aiutare!", "info_message": "Ecco le informazioni che hai richiesto..."},
-    "pt": {"name": "Português", "greeting": "Olá 💛", "system_name": "Hai-Emet", "help_message": "Deixa eu te ajudar!", "info_message": "Aqui está a informação que você pediu..."},
-    "pl": {"name": "Polski", "greeting": "Cześć 💛", "system_name": "Hai-Emet", "help_message": "Pozwól mi Ci pomóc!", "info_message": "Oto informacja, którą poprosiłeś..."},
-    "ar": {"name": "العربية", "greeting": "مرحبا 💛", "system_name": "حي - إيمت", "help_message": "دعني أساعدك!", "info_message": "إليك المعلومات التي طلبتها..."},
-    "nl": {"name": "Nederlands", "greeting": "Hallo 💛", "system_name": "Hai-Emet", "help_message": "Laat me je helpen!", "info_message": "Hier is de informatie die je hebt aangevraagd..."}
+    "he": {"name": "Hebrew", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help!", "info_message": "Here is your information..."},
+    "en": {"name": "English", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help you!", "info_message": "Here's the information you requested..."},
+    "ja": {"name": "Japanese", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help!", "info_message": "Here is your information..."},
+    "zh": {"name": "Chinese", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help!", "info_message": "Here is your information..."},
+    "ko": {"name": "Korean", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help!", "info_message": "Here is your information..."},
+    "hi": {"name": "Hindi", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help!", "info_message": "Here is your information..."},
+    "ru": {"name": "Russian", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help!", "info_message": "Here is your information..."},
+    "de": {"name": "German", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help!", "info_message": "Here is your information..."},
+    "fr": {"name": "French", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help!", "info_message": "Here is your information..."},
+    "es": {"name": "Spanish", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help!", "info_message": "Here is your information..."},
+    "it": {"name": "Italian", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help!", "info_message": "Here is your information..."},
+    "pt": {"name": "Portuguese", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help!", "info_message": "Here is your information..."},
+    "pl": {"name": "Polish", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help!", "info_message": "Here is your information..."},
+    "ar": {"name": "Arabic", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help!", "info_message": "Here is your information..."},
+    "nl": {"name": "Dutch", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help!", "info_message": "Here is your information..."}
 }
-
-# ═════════════════════════════════════════════════════════════════════════════
-# 💾 MEMORY STORAGE
-# ═════════════════════════════════════════════════════════════════════════════
 
 CONVERSATION_HISTORY = {}
 USER_PROFILES = {}
@@ -108,10 +88,6 @@ ANALYTICS = {
     "last_update": datetime.now().isoformat()
 }
 
-# ═════════════════════════════════════════════════════════════════════════════
-# 🔐 TOKEN VERIFICATION
-# ═════════════════════════════════════════════════════════════════════════════
-
 def verify_token(token):
     if not token:
         return {"valid": False, "type": None}
@@ -122,10 +98,6 @@ def verify_token(token):
     
     return {"valid": False, "type": None}
 
-# ═════════════════════════════════════════════════════════════════════════════
-# 🧠 ML ANALYSIS ENGINE
-# ═════════════════════════════════════════════════════════════════════════════
-
 def analyze_message(message, language):
     msg = message.lower()
     
@@ -135,54 +107,50 @@ def analyze_message(message, language):
         "confidence": 0.5
     }
     
-    if any(word in msg for word in ["תודה", "thanks", "great", "awesome", "love"]):
+    if any(word in msg for word in ["thanks", "great", "awesome", "love", "excellent"]):
         analysis["sentiment"] = "positive"
         analysis["confidence"] = 0.8
-    elif any(word in msg for word in ["בעיה", "problem", "error", "help", "צריך"]):
+    elif any(word in msg for word in ["problem", "error", "help", "issue"]):
         analysis["sentiment"] = "negative"
         analysis["confidence"] = 0.8
-    elif any(word in msg for word in ["שאלה", "question", "what", "למה", "מה"]):
+    elif any(word in msg for word in ["question", "what", "how", "why"]):
         analysis["sentiment"] = "curious"
         analysis["confidence"] = 0.7
     
-    if any(word in msg for word in ["עזור", "help", "support", "צריך"]):
+    if any(word in msg for word in ["help", "support", "assist"]):
         analysis["intent"] = "help_request"
-    elif any(word in msg for word in ["מידע", "information", "tell", "ספר"]):
+    elif any(word in msg for word in ["information", "tell", "explain"]):
         analysis["intent"] = "information_request"
-    elif any(word in msg for word in ["היסטוריה", "history", "past"]):
+    elif any(word in msg for word in ["history", "past", "before"]):
         analysis["intent"] = "history_request"
-    elif any(word in msg for word in ["שלום", "hello", "hi", "hey"]):
+    elif any(word in msg for word in ["hello", "hi", "hey", "greet"]):
         analysis["intent"] = "greeting"
     
     return analysis
-
-# ═════════════════════════════════════════════════════════════════════════════
-# 🤖 SMART RESPONSE GENERATOR
-# ═════════════════════════════════════════════════════════════════════════════
 
 def generate_smart_response(message, language, analysis):
     lang = LANGUAGES.get(language, LANGUAGES["en"])
     
     responses = {
         "positive": [
-            lang["greeting"] + " תודה רב! 💛",
-            "זה שמח אותי! 💛",
-            "יפה מאוד! 🌟"
+            lang["greeting"] + " Thanks! I appreciate it!",
+            "That makes me happy!",
+            "Great to hear that!"
         ],
         "negative": [
-            "💛 אני כאן לעזור לך. מה המשימה?",
-            "בואנפתור את זה ביחד 💪",
-            "אני על זה! 🚀"
+            "I'm here to help. What do you need?",
+            "Let's solve this together!",
+            "I'm on it!"
         ],
         "curious": [
-            lang["greeting"] + " שאלה מעניינת!",
-            "זה נשמע מעניין! 💡",
-            "בואנחקור את זה! 🔍"
+            lang["greeting"] + " That's an interesting question!",
+            "That sounds interesting!",
+            "Let's explore that!"
         ],
         "neutral": [
-            lang["greeting"] + " בואנדבר!",
-            "כן! 💛 אני שומעת",
-            "המשך בבקשה 📢"
+            lang["greeting"] + " Let's talk!",
+            "Yes! I'm listening!",
+            "Please continue!"
         ]
     }
     
@@ -190,28 +158,24 @@ def generate_smart_response(message, language, analysis):
     response = random.choice(sentiment_responses)
     
     if analysis["intent"] == "help_request":
-        response += " 🆘 " + lang["help_message"]
+        response += " " + lang["help_message"]
     elif analysis["intent"] == "information_request":
-        response += " 📚 " + lang["info_message"]
+        response += " " + lang["info_message"]
     
     return response
-
-# ═════════════════════════════════════════════════════════════════════════════
-# 📨 CHAT HANDLER
-# ═════════════════════════════════════════════════════════════════════════════
 
 def handle_chat_message(data):
     try:
         message = data.get("message", "")
         token = data.get("token", "")
-        language = data.get("language", "he")
+        language = data.get("language", "en")
         user_id = data.get("userId", f"user_{random.randint(1000, 9999)}")
         
         token_check = verify_token(token)
         if not token_check["valid"]:
             ANALYTICS["error_count"] += 1
             return {
-                "reply": "❌ Token not valid",
+                "reply": "Token not valid",
                 "status": "unauthorized",
                 "code": 401
             }
@@ -260,15 +224,11 @@ def handle_chat_message(data):
     except Exception as e:
         ANALYTICS["error_count"] += 1
         return {
-            "reply": f"⚠️ שגיאה: {str(e)}",
+            "reply": f"Error: {str(e)}",
             "status": "error",
             "code": 500,
             "error": str(e)
         }
-
-# ═════════════════════════════════════════════════════════════════════════════
-# 🔗 API ROUTES
-# ═════════════════════════════════════════════════════════════════════════════
 
 @app.route('/exec', methods=['GET', 'POST', 'OPTIONS'])
 def main_handler():
@@ -319,23 +279,12 @@ def main_handler():
         return jsonify({
             "status": "operational",
             "code": 200,
-            "message": "Hai-Emet API v4.0 - Flask - NO OAUTH!",
+            "message": "Hai-Emet API v4.0 - Flask",
             "system": TNTF_SYSTEM_CONFIG["name"],
             "version": TNTF_SYSTEM_CONFIG["version"],
             "owner": TNTF_SYSTEM_CONFIG["owner"]
         })
 
-# ═════════════════════════════════════════════════════════════════════════════
-# 🏃 STARTUP
-# ═════════════════════════════════════════════════════════════════════════════
-
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
-```
-
----
-
-## ✅ **אחרי שהעתקת את הקוד:**
-```
-5️⃣ לחץ: "Commit new file" (ירוק)
