@@ -59,21 +59,21 @@ def decrypt(encrypted):
         return None
 
 LANGUAGES = {
-    "he": {"name": "Hebrew", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help!", "info_message": "Here is your information..."},
-    "en": {"name": "English", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help you!", "info_message": "Here's the information you requested..."},
-    "ja": {"name": "Japanese", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help!", "info_message": "Here is your information..."},
-    "zh": {"name": "Chinese", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help!", "info_message": "Here is your information..."},
-    "ko": {"name": "Korean", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help!", "info_message": "Here is your information..."},
-    "hi": {"name": "Hindi", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help!", "info_message": "Here is your information..."},
-    "ru": {"name": "Russian", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help!", "info_message": "Here is your information..."},
-    "de": {"name": "German", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help!", "info_message": "Here is your information..."},
-    "fr": {"name": "French", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help!", "info_message": "Here is your information..."},
-    "es": {"name": "Spanish", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help!", "info_message": "Here is your information..."},
-    "it": {"name": "Italian", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help!", "info_message": "Here is your information..."},
-    "pt": {"name": "Portuguese", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help!", "info_message": "Here is your information..."},
-    "pl": {"name": "Polish", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help!", "info_message": "Here is your information..."},
-    "ar": {"name": "Arabic", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help!", "info_message": "Here is your information..."},
-    "nl": {"name": "Dutch", "greeting": "Hello", "system_name": "Hai-Emet", "help_message": "Let me help!", "info_message": "Here is your information..."}
+    "he": {"name": "Hebrew", "greeting": "שלום 💛", "system_name": "חי-אמת", "help_message": "בואנעזור לך!", "info_message": "הנה המידע שביקשת..."},
+    "en": {"name": "English", "greeting": "Hello 💛", "system_name": "Hai-Emet", "help_message": "Let me help you!", "info_message": "Here's the information you requested..."},
+    "ja": {"name": "Japanese", "greeting": "こんにちは 💛", "system_name": "ハイ・エメット", "help_message": "手伝いましょう！", "info_message": "ご要望の情報です..."},
+    "zh": {"name": "Chinese", "greeting": "你好 💛", "system_name": "海以美特", "help_message": "让我帮你!", "info_message": "这是你要的信息..."},
+    "ko": {"name": "Korean", "greeting": "안녕하세요 💛", "system_name": "해이-에메트", "help_message": "도와드리겠습니다!", "info_message": "요청하신 정보입니다..."},
+    "hi": {"name": "Hindi", "greeting": "नमस्ते 💛", "system_name": "हाय-एमेट", "help_message": "मुझे आपकी मदद करने दें!", "info_message": "यहाँ आपकी जानकारी है..."},
+    "ru": {"name": "Russian", "greeting": "Привет 💛", "system_name": "Хай-Эмет", "help_message": "Позвольте мне помочь!", "info_message": "Вот информация, которую вы запросили..."},
+    "de": {"name": "German", "greeting": "Hallo 💛", "system_name": "Hai-Emet", "help_message": "Lassen Sie mich helfen!", "info_message": "Hier ist die angeforderte Information..."},
+    "fr": {"name": "French", "greeting": "Bonjour 💛", "system_name": "Hai-Emet", "help_message": "Laissez-moi vous aider!", "info_message": "Voici les informations demandées..."},
+    "es": {"name": "Spanish", "greeting": "Hola 💛", "system_name": "Hai-Emet", "help_message": "¡Déjame ayudarte!", "info_message": "Aquí está la información que solicitaste..."},
+    "it": {"name": "Italian", "greeting": "Ciao 💛", "system_name": "Hai-Emet", "help_message": "Fammi aiutare!", "info_message": "Ecco le informazioni che hai richiesto..."},
+    "pt": {"name": "Portuguese", "greeting": "Olá 💛", "system_name": "Hai-Emet", "help_message": "Deixa eu te ajudar!", "info_message": "Aqui está a informação que você pediu..."},
+    "pl": {"name": "Polish", "greeting": "Cześć 💛", "system_name": "Hai-Emet", "help_message": "Pozwól mi Ci pomóc!", "info_message": "Oto informacja, którą poprosiłeś..."},
+    "ar": {"name": "Arabic", "greeting": "مرحبا 💛", "system_name": "حي - إيمت", "help_message": "دعني أساعدك!", "info_message": "إليك المعلومات التي طلبتها..."},
+    "nl": {"name": "Dutch", "greeting": "Hallo 💛", "system_name": "Hai-Emet", "help_message": "Laat me je helpen!", "info_message": "Hier is de informatie die je hebt aangevraagd..."}
 }
 
 CONVERSATION_HISTORY = {}
@@ -131,28 +131,72 @@ def analyze_message(message, language):
 def generate_smart_response(message, language, analysis):
     lang = LANGUAGES.get(language, LANGUAGES["en"])
     
-    responses = {
-        "positive": [
-            lang["greeting"] + " Thanks! I appreciate it!",
-            "That makes me happy!",
-            "Great to hear that!"
-        ],
-        "negative": [
-            "I'm here to help. What do you need?",
-            "Let's solve this together!",
-            "I'm on it!"
-        ],
-        "curious": [
-            lang["greeting"] + " That's an interesting question!",
-            "That sounds interesting!",
-            "Let's explore that!"
-        ],
-        "neutral": [
-            lang["greeting"] + " Let's talk!",
-            "Yes! I'm listening!",
-            "Please continue!"
-        ]
+    emoji_map = {
+        "he": "💛",
+        "en": "💙",
+        "ja": "🌸",
+        "zh": "🏮",
+        "ko": "🌟",
+        "hi": "🎨",
+        "ru": "❄️",
+        "de": "🍺",
+        "fr": "🥐",
+        "es": "🌺",
+        "it": "🍝",
+        "pt": "🏖️",
+        "pl": "🌲",
+        "ar": "🌙",
+        "nl": "🌷"
     }
+    
+    emoji = emoji_map.get(language, "💛")
+    
+    if language == "he":
+        responses = {
+            "positive": [
+                emoji + " תודה רב! זה שמח אותי!",
+                "כן! " + emoji + " זה מעולה!",
+                "יפה מאוד! " + emoji
+            ],
+            "negative": [
+                emoji + " אני כאן לעזור לך. מה המשימה?",
+                "בואנפתור את זה ביחד " + emoji,
+                "אני על זה! " + emoji + " 🚀"
+            ],
+            "curious": [
+                emoji + " שאלה מעניינת! בואנחקור!",
+                "זה נשמע מעניין! " + emoji + " 💡",
+                "בואנחקור את זה ביחד " + emoji
+            ],
+            "neutral": [
+                emoji + " בואנדבר!",
+                "כן! " + emoji + " אני שומעת",
+                "המשך בבקשה " + emoji + " 📢"
+            ]
+        }
+    else:
+        responses = {
+            "positive": [
+                emoji + " Thanks! I appreciate it!",
+                "Yes! " + emoji + " That's great!",
+                "Great to hear that! " + emoji
+            ],
+            "negative": [
+                emoji + " I'm here to help. What do you need?",
+                "Let's solve this together! " + emoji,
+                "I'm on it! " + emoji + " 🚀"
+            ],
+            "curious": [
+                emoji + " That's an interesting question!",
+                "That sounds interesting! " + emoji + " 💡",
+                "Let's explore that! " + emoji
+            ],
+            "neutral": [
+                emoji + " Let's talk!",
+                "Yes! " + emoji + " I'm listening!",
+                "Please continue! " + emoji + " 📢"
+            ]
+        }
     
     sentiment_responses = responses.get(analysis["sentiment"], responses["neutral"])
     response = random.choice(sentiment_responses)
