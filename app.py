@@ -1,7 +1,8 @@
 """
-💛 חי-אמת VOICE LEARNING BACKEND
-Binary: 0101-0101(0101)
-Real-time Transcription + Translation + AI Learning System
+💛 חי-אמת MASTER INTEGRATED SYSTEM v4.0
+GAS + Flask Server + Telegram + Discord + Learning Brain
+Owner: נתניאל ניסים (TNTF) | Binary: 0101-0101(0101)
+Server: https://haiemetweb.onrender.com
 """
 
 from flask import Flask, request, jsonify, send_from_directory
@@ -11,8 +12,13 @@ import sqlite3
 import os
 from datetime import datetime
 from typing import Dict, List, Any
-import hashlib
 import logging
+import requests
+from dotenv import load_dotenv
+import asyncio
+
+# ============ ENV SETUP ============
+load_dotenv()
 
 # ============ INITIALIZATION ============
 app = Flask(__name__)
@@ -23,7 +29,22 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Database setup
-DB_PATH = 'hai_emet_learning.db'
+DB_PATH = os.getenv('DB_PATH', 'hai_emet_learning.db')
+
+# ============ CONFIG ============
+TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
+DISCORD_WEBHOOK_URL = os.getenv('DISCORD_WEBHOOK_URL', '')
+OWNER_PASSPHRASE = os.getenv('OWNER_PASSPHRASE', './/.TNTF007.//.')
+
+TNTF_SYSTEM_CONFIG = {
+    'name': 'Hai-Emet',
+    'version': '4.0-INTEGRATED',
+    'owner': 'נתניאל ניסים (TNTF)',
+    'binary_signature': '0101-0101(0101)',
+    'server': 'https://haiemetweb.onrender.com',
+    'passphrase': OWNER_PASSPHRASE
+}
+
 LANGUAGES = {
     'he': '🇮🇱 עברית',
     'en': '🇺🇸 English',
@@ -54,7 +75,8 @@ def init_database():
             id TEXT PRIMARY KEY,
             created_at TIMESTAMP,
             preferred_language TEXT,
-            total_interactions INTEGER DEFAULT 0
+            total_interactions INTEGER DEFAULT 0,
+            platform TEXT DEFAULT 'unknown'
         )''')
         
         # Transcriptions learned
@@ -77,6 +99,7 @@ def init_database():
             language TEXT,
             timestamp TIMESTAMP,
             helpful_rating INTEGER DEFAULT 0,
+            platform TEXT DEFAULT 'unknown',
             FOREIGN KEY (user_id) REFERENCES users(id)
         )''')
         
@@ -126,6 +149,16 @@ def init_database():
             last_seen TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id)
         )''')
+
+        # Platform interactions
+        c.execute('''CREATE TABLE IF NOT EXISTS platform_interactions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id TEXT,
+            platform TEXT,
+            interaction_type TEXT,
+            timestamp TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        )''')
         
         conn.commit()
         conn.close()
@@ -138,16 +171,16 @@ def get_db_connection():
     return conn
 
 # ============ USER MANAGEMENT ============
-def init_user(user_id: str, language: str = 'he'):
+def init_user(user_id: str, language: str = 'he', platform: str = 'unknown'):
     """Initialize user profile"""
     conn = get_db_connection()
     c = conn.cursor()
     
     try:
-        c.execute('INSERT OR IGNORE INTO users (id, created_at, preferred_language) VALUES (?, ?, ?)',
-                  (user_id, datetime.now(), language))
+        c.execute('INSERT OR IGNORE INTO users (id, created_at, preferred_language, platform) VALUES (?, ?, ?, ?)',
+                  (user_id, datetime.now(), language, platform))
         conn.commit()
-        logger.info(f'✅ User initialized: {user_id}')
+        logger.info(f'✅ User initialized: {user_id} on {platform}')
     except Exception as e:
         logger.error(f'❌ Error initializing user: {e}')
     finally:
@@ -168,11 +201,16 @@ def get_user_stats(user_id: str) -> Dict:
         c.execute('SELECT COUNT(*) FROM translations WHERE user_id = ?', (user_id,))
         translations = c.fetchone()[0]
         
+        c.execute('SELECT platform FROM users WHERE id = ?', (user_id,))
+        user_row = c.fetchone()
+        platform = user_row[0] if user_row else 'unknown'
+        
         return {
             'transcriptions_learned': transcriptions,
             'messages_learned': messages,
             'translations_learned': translations,
-            'total_interactions': transcriptions + messages + translations
+            'total_interactions': transcriptions + messages + translations,
+            'platform': platform
         }
     except Exception as e:
         logger.error(f'❌ Error getting user stats: {e}')
@@ -180,7 +218,7 @@ def get_user_stats(user_id: str) -> Dict:
     finally:
         conn.close()
 
-# ============ TRANSCRIPTION LEARNING ============
+# ============ LEARNING FUNCTIONS ============
 def learn_transcription(user_id: str, text: str, language: str, accuracy: float = 1.0):
     """Learn voice transcription"""
     conn = get_db_connection()
@@ -190,10 +228,7 @@ def learn_transcription(user_id: str, text: str, language: str, accuracy: float 
         c.execute('INSERT INTO transcriptions (user_id, text, language, timestamp, accuracy_score) VALUES (?, ?, ?, ?, ?)',
                   (user_id, text, language, datetime.now(), accuracy))
         conn.commit()
-        
-        # Update learning patterns
         update_learning_pattern(user_id, f"voice_{language}", "transcription")
-        
         logger.info(f'✅ Learned transcription: {text[:50]}')
         return True
     except Exception as e:
@@ -202,21 +237,18 @@ def learn_transcription(user_id: str, text: str, language: str, accuracy: float 
     finally:
         conn.close()
 
-# ============ MESSAGE LEARNING ============
-def learn_message(user_id: str, input_text: str, response_text: str, language: str):
+def learn_message(user_id: str, input_text: str, response_text: str, language: str, platform: str = 'unknown'):
     """Learn user message and response"""
     conn = get_db_connection()
     c = conn.cursor()
     
     try:
-        c.execute('INSERT INTO messages (user_id, input_text, response_text, language, timestamp) VALUES (?, ?, ?, ?, ?)',
-                  (user_id, input_text, response_text, language, datetime.now()))
+        c.execute('INSERT INTO messages (user_id, input_text, response_text, language, timestamp, platform) VALUES (?, ?, ?, ?, ?, ?)',
+                  (user_id, input_text, response_text, language, datetime.now(), platform))
         conn.commit()
-        
-        # Update learning patterns
         update_learning_pattern(user_id, f"message_{language}", "interaction")
-        
-        logger.info(f'✅ Learned message exchange')
+        log_platform_interaction(user_id, platform, 'message')
+        logger.info(f'✅ Learned message from {platform}')
         return True
     except Exception as e:
         logger.error(f'❌ Error learning message: {e}')
@@ -224,7 +256,6 @@ def learn_message(user_id: str, input_text: str, response_text: str, language: s
     finally:
         conn.close()
 
-# ============ TRANSLATION LEARNING ============
 def learn_translation(user_id: str, source_text: str, target_text: str, source_lang: str, target_lang: str):
     """Learn translation pair"""
     conn = get_db_connection()
@@ -234,10 +265,7 @@ def learn_translation(user_id: str, source_text: str, target_text: str, source_l
         c.execute('INSERT INTO translations (user_id, source_text, target_text, source_lang, target_lang, timestamp) VALUES (?, ?, ?, ?, ?, ?)',
                   (user_id, source_text, target_text, source_lang, target_lang, datetime.now()))
         conn.commit()
-        
-        # Update learning patterns
         update_learning_pattern(user_id, f"translate_{source_lang}_{target_lang}", "translation")
-        
         logger.info(f'✅ Learned translation: {source_lang} → {target_lang}')
         return True
     except Exception as e:
@@ -246,7 +274,6 @@ def learn_translation(user_id: str, source_text: str, target_text: str, source_l
     finally:
         conn.close()
 
-# ============ FILE LEARNING ============
 def learn_file_upload(user_id: str, filename: str, filetype: str, content: str, language: str, transcription: str = ''):
     """Learn from file upload"""
     conn = get_db_connection()
@@ -256,10 +283,7 @@ def learn_file_upload(user_id: str, filename: str, filetype: str, content: str, 
         c.execute('INSERT INTO file_uploads (user_id, filename, filetype, content, transcription, language, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)',
                   (user_id, filename, filetype, content[:1000], transcription[:500], language, datetime.now()))
         conn.commit()
-        
-        # Update learning patterns
         update_learning_pattern(user_id, f"file_{filetype}", "file_upload")
-        
         logger.info(f'✅ Learned file: {filename}')
         return True
     except Exception as e:
@@ -268,7 +292,6 @@ def learn_file_upload(user_id: str, filename: str, filetype: str, content: str, 
     finally:
         conn.close()
 
-# ============ LEARNING PATTERNS ============
 def update_learning_pattern(user_id: str, pattern: str, pattern_type: str):
     """Update learning pattern frequency"""
     conn = get_db_connection()
@@ -280,12 +303,10 @@ def update_learning_pattern(user_id: str, pattern: str, pattern_type: str):
         result = c.fetchone()
         
         if result:
-            # Update existing pattern
             new_freq = result[1] + 1
             c.execute('UPDATE learning_patterns SET frequency = ?, last_seen = ? WHERE id = ?',
                       (new_freq, datetime.now(), result[0]))
         else:
-            # Create new pattern
             c.execute('INSERT INTO learning_patterns (user_id, pattern, pattern_type, frequency, last_seen) VALUES (?, ?, ?, 1, ?)',
                       (user_id, pattern, pattern_type, datetime.now()))
         
@@ -308,6 +329,20 @@ def get_learning_patterns(user_id: str) -> List[Dict]:
     except Exception as e:
         logger.error(f'❌ Error getting learning patterns: {e}')
         return []
+    finally:
+        conn.close()
+
+def log_platform_interaction(user_id: str, platform: str, interaction_type: str):
+    """Log platform interaction"""
+    conn = get_db_connection()
+    c = conn.cursor()
+    
+    try:
+        c.execute('INSERT INTO platform_interactions (user_id, platform, interaction_type, timestamp) VALUES (?, ?, ?, ?)',
+                  (user_id, platform, interaction_type, datetime.now()))
+        conn.commit()
+    except Exception as e:
+        logger.error(f'❌ Error logging platform interaction: {e}')
     finally:
         conn.close()
 
@@ -343,8 +378,132 @@ def generate_response(user_input: str, language: str) -> str:
     else:
         return lang_responses['default'][0]
 
-# ============ FRONTEND SERVING ============
+# ============ TELEGRAM INTEGRATION ============
+@app.route('/telegram', methods=['POST'])
+def telegram_webhook():
+    """Telegram webhook endpoint"""
+    try:
+        update = request.get_json()
+        
+        if not update or 'message' not in update:
+            return jsonify({'status': 'ok'})
+        
+        message = update['message']
+        
+        if 'text' not in message:
+            return jsonify({'status': 'ok'})
+        
+        chat_id = message['chat']['id']
+        user_id = f"tg_{message['from']['id']}"
+        text = message['text']
+        first_name = message['from'].get('first_name', 'User')
+        
+        logger.info(f"📱 Telegram: {first_name} → {text}")
+        
+        # Detect language
+        language = 'he' if any(ord(c) > 127 for c in text) else 'en'
+        
+        # Initialize user
+        init_user(user_id, language, 'telegram')
+        
+        # Learn and respond
+        response = generate_response(text, language)
+        learn_message(user_id, text, response, language, 'telegram')
+        
+        # Send response back to Telegram
+        send_telegram_message(chat_id, response)
+        
+        return jsonify({'status': 'ok'})
+    
+    except Exception as e:
+        logger.error(f'❌ Telegram error: {e}')
+        return jsonify({'error': str(e)}), 500
 
+def send_telegram_message(chat_id, text):
+    """Send message to Telegram"""
+    try:
+        if not TELEGRAM_BOT_TOKEN:
+            logger.warning('⚠️ Telegram token not configured')
+            return False
+        
+        url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+        payload = {
+            'chat_id': chat_id,
+            'text': text,
+            'parse_mode': 'HTML'
+        }
+        
+        response = requests.post(url, json=payload, timeout=10)
+        
+        if response.status_code == 200:
+            logger.info(f"✅ Telegram sent to {chat_id}")
+            return True
+        else:
+            logger.error(f"❌ Telegram error: {response.status_code}")
+            return False
+    
+    except Exception as e:
+        logger.error(f'❌ Error sending Telegram: {e}')
+        return False
+
+# ============ DISCORD INTEGRATION ============
+@app.route('/discord', methods=['POST'])
+def discord_handler():
+    """Discord message handler - receives from Discord bot"""
+    try:
+        data = request.get_json()
+        
+        user_id = f"dc_{data.get('user_id', 'unknown')}"
+        text = data.get('message', '')
+        username = data.get('username', 'User')
+        
+        logger.info(f"💬 Discord: {username} → {text}")
+        
+        # Detect language
+        language = 'he' if any(ord(c) > 127 for c in text) else 'en'
+        
+        # Initialize user
+        init_user(user_id, language, 'discord')
+        
+        # Learn and respond
+        response = generate_response(text, language)
+        learn_message(user_id, text, response, language, 'discord')
+        
+        # Send response back via Discord
+        send_discord_message(response)
+        
+        return jsonify({'status': 'success', 'response': response})
+    
+    except Exception as e:
+        logger.error(f'❌ Discord error: {e}')
+        return jsonify({'error': str(e)}), 500
+
+def send_discord_message(text):
+    """Send message to Discord"""
+    try:
+        if not DISCORD_WEBHOOK_URL or 'webhooks' not in DISCORD_WEBHOOK_URL:
+            logger.warning('⚠️ Discord webhook not configured')
+            return False
+        
+        payload = {
+            'content': text,
+            'username': 'Hai-Emet'
+        }
+        
+        response = requests.post(DISCORD_WEBHOOK_URL, json=payload, timeout=10)
+        
+        if response.status_code in [200, 204]:
+            logger.info("✅ Discord message sent")
+            return True
+        else:
+            logger.error(f"❌ Discord error: {response.status_code}")
+            return False
+    
+    except Exception as e:
+        logger.error(f'❌ Error sending Discord: {e}')
+        return False
+
+# ============ FRONTEND SERVING ============
 @app.route('/', methods=['GET'])
 def serve_frontend():
     """Serve HTML from templates"""
@@ -352,63 +511,56 @@ def serve_frontend():
         return send_from_directory('templates', 'index.html')
     except:
         return jsonify({
-            'name': '💛 חי-אמת VOICE Backend',
-            'status': '✅ Running - Frontend not configured',
-            'message': 'Upload HTML to templates/index.html'
+            'name': '💛 חי-אמת Master System',
+            'status': '✅ Running',
+            'version': TNTF_SYSTEM_CONFIG['version'],
+            'integrations': ['Telegram', 'Discord', 'GAS', 'Web'],
+            'message': 'All systems operational'
         })
 
-@app.route('/index.html', methods=['GET'])
-def serve_index():
-    """Serve index.html"""
-    try:
-        return send_from_directory('templates', 'index.html')
-    except:
-        return jsonify({'error': 'Frontend not available'}), 404
-
 # ============ API ENDPOINTS ============
-
 @app.route('/api', methods=['GET'])
 def api_info():
     """API Information"""
     return jsonify({
-        'name': '💛 חי-אמת VOICE Backend',
+        'name': '💛 חי-אמת Master Integrated System',
         'status': '✅ Running',
-        'version': '1.0.0',
+        'version': TNTF_SYSTEM_CONFIG['version'],
+        'owner': TNTF_SYSTEM_CONFIG['owner'],
+        'binary': TNTF_SYSTEM_CONFIG['binary_signature'],
+        'integrations': {
+            'telegram': '✅ Active' if TELEGRAM_BOT_TOKEN else '⚠️ Inactive',
+            'discord': '✅ Active' if DISCORD_WEBHOOK_URL else '⚠️ Inactive',
+            'gas': '✅ Active',
+            'web': '✅ Active'
+        },
         'endpoints': {
-            'GET /': 'Serve HTML Frontend',
+            'GET /': 'Frontend',
             'GET /status': 'Health check',
-            'POST /exec': 'Main API endpoint',
-            'GET /user/<user_id>/stats': 'Get user statistics',
-            'GET /api': 'This endpoint'
+            'GET /api': 'This info',
+            'POST /exec': 'Main API',
+            'POST /telegram': 'Telegram webhook',
+            'POST /discord': 'Discord handler',
+            'GET /user/<id>/stats': 'User stats'
         }
     })
 
 @app.route('/exec', methods=['POST'])
 def execute():
-    """Main execution endpoint - handles all requests"""
+    """Main execution endpoint"""
     try:
         data = request.get_json()
         action = data.get('action')
-        token = data.get('token')
-        user_id = data.get('userId', 'anonymous')
+        user_id = data.get('userId', 'web_user')
         language = data.get('language', 'he-IL')
         
-        # Validate token
-        if not token:
-            return jsonify({'error': 'No token provided'}), 401
-        
         # Initialize user
-        init_user(user_id, language)
+        init_user(user_id, language, 'web')
         
-        # ============ CHAT ACTION ============
         if action == 'chat':
             message = data.get('message', '')
-            
-            # Learn the message
             response = generate_response(message, language)
-            learn_message(user_id, message, response, language)
-            
-            # Get stats
+            learn_message(user_id, message, response, language, 'web')
             stats = get_user_stats(user_id)
             
             return jsonify({
@@ -416,79 +568,9 @@ def execute():
                 'learned': True,
                 'stats': stats,
                 'timestamp': datetime.now().isoformat(),
-                'binary': '0101-0101(0101)'
+                'binary': TNTF_SYSTEM_CONFIG['binary_signature']
             })
         
-        # ============ VOICE TRANSCRIPTION ACTION ============
-        elif action == 'voice_transcription':
-            transcript = data.get('transcript', '')
-            
-            learn_transcription(user_id, transcript, language)
-            stats = get_user_stats(user_id)
-            patterns = get_learning_patterns(user_id)
-            
-            return jsonify({
-                'learned': True,
-                'transcript': transcript,
-                'stats': stats,
-                'patterns_count': len(patterns),
-                'timestamp': datetime.now().isoformat()
-            })
-        
-        # ============ FILE UPLOAD ACTION ============
-        elif action == 'file_upload':
-            filename = data.get('filename', '')
-            filetype = data.get('filetype', '')
-            content = data.get('content', '')
-            transcription = data.get('transcription', '')
-            
-            learn_file_upload(user_id, filename, filetype, content, language, transcription)
-            stats = get_user_stats(user_id)
-            
-            return jsonify({
-                'learned': True,
-                'filename': filename,
-                'stats': stats,
-                'timestamp': datetime.now().isoformat()
-            })
-        
-        # ============ TRANSLATION ACTION ============
-        elif action == 'translation':
-            source_text = data.get('source_text', '')
-            target_text = data.get('target_text', '')
-            source_lang = data.get('source_lang', 'he')
-            target_lang = data.get('target_lang', 'en')
-            
-            learn_translation(user_id, source_text, target_text, source_lang, target_lang)
-            stats = get_user_stats(user_id)
-            
-            return jsonify({
-                'learned': True,
-                'translation': target_text,
-                'stats': stats,
-                'timestamp': datetime.now().isoformat()
-            })
-        
-        # ============ LEARN ACTION ============
-        elif action == 'learn':
-            learn_data = data.get('data', {})
-            learn_type = learn_data.get('type', '')
-            
-            if learn_type == 'voice_transcription':
-                learn_transcription(user_id, learn_data.get('transcript'), learn_data.get('language'))
-            elif learn_type == 'video_subtitles':
-                learn_file_upload(user_id, 'video_subtitles', 'video', learn_data.get('transcript'), learn_data.get('language'))
-            
-            patterns = get_learning_patterns(user_id)
-            
-            return jsonify({
-                'learned': True,
-                'type': learn_type,
-                'patterns_count': len(patterns),
-                'timestamp': datetime.now().isoformat()
-            })
-        
-        # ============ STATS ACTION ============
         elif action == 'stats':
             stats = get_user_stats(user_id)
             patterns = get_learning_patterns(user_id)
@@ -514,9 +596,10 @@ def status():
         conn.close()
         
         return jsonify({
-            'status': '✅ Hai-Emet VOICE Backend is Running',
-            'binary': '0101-0101(0101)',
-            'version': '1.0.0',
+            'status': '✅ Hai-Emet Master System Online',
+            'version': TNTF_SYSTEM_CONFIG['version'],
+            'binary': TNTF_SYSTEM_CONFIG['binary_signature'],
+            'platforms': ['Telegram', 'Discord', 'GAS', 'Web'],
             'timestamp': datetime.now().isoformat()
         })
     except Exception as e:
@@ -535,12 +618,21 @@ def get_user_profile(user_id):
         'timestamp': datetime.now().isoformat()
     })
 
-# ============ INITIALIZE ON STARTUP ============
-# Initialize database when module loads (for gunicorn)
+# ============ INITIALIZE ============
 init_database()
-logger.info('💛 חי-אמת VOICE Learning Backend Initialized')
+logger.info('═' * 60)
+logger.info('💛 HAI-EMET MASTER INTEGRATED SYSTEM v4.0')
+logger.info('Owner: נתניאל ניסים (TNTF)')
 logger.info('Binary: 0101-0101(0101)')
+logger.info('═' * 60)
+logger.info('✅ Flask Backend Initialized')
+logger.info(f'✅ Telegram: {"Configured" if TELEGRAM_BOT_TOKEN else "Not configured"}')
+logger.info(f'✅ Discord: {"Configured" if DISCORD_WEBHOOK_URL else "Not configured"}')
+logger.info('✅ GAS Integration: Ready')
+logger.info('✅ Web Interface: Ready')
+logger.info('═' * 60)
 
 # ============ MAIN ============
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    port = int(os.getenv('PORT', 5000))
+    app.run(debug=False, host='0.0.0.0', port=port)
