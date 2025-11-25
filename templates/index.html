@@ -1082,56 +1082,72 @@
             document.getElementById('statusIndicator').textContent = `✅ Language: ${langName}`;
         }
         
-        function toggleRecording() {
-            if (!recognition) {
-                alert('Speech Recognition not supported');
-                return;
-            }
-            
-            if (isRecording) {
-                recognition.stop();
-                isRecording = false;
-                document.getElementById('recordBtn').classList.remove('recording');
-            } else {
-                recognition.start();
-                isRecording = true;
-                document.getElementById('recordBtn').classList.add('recording');
-                document.getElementById('statusIndicator').textContent = '🎧 מאזין...';
-            }
-            
-            recognition.onstart = () => {
-                document.getElementById('statusIndicator').textContent = '🎧 מאזין... דבר עכשיו!';
+        let mediaRecorderFallback = null;
+        let audioChunksFallback = [];
+        let streamFallback = null;
+        let isRecordingMobile = false;
+
+        // Detect browser and device
+        function detectBrowser() {
+            const ua = navigator.userAgent;
+            return {
+                isIOS: /iPad|iPhone|iPod/.test(ua),
+                isAndroid: /Android/.test(ua),
+                isChrome: /Chrome/.test(ua),
+                isSafari: /Safari/.test(ua) && !/Chrome/.test(ua),
+                isFirefox: /Firefox/.test(ua)
             };
+        }
+
+        function toggleRecording() {
+            const browser = detectBrowser();
             
-            recognition.onresult = (event) => {
-                let interimTranscript = '';
-                let finalTranscript = '';
+            // Try Speech Recognition first (Chrome, Android, some iOS)
+            if (recognition && !browser.isIOS) {
+                if (isRecording) {
+                    recognition.stop();
+                    isRecording = false;
+                    document.getElementById('recordBtn').classList.remove('recording');
+                } else {
+                    recognition.start();
+                    isRecording = true;
+                    document.getElementById('recordBtn').classList.add('recording');
+                    document.getElementById('statusIndicator').textContent = '🎧 מאזין...';
+                }
                 
-                for (let i = event.resultIndex; i < event.results.length; i++) {
-                    const transcript = event.results[i][0].transcript;
+                recognition.onstart = () => {
+                    document.getElementById('statusIndicator').textContent = '🎧 מאזין... דבר עכשיו!';
+                };
+                
+                recognition.onresult = (event) => {
+                    let interimTranscript = '';
+                    let finalTranscript = '';
                     
-                    if (event.results[i].isFinal) {
-                        finalTranscript += transcript + ' ';
-                    } else {
-                        interimTranscript += transcript;
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript + ' ';
+                        } else {
+                            interimTranscript += transcript;
+                        }
                     }
-                }
-                
-                const savedText = document.getElementById('finalTranscript').getAttribute('data-saved') || '';
-                
-                if (interimTranscript.trim()) {
-                    const display = savedText ? 
-                        savedText + '\n\n💬 ' + interimTranscript : 
-                        interimTranscript;
-                    document.getElementById('finalTranscript').textContent = display;
-                } else if (savedText) {
-                    document.getElementById('finalTranscript').textContent = savedText;
-                }
-                
-                if (finalTranscript.trim()) {
-                    const newSavedText = savedText ? savedText + ' ' + finalTranscript.trim() : finalTranscript.trim();
-                    document.getElementById('finalTranscript').textContent = newSavedText;
-                    document.getElementById('finalTranscript').setAttribute('data-saved', newSavedText);
+                    
+                    const savedText = document.getElementById('finalTranscript').getAttribute('data-saved') || '';
+                    
+                    if (interimTranscript.trim()) {
+                        const display = savedText ? 
+                            savedText + '\n\n💬 ' + interimTranscript : 
+                            interimTranscript;
+                        document.getElementById('finalTranscript').textContent = display;
+                    } else if (savedText) {
+                        document.getElementById('finalTranscript').textContent = savedText;
+                    }
+                    
+                    if (finalTranscript.trim()) {
+                        const newSavedText = savedText ? savedText + ' ' + finalTranscript.trim() : finalTranscript.trim();
+                        document.getElementById('finalTranscript').textContent = newSavedText;
+                        document.getElementById('finalTranscript').setAttribute('data-saved', newSavedText);
                     
                     transcriptionHistory.push({
                         text: finalTranscript.trim(),
@@ -1154,6 +1170,146 @@
             recognition.onerror = (event) => {
                 document.getElementById('statusIndicator').textContent = '❌ Error: ' + event.error;
             };
+            } else {
+                // Fallback: Audio recording (iOS, Firefox, Chrome without Speech API)
+                toggleAudioRecordingFallback();
+            }
+        }
+        
+        async function toggleAudioRecordingFallback() {
+            const browser = detectBrowser();
+            
+            if (isRecordingMobile && mediaRecorderFallback) {
+                // Stop recording
+                mediaRecorderFallback.stop();
+                isRecordingMobile = false;
+                document.getElementById('recordBtn').classList.remove('recording');
+                document.getElementById('statusIndicator').textContent = '⏹️ Sending to server...';
+            } else {
+                // Start recording
+                try {
+                    // Request permission with proper constraints
+                    const constraints = {
+                        audio: {
+                            echoCancellation: true,
+                            noiseSuppression: true,
+                            autoGainControl: true,
+                            sampleRate: 48000
+                        }
+                    };
+                    
+                    streamFallback = await navigator.mediaDevices.getUserMedia(constraints);
+                    audioChunksFallback = [];
+                    
+                    // Choose mime type based on browser support
+                    let mimeType = 'audio/webm;codecs=opus';
+                    if (!MediaRecorder.isTypeSupported(mimeType)) {
+                        mimeType = 'audio/webm';
+                    }
+                    if (!MediaRecorder.isTypeSupported(mimeType)) {
+                        mimeType = 'audio/mp4';
+                    }
+                    if (!MediaRecorder.isTypeSupported(mimeType)) {
+                        mimeType = 'audio/wav';
+                    }
+                    if (!MediaRecorder.isTypeSupported(mimeType)) {
+                        mimeType = ''; // Browser will choose
+                    }
+                    
+                    const options = mimeType ? { mimeType: mimeType } : {};
+                    mediaRecorderFallback = new MediaRecorder(streamFallback, options);
+                    
+                    mediaRecorderFallback.ondataavailable = (e) => {
+                        if (e.data.size > 0) {
+                            audioChunksFallback.push(e.data);
+                        }
+                    };
+                    
+                    mediaRecorderFallback.onstop = async () => {
+                        try {
+                            // Create audio blob
+                            const audioBlob = new Blob(audioChunksFallback, { type: mediaRecorderFallback.mimeType || 'audio/webm' });
+                            
+                            // Create FormData
+                            const formData = new FormData();
+                            formData.append('audio', audioBlob, `recording.${browser.isIOS ? 'wav' : 'webm'}`);
+                            formData.append('language', currentVoiceLang);
+                            formData.append('user_id', userId);
+                            formData.append('browser', browser.isSafari ? 'safari' : 'other');
+                            
+                            document.getElementById('statusIndicator').textContent = '📤 Uploading...';
+                            
+                            // Send to server with timeout
+                            const controller = new AbortController();
+                            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+                            
+                            const response = await fetch('https://haiemetweb.onrender.com/transcribe', {
+                                method: 'POST',
+                                body: formData,
+                                signal: controller.signal
+                            });
+                            
+                            clearTimeout(timeoutId);
+                            
+                            if (response.ok) {
+                                const result = await response.json();
+                                const transcribedText = result.text || '[אודיו הוקלט אך לא ניתן להבין]';
+                                
+                                const savedText = document.getElementById('finalTranscript').getAttribute('data-saved') || '';
+                                const newSavedText = savedText ? savedText + ' ' + transcribedText : transcribedText;
+                                document.getElementById('finalTranscript').textContent = newSavedText;
+                                document.getElementById('finalTranscript').setAttribute('data-saved', newSavedText);
+                                
+                                transcriptionHistory.push({
+                                    text: transcribedText,
+                                    time: getExactTime(),
+                                    lang: currentVoiceLang
+                                });
+                                
+                                addMessage(`🎙️ התמלול: ${transcribedText}`, false);
+                                
+                                if (selectedTranslateLang && transcribedText) {
+                                    translateText(transcribedText, selectedTranslateLang);
+                                }
+                                
+                                document.getElementById('statusIndicator').textContent = '✅ Ready';
+                            } else {
+                                const errorText = await response.text();
+                                document.getElementById('statusIndicator').textContent = '❌ Server error';
+                                addMessage(`❌ שגיאה: ${response.status}`, false);
+                            }
+                        } catch (error) {
+                            document.getElementById('statusIndicator').textContent = '❌ Upload failed';
+                            if (error.name === 'AbortError') {
+                                addMessage('❌ Upload timeout - check connection', false);
+                            } else {
+                                addMessage(`❌ Error: ${error.message}`, false);
+                            }
+                        } finally {
+                            // Stop stream
+                            if (streamFallback) {
+                                streamFallback.getTracks().forEach(track => track.stop());
+                            }
+                        }
+                    };
+                    
+                    mediaRecorderFallback.start();
+                    isRecordingMobile = true;
+                    document.getElementById('recordBtn').classList.add('recording');
+                    document.getElementById('statusIndicator').textContent = '🎧 הקלטה... דבר בעברית!';
+                    addMessage(`🎙️ הקלטה התחילה (${browser.isIOS ? 'iOS' : 'Android'}${browser.isChrome ? ' Chrome' : browser.isSafari ? ' Safari' : ''})`, false);
+                    
+                } catch (error) {
+                    document.getElementById('statusIndicator').textContent = '❌ Microphone denied';
+                    let errorMsg = error.message;
+                    if (error.name === 'NotAllowedError') {
+                        errorMsg = 'הן הרשאה למיקרופון בהגדרות';
+                    } else if (error.name === 'NotFoundError') {
+                        errorMsg = 'אין מיקרופון זמין';
+                    }
+                    addMessage(`⚠️ ${errorMsg}`, false);
+                }
+            }
         }
         
         async function translateText(text, targetLang) {
