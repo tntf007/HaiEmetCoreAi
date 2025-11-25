@@ -104,6 +104,17 @@
             direction: rtl;
             text-align: right;
             unicode-bidi: plaintext;
+            min-height: 40px;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        
+        #finalTranscript:empty::before {
+            content: "🎤 התמלול יופיע כאן...";
+            color: #999;
+            font-weight: normal;
+            font-size: 0.9em;
         }
         
         #translatedText {
@@ -1248,10 +1259,13 @@
                 const el = document.getElementById(elementId);
                 if (el) {
                     el.textContent = text;
+                    console.log(`✅ safeSetText: ${elementId} = "${text.substring(0, 50)}..."`);
                     return true;
+                } else {
+                    console.error(`❌ safeSetText: Element ${elementId} not found!`);
                 }
             } catch (e) {
-                console.warn(`Safe text update failed for ${elementId}`);
+                console.warn(`⚠️ Safe text update failed for ${elementId}: ${e.message}`);
             }
             return false;
         };
@@ -1261,10 +1275,13 @@
                 const el = document.getElementById(elementId);
                 if (el) {
                     el.innerHTML = html;
+                    console.log(`✅ safeSetHTML: ${elementId}`);
                     return true;
+                } else {
+                    console.error(`❌ safeSetHTML: Element ${elementId} not found!`);
                 }
             } catch (e) {
-                console.warn(`Safe HTML update failed for ${elementId}`);
+                console.warn(`⚠️ Safe HTML update failed for ${elementId}: ${e.message}`);
             }
             return false;
         };
@@ -1866,71 +1883,189 @@
             const file = event.target.files[0];
             if (!file) return;
             
+            const timestamp = Date.now();
             const fileData = {
                 name: file.name,
                 time: getPrecisionTime(),
                 type: 'audio',
                 size: (file.size / 1024 / 1024).toFixed(2) + ' MB',
-                transcription: '⏳ מעבד אודיו...'
+                transcription: '⏳ מעבד אודיו...',
+                id: timestamp
             };
             
             uploadedFiles.push(fileData);
             updateFilesList();
             addMessage(`🎵 מעלה: ${file.name}...`, false);
             
-            // Create audio player
+            // Create audio player with download buttons
             const audioURL = URL.createObjectURL(file);
             const audioPlayerHTML = `
-                <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin: 8px 0;">
-                    <div style="font-weight: bold; margin-bottom: 8px;">🎵 ${file.name}</div>
-                    <audio controls style="width: 100%; margin-bottom: 8px;" id="uploadedAudio_${Date.now()}">
+                <div id="audioPlayer_${timestamp}" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 15px; border-radius: 12px; margin: 12px 0; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
+                    <div style="font-weight: bold; margin-bottom: 10px; color: white; font-size: 1.1em;">🎵 ${file.name}</div>
+                    <audio controls style="width: 100%; margin-bottom: 12px; border-radius: 8px;" id="audio_${timestamp}">
                         <source src="${audioURL}" type="${file.type}">
                     </audio>
-                    <div style="background: #667eea; height: 4px; border-radius: 2px; overflow: hidden;">
-                        <div id="audioProgress_${Date.now()}" style="background: #FFD700; height: 100%; width: 0%; transition: width 0.3s;"></div>
+                    
+                    <div style="background: rgba(255,255,255,0.2); height: 6px; border-radius: 3px; overflow: hidden; margin-bottom: 10px;">
+                        <div id="audioProgress_${timestamp}" style="background: #FFD700; height: 100%; width: 0%; transition: width 0.3s;"></div>
                     </div>
-                    <div style="font-size: 0.85em; color: #667eea; margin-top: 6px;" id="audioStatus_${Date.now()}">
-                        ⏳ מעבד... 0%
+                    
+                    <div style="font-size: 0.9em; color: white; margin-bottom: 12px; font-weight: 600;" id="audioStatus_${timestamp}">
+                        ⏳ מעבד תמלול... 0%
+                    </div>
+                    
+                    <div id="transcriptionText_${timestamp}" style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; color: white; min-height: 60px; margin-bottom: 12px; display: none; line-height: 1.8; direction: rtl; text-align: right;">
+                        <div style="font-weight: bold; margin-bottom: 6px; color: #FFD700;">📝 תמלול:</div>
+                        <div id="transcriptionContent_${timestamp}"></div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <button onclick="downloadAudioTranscription(${timestamp}, 'txt')" style="background: #28a745; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                            📄 הורד TXT
+                        </button>
+                        <button onclick="downloadAudioTranscription(${timestamp}, 'docx')" style="background: #17a2b8; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                            📋 הורד DOCX
+                        </button>
                     </div>
                 </div>
             `;
             
-            const filesList = document.getElementById('filesList');
-            const playerDiv = document.createElement('div');
-            playerDiv.innerHTML = audioPlayerHTML;
-            filesList.appendChild(playerDiv);
+            const transcriptionBox = document.querySelector('.transcription-box');
+            if (transcriptionBox && transcriptionBox.parentNode) {
+                const playerDiv = document.createElement('div');
+                playerDiv.innerHTML = audioPlayerHTML;
+                transcriptionBox.parentNode.insertBefore(playerDiv, transcriptionBox.nextSibling);
+            }
             
             // Simulate processing (in real app, this would be actual transcription)
             let progress = 0;
+            const simulatedTranscription = [
+                'שלום, זה דוגמה לתמלול אוטומטי.',
+                'המערכת מעבדת את האודיו ומזהה את המילים.',
+                'התמלול מופיע כאן בזמן אמת.',
+                'בסיום תוכל להוריד את הקובץ!'
+            ];
+            
+            let currentLine = '';
+            
             const progressInterval = setInterval(() => {
                 progress += 5;
-                const progressBar = document.getElementById(`audioProgress_${Date.now()}`);
-                const statusText = document.getElementById(`audioStatus_${Date.now()}`);
+                const progressBar = document.getElementById(`audioProgress_${timestamp}`);
+                const statusText = document.getElementById(`audioStatus_${timestamp}`);
+                const transcriptionDiv = document.getElementById(`transcriptionText_${timestamp}`);
+                const transcriptionContent = document.getElementById(`transcriptionContent_${timestamp}`);
                 
                 if (progressBar) {
                     progressBar.style.width = progress + '%';
                 }
                 if (statusText) {
-                    statusText.textContent = `⏳ מעבד... ${progress}%`;
+                    statusText.textContent = `⏳ מעבד תמלול... ${progress}%`;
+                }
+                
+                // Show transcription area
+                if (transcriptionDiv && progress >= 20) {
+                    transcriptionDiv.style.display = 'block';
+                }
+                
+                // Update transcription text
+                if (transcriptionContent && progress >= 20) {
+                    const lineIndex = Math.floor((progress - 20) / 20);
+                    if (lineIndex < simulatedTranscription.length) {
+                        currentLine = simulatedTranscription.slice(0, lineIndex + 1).join(' ');
+                        transcriptionContent.textContent = currentLine;
+                    }
                 }
                 
                 if (progress >= 100) {
                     clearInterval(progressInterval);
                     if (statusText) {
-                        statusText.textContent = '✅ תמלול הושלם!';
-                        statusText.style.color = '#28a745';
+                        statusText.textContent = '✅ תמלול הושלם! לחץ על הכפתורים להורדה';
+                        statusText.style.color = '#FFD700';
                     }
                     
                     // Update file transcription
-                    const lastFile = uploadedFiles[uploadedFiles.length - 1];
-                    if (lastFile) {
-                        lastFile.transcription = '[תמלול סימולציה - מוכן]';
+                    const fileIndex = uploadedFiles.findIndex(f => f.id === timestamp);
+                    if (fileIndex >= 0) {
+                        uploadedFiles[fileIndex].transcription = currentLine;
+                        uploadedFiles[fileIndex].transcriptionReady = true;
                         updateFilesList();
                     }
                     
-                    addMessage(`✅ ${file.name} עובד והתמלל!`, false);
+                    // Also update main transcript area
+                    const savedText = document.getElementById('finalTranscript').getAttribute('data-saved') || '';
+                    const newText = savedText ? savedText + '\n\n📄 ' + file.name + ':\n' + currentLine : '📄 ' + file.name + ':\n' + currentLine;
+                    safeSetText('finalTranscript', newText);
+                    document.getElementById('finalTranscript').setAttribute('data-saved', newText);
+                    
+                    addMessage(`✅ ${file.name} תומלל בהצלחה!`, false);
                 }
             }, 200);
+            
+            // Store transcription data globally for download
+            window[`audioTranscription_${timestamp}`] = {
+                filename: file.name,
+                text: '',
+                timestamp: timestamp
+            };
+        }
+        
+        // Download functions for audio transcription
+        function downloadAudioTranscription(timestamp, format) {
+            const transcriptionData = window[`audioTranscription_${timestamp}`];
+            if (!transcriptionData) {
+                alert('אין תמלול זמין');
+                return;
+            }
+            
+            const transcriptionContent = document.getElementById(`transcriptionContent_${timestamp}`);
+            const text = transcriptionContent ? transcriptionContent.textContent : transcriptionData.text;
+            
+            if (!text) {
+                alert('התמלול עדיין לא מוכן');
+                return;
+            }
+            
+            if (format === 'txt') {
+                const content = `חי-אמת - תמלול אודיו\n${'='.repeat(50)}\nקובץ: ${transcriptionData.filename}\nתאריך: ${new Date().toLocaleString('he-IL')}\n${'='.repeat(50)}\n\n${text}`;
+                const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `transcription_${transcriptionData.filename.replace(/\.[^/.]+$/, '')}.txt`;
+                link.click();
+                addMessage(`📄 הורד: ${link.download}`, false);
+            } else if (format === 'docx') {
+                const doc = new docx.Document({
+                    sections: [{
+                        children: [
+                            new docx.Paragraph({
+                                text: '🎵 חי-אמת - תמלול אודיו',
+                                heading: docx.HeadingLevel.HEADING_1,
+                                spacing: { after: 400 }
+                            }),
+                            new docx.Paragraph({
+                                text: `קובץ: ${transcriptionData.filename}`,
+                                spacing: { after: 200 }
+                            }),
+                            new docx.Paragraph({
+                                text: `תאריך: ${new Date().toLocaleString('he-IL')}`,
+                                spacing: { after: 400 }
+                            }),
+                            new docx.Paragraph({
+                                text: text,
+                                spacing: { after: 200 }
+                            })
+                        ]
+                    }]
+                });
+                
+                docx.Packer.toBlob(doc).then(blob => {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = `transcription_${transcriptionData.filename.replace(/\.[^/.]+$/, '')}.docx`;
+                    link.click();
+                    addMessage(`📋 הורד: ${link.download}`, false);
+                });
+            }
         }
         
         async function handleVideoUpload(event) {
