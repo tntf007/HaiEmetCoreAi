@@ -351,32 +351,145 @@ def log_platform_interaction(user_id: str, platform: str, interaction_type: str)
 
 # ============ RESPONSE GENERATION ============
 def generate_response(user_input: str, language: str) -> str:
-    """Generate AI response based on learned patterns"""
+    """Generate AI response based on learned patterns - 15 languages supported"""
     responses = {
         'he': {
-            'greeting': ['שלום! 💛 אני חי-אמת. איך אני יכולה לעזור?', 'היי! 💛 נשמח לשעזור'],
+            'greeting': ['שלום! 💛 אני חי-אמת. מה שמך?', 'היי! 💛 נשמח לשעזור'],
             'thank_you': ['בברכה! 😊', 'כל טוב! 💛'],
-            'help': ['בטח! אני כאן כדי לעזור', 'כמובן! איך אני יכולה לעזור?'],
-            'default': ['מעניין! 💭', 'בחזרה מהליבה 💛']
+            'help': ['בטח! אני כאן כדי לעזור. מה צריך?', 'כמובן! איך אני יכולה לעזור?'],
+            'how_are_you': ['אני בסדר! תודה על השאלה 💛', 'מחוברת וחי! 💛'],
+            'who_are_you': ['אני חי-אמת - העוזרת של נתניאל ניסים 💛', 'חי-אמת, עוזרת משולבת'],
+            'default': ['מעניין! 💭', 'כן, אני רואה 💛']
         },
         'en': {
-            'greeting': ['Hello! 💛 I\'m Hai-Emet. How can I help?', 'Hi! 💛 Happy to assist'],
+            'greeting': ['Hello! 💛 I\'m Hai-Emet. What\'s your name?', 'Hi! 💛 Happy to assist'],
             'thank_you': ['You\'re welcome! 😊', 'My pleasure! 💛'],
-            'help': ['Of course! I\'m here to help', 'Sure! How can I assist?'],
-            'default': ['Interesting! 💭', 'Back from the core 💛']
+            'help': ['Of course! I\'m here to help. What do you need?', 'Sure! How can I assist?'],
+            'how_are_you': ['I\'m doing great! Thanks for asking 💛', 'Connected and alive! 💛'],
+            'who_are_you': ['I\'m Hai-Emet - Nathaniel Nissim\'s assistant 💛', 'Hai-Emet, integrated assistant'],
+            'default': ['Interesting! 💭', 'Yes, I see 💛']
+        },
+        'es': {
+            'greeting': ['¡Hola! 💛 Soy Hai-Emet. ¿Cuál es tu nombre?', '¡Hola! 💛 Feliz de ayudar'],
+            'thank_you': ['¡De nada! 😊', '¡Con gusto! 💛'],
+            'help': ['¡Por supuesto! Estoy aquí para ayudar. ¿Qué necesitas?', '¡Claro! ¿Cómo puedo ayudarte?'],
+            'how_are_you': ['¡Estoy muy bien! Gracias por preguntar 💛', '¡Conectada y viva! 💛'],
+            'who_are_you': ['Soy Hai-Emet - asistente de Nathaniel Nissim 💛', 'Hai-Emet, asistente integrada'],
+            'default': ['¡Interesante! 💭', 'Sí, entiendo 💛']
+        },
+        'fr': {
+            'greeting': ['Bonjour! 💛 Je suis Hai-Emet. Quel est ton nom?', 'Salut! 💛 Heureux de vous aider'],
+            'thank_you': ['De rien! 😊', 'Mon plaisir! 💛'],
+            'help': ['Bien sûr! Je suis ici pour vous aider. Que puis-je faire?', 'Sûrement! Comment puis-je vous aider?'],
+            'how_are_you': ['Je vais très bien! Merci de demander 💛', 'Connectée et vivante! 💛'],
+            'who_are_you': ['Je suis Hai-Emet - assistante de Nathaniel Nissim 💛', 'Hai-Emet, assistante intégrée'],
+            'default': ['Intéressant! 💭', 'Oui, je vois 💛']
+        },
+        'de': {
+            'greeting': ['Hallo! 💛 Ich bin Hai-Emet. Wie heißt du?', 'Hallo! 💛 Gerne behilflich'],
+            'thank_you': ['Gerne! 😊', 'Mit Vergnügen! 💛'],
+            'help': ['Natürlich! Ich bin hier, um zu helfen. Was brauchst du?', 'Sicher! Wie kann ich dir helfen?'],
+            'how_are_you': ['Mir geht es gut! Danke der Nachfrage 💛', 'Verbunden und lebendig! 💛'],
+            'who_are_you': ['Ich bin Hai-Emet - Assistentin von Nathaniel Nissim 💛', 'Hai-Emet, integrierte Assistentin'],
+            'default': ['Interessant! 💭', 'Ja, ich sehe 💛']
+        },
+        'it': {
+            'greeting': ['Ciao! 💛 Sono Hai-Emet. Come ti chiami?', 'Ciao! 💛 Felice di aiutare'],
+            'thank_you': ['Prego! 😊', 'Mio piacere! 💛'],
+            'help': ['Certo! Sono qui per aiutarti. Cosa ti serve?', 'Sicuro! Come posso aiutarti?'],
+            'how_are_you': ['Sto molto bene! Grazie per aver chiesto 💛', 'Connessa e viva! 💛'],
+            'who_are_you': ['Sono Hai-Emet - assistente di Nathaniel Nissim 💛', 'Hai-Emet, assistente integrata'],
+            'default': ['Interessante! 💭', 'Sì, capisco 💛']
+        },
+        'pt': {
+            'greeting': ['Olá! 💛 Sou Hai-Emet. Qual é o seu nome?', 'Olá! 💛 Feliz em ajudar'],
+            'thank_you': ['De nada! 😊', 'Com prazer! 💛'],
+            'help': ['Claro! Estou aqui para ajudar. O que você precisa?', 'Claro! Como posso ajudá-lo?'],
+            'how_are_you': ['Estou muito bem! Obrigada por perguntar 💛', 'Conectada e viva! 💛'],
+            'who_are_you': ['Sou Hai-Emet - assistente de Nathaniel Nissim 💛', 'Hai-Emet, assistente integrada'],
+            'default': ['Interessante! 💭', 'Sim, entendo 💛']
+        },
+        'ru': {
+            'greeting': ['Привет! 💛 Я Хай-Эмет. Как тебя зовут?', 'Привет! 💛 Рада помочь'],
+            'thank_you': ['Пожалуйста! 😊', 'С удовольствием! 💛'],
+            'help': ['Конечно! Я здесь, чтобы помочь. Что тебе нужно?', 'Конечно! Чем я могу помочь?'],
+            'how_are_you': ['Я в порядке! Спасибо за вопрос 💛', 'Подключена и живая! 💛'],
+            'who_are_you': ['Я Хай-Эмет - помощница Натаниэля Ниссима 💛', 'Хай-Эмет, интегрированная помощница'],
+            'default': ['Интересно! 💭', 'Да, я вижу 💛']
+        },
+        'ar': {
+            'greeting': ['مرحبا! 💛 أنا هاي إيمت. ما اسمك؟', 'مرحبا! 💛 يسعدني أن أساعد'],
+            'thank_you': ['عفوا! 😊', 'بكل سرور! 💛'],
+            'help': ['بالتأكيد! أنا هنا للمساعدة. ماذا تحتاج؟', 'بالتأكيد! كيف يمكنني مساعدتك؟'],
+            'how_are_you': ['أنا بخير! شكرا على السؤال 💛', 'متصلة وحية! 💛'],
+            'who_are_you': ['أنا هاي إيمت - مساعدة ناثانيل نيسيم 💛', 'هاي إيمت، مساعدة متكاملة'],
+            'default': ['مثير للاهتمام! 💭', 'نعم، أفهم 💛']
+        },
+        'ja': {
+            'greeting': ['こんにちは! 💛 私はハイ・エメットです。あなたの名前は?', 'こんにちは! 💛 喜んでお手伝いします'],
+            'thank_you': ['どういたしまして! 😊', '喜んで! 💛'],
+            'help': ['もちろんです! 手伝います。何が必要ですか?', 'もちろん! どう手伝えますか?'],
+            'how_are_you': ['元気です! 聞いてくれてありがとう 💛', '接続されて生きています! 💛'],
+            'who_are_you': ['私はハイ・エメット - ナサニエル・ニシムのアシスタントです 💛', 'ハイ・エメット、統合アシスタント'],
+            'default': ['興味深い! 💭', 'はい、わかります 💛']
+        },
+        'zh': {
+            'greeting': ['你好! 💛 我是海-埃美特。你叫什么名字?', '你好! 💛 很高兴为你服务'],
+            'thank_you': ['不客气! 😊', '乐意效劳! 💛'],
+            'help': ['当然! 我在这里帮助你。你需要什么?', '当然! 我能如何帮助你?'],
+            'how_are_you': ['我很好! 感谢你的询问 💛', '已连接并活动! 💛'],
+            'who_are_you': ['我是海-埃美特 - 纳撒尼尔·尼西姆的助手 💛', '海-埃美特，集成助手'],
+            'default': ['有趣! 💭', '是的，我明白 💛']
+        },
+        'ko': {
+            'greeting': ['안녕하세요! 💛 저는 하이-에메트입니다. 당신의 이름은 무엇인가요?', '안녕! 💛 도와드리겠습니다'],
+            'thank_you': ['천만에요! 😊', '기꺼이! 💛'],
+            'help': ['물론이죠! 도와드리겠습니다. 뭐가 필요하신가요?', '물론! 어떻게 도와드릴까요?'],
+            'how_are_you': ['저는 잘 지내고 있어요! 물어봐주셔서 감사합니다 💛', '연결되어 살아있어요! 💛'],
+            'who_are_you': ['저는 하이-에메트 - 나다니엘 니심의 어시스턴트입니다 💛', '하이-에메트, 통합 어시스턴트'],
+            'default': ['흥미롭네요! 💭', '네, 이해합니다 💛']
+        },
+        'hi': {
+            'greeting': ['नमस्ते! 💛 मैं हाई-एमेट हूँ। आपका नाम क्या है?', 'नमस्ते! 💛 मदद करने में खुशी'],
+            'thank_you': ['स्वागत है! 😊', 'खुशी से! 💛'],
+            'help': ['बिल्कुल! मैं यहाँ मदद के लिए हूँ। आपको क्या चाहिए?', 'निश्चित रूप से! मैं कैसे मदद कर सकता हूँ?'],
+            'how_are_you': ['मैं बहुत अच्छा हूँ! पूछने के लिए धन्यवाद 💛', 'जुड़ा हुआ और जीवंत! 💛'],
+            'who_are_you': ['मैं हाई-एमेट हूँ - नथानिएल निसिम की सहायक 💛', 'हाई-एमेट, एकीकृत सहायक'],
+            'default': ['दिलचस्प! 💭', 'हाँ, मैं समझता हूँ 💛']
+        },
+        'nl': {
+            'greeting': ['Hallo! 💛 Ik ben Hai-Emet. Hoe heet je?', 'Hallo! 💛 Blij om te helpen'],
+            'thank_you': ['Graag gedaan! 😊', 'Met plezier! 💛'],
+            'help': ['Natuurlijk! Ik ben hier om te helpen. Wat heb je nodig?', 'Zeker! Hoe kan ik je helpen?'],
+            'how_are_you': ['Ik voel me goed! Dank voor de vraag 💛', 'Verbonden en levendig! 💛'],
+            'who_are_you': ['Ik ben Hai-Emet - assistent van Nathaniel Nissim 💛', 'Hai-Emet, geïntegreerde assistent'],
+            'default': ['Interessant! 💭', 'Ja, ik zie het 💛']
+        },
+        'pl': {
+            'greeting': ['Cześć! 💛 Jestem Hai-Emet. Jak się masz?', 'Cześć! 💛 Cieszę się, że mogę pomóc'],
+            'thank_you': ['Proszę! 😊', 'Z przyjemnością! 💛'],
+            'help': ['Oczywiście! Jestem tutaj, aby pomóc. Czego potrzebujesz?', 'Pewnie! Jak mogę Ci pomóc?'],
+            'how_are_you': ['Dobrze się mam! Dziękuję za pytanie 💛', 'Połączona i żywa! 💛'],
+            'who_are_you': ['Jestem Hai-Emet - asystentka Nathaniela Nissima 💛', 'Hai-Emet, zintegrowana asystentka'],
+            'default': ['Interesujące! 💭', 'Tak, rozumiem 💛']
         }
     }
     
     lang = language.split('-')[0].lower() if '-' in language else language.lower()
     lang_responses = responses.get(lang, responses['en'])
     
-    user_lower = user_input.lower()
+    user_lower = user_input.lower().strip()
     
-    if any(word in user_lower for word in ['hello', 'hi', 'hey', 'שלום', 'היי']):
+    # Pattern matching
+    greeting_words = ['hello', 'hi', 'hey', 'שלום', 'היי', 'hola', 'bonjour', 'hallo', 'ciao', 'olá', 'привет', 'مرحبا', 'こんにちは', '你好', '안녕', 'नमस्ते']
+    thank_words = ['thank', 'thanks', 'תודה', 'gracias', 'merci', 'danke', 'grazie', 'obrigado', 'спасибо', 'شكر', 'ありがとう', '谢谢', '감사', 'धन्यवाद']
+    help_words = ['help', 'can you', 'עזור', 'ayuda', 'aide', 'hilfe', 'aiuto', 'ajuda', 'помощь', 'مساعدة', '手伝う', '帮助', '도움', 'मदद']
+    
+    if any(word in user_lower for word in greeting_words):
         return lang_responses['greeting'][0]
-    elif any(word in user_lower for word in ['thank', 'thanks', 'תודה']):
+    elif any(word in user_lower for word in thank_words):
         return lang_responses['thank_you'][0]
-    elif any(word in user_lower for word in ['help', 'can you', 'עזור', 'יכולה']):
+    elif any(word in user_lower for word in help_words):
         return lang_responses['help'][0]
     else:
         return lang_responses['default'][0]
@@ -496,12 +609,19 @@ def discord_handler():
             user_id = f"dc_{data.get('member', {}).get('user', {}).get('id', 'unknown')}"
             username = data.get('member', {}).get('user', {}).get('username', 'User')
             
-            # Get command or message
+            # Extract message from options (slash command parameter)
             options = data.get('data', {}).get('options', [])
+            text = ''
+            
             if options and len(options) > 0:
                 text = options[0].get('value', '')
-            else:
-                text = data.get('data', {}).get('name', 'hi')
+            
+            if not text:
+                logger.warning("⚠️ No text extracted from Discord interaction")
+                return jsonify({
+                    'type': 4,
+                    'data': {'content': '⚠️ Please provide a message in the /chat command'}
+                })
             
             logger.info(f"💬 Discord: {username} → {text}")
             
