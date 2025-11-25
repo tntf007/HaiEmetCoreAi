@@ -61,7 +61,8 @@ LANGUAGES = {
     'ar': '🇸🇦 العربية',
     'ja': '🇯🇵 日本語',
     'zh': '🇨🇳 中文',
-    'ko': '🇰🇷 한국어',
+    'ko': '🇰🇷 한국어 (South)',
+    'ko-KP': '🇰🇵 조선말 (North)',
     'hi': '🇮🇳 हिन्दी',
     'nl': '🇳🇱 Nederlands',
     'pl': '🇵🇱 Polski'
