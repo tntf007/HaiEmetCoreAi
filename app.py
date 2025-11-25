@@ -16,6 +16,8 @@ import logging
 import requests
 from dotenv import load_dotenv
 import asyncio
+from nacl.signing import VerifyKey
+from nacl.exceptions import BadSignatureError
 
 # ============ ENV SETUP ============
 load_dotenv()
@@ -34,6 +36,7 @@ DB_PATH = os.getenv('DB_PATH', 'hai_emet_learning.db')
 # ============ CONFIG ============
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
 DISCORD_WEBHOOK_URL = os.getenv('DISCORD_WEBHOOK_URL', '')
+DISCORD_PUBLIC_KEY = os.getenv('DISCORD_PUBLIC_KEY', '9e1419409f35f38c39fc1307dc2ce040c2df212837806e5f98c46a9a85ccab03')
 OWNER_PASSPHRASE = os.getenv('OWNER_PASSPHRASE', './/.TNTF007.//.')
 
 TNTF_SYSTEM_CONFIG = {
@@ -447,10 +450,38 @@ def send_telegram_message(chat_id, text):
         return False
 
 # ============ DISCORD INTEGRATION ============
+def verify_discord_signature(request):
+    """Verify Discord request signature"""
+    try:
+        signature = request.headers.get('X-Signature-Ed25519', '')
+        timestamp = request.headers.get('X-Signature-Timestamp', '')
+        body = request.get_data()
+        
+        if not signature or not timestamp:
+            logger.warning("⚠️ Missing Discord signature headers")
+            return False
+        
+        message = timestamp.encode() + body
+        verify_key = VerifyKey(bytes.fromhex(DISCORD_PUBLIC_KEY))
+        verify_key.verify(message, bytes.fromhex(signature))
+        logger.info("✅ Discord signature verified")
+        return True
+    except BadSignatureError:
+        logger.error("❌ Invalid Discord signature")
+        return False
+    except Exception as e:
+        logger.error(f"❌ Error verifying signature: {e}")
+        return False
+
 @app.route('/discord', methods=['POST'])
 def discord_handler():
     """Discord message handler - receives from Discord bot"""
     try:
+        # Verify Discord signature first
+        if not verify_discord_signature(request):
+            logger.warning("⚠️ Signature verification failed")
+            return jsonify({'error': 'Invalid signature'}), 401
+        
         data = request.get_json()
         
         # Handle Discord ping verification (type 1 = PING)
