@@ -316,11 +316,11 @@
         }
         
         .message.user {
-            justify-content: flex-start;
+            justify-content: flex-end;
         }
         
         .message.assistant {
-            justify-content: flex-end;
+            justify-content: flex-start;
         }
         
         .message-wrapper {
@@ -329,11 +329,11 @@
         }
         
         .message.user .message-wrapper {
-            align-items: flex-start;
+            align-items: flex-end;
         }
         
         .message.assistant .message-wrapper {
-            align-items: flex-end;
+            align-items: flex-start;
         }
         
         .message-content {
@@ -566,8 +566,115 @@
             }
         }
     </style>
+    
+    <!-- DOCX Library for Word document generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.8.2/docx.min.js"></script>
+    
+    <style>
+        /* =========================================
+           QUANTUM VISUALIZATION LAYER
+           ========================================= */
+        #quantumVisualizer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        #quantumCore {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,0,64,0.4), rgba(139,0,0,0.2), transparent);
+            box-shadow: 0 0 100px rgba(255,215,0,0.3);
+            animation: quantumBreathe 2s infinite;
+            z-index: 0;
+            pointer-events: none;
+            border: 2px solid rgba(0,255,255,0.3);
+        }
+        
+        @keyframes quantumBreathe {
+            0%, 100% { 
+                transform: translate(-50%, -50%) scale(1); 
+                filter: hue-rotate(0deg);
+                opacity: 0.3;
+            }
+            50% { 
+                transform: translate(-50%, -50%) scale(1.15); 
+                filter: hue-rotate(180deg);
+                opacity: 0.5;
+            }
+        }
+
+        #quantumCore.quantum-active {
+            animation: quantumPulse 0.5s infinite, quantumBreathe 2s infinite;
+            box-shadow: 0 0 300px rgba(255,215,0,0.6), 0 0 500px rgba(255,0,64,0.4);
+        }
+        
+        @keyframes quantumPulse {
+            0%, 100% { 
+                box-shadow: 0 0 100px rgba(255,215,0,0.3), 0 0 200px rgba(255,0,64,0.3);
+                border-color: rgba(0,255,255,0.5);
+            }
+            50% { 
+                box-shadow: 0 0 200px rgba(255,215,0,0.6), 0 0 400px rgba(255,0,64,0.6);
+                border-color: rgba(255,0,255,0.8);
+            }
+        }
+
+        #quantumMetrics {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.85);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            z-index: 25;
+            border: 1px solid rgba(255,0,255,0.5);
+            color: #ff00ff;
+            font-family: 'Courier New', monospace;
+            min-width: 200px;
+            backdrop-filter: blur(10px);
+        }
+
+        #quantumLangIndicator {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.85);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            z-index: 25;
+            border: 1px solid rgba(255,215,0,0.5);
+            color: #ffd700;
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+    </style>
 </head>
 <body>
+    <!-- QUANTUM VISUALIZATION LAYER -->
+    <canvas id="quantumVisualizer"></canvas>
+    <div id="quantumCore"></div>
+    <div id="quantumLangIndicator">🔍 <span id="quantumLangEmoji">🌐</span> <span id="quantumLangName">מזהה...</span> | ודאות: <span id="quantumConfidence">0</span>%</div>
+    <div id="quantumMetrics">
+        ⚡ Latency: <span id="quantumLatency">0.0000</span>ms<br>
+        🧬 Binary: <span id="quantumBinary">0101</span><br>
+        🌍 Lang: <span id="quantumCurrentLang">he-IL</span><br>
+        🎯 Confidence: <span id="quantumConf">0</span>%
+    </div>
+    
     <div class="app-container">
         <!-- VOICE PANEL (LEFT) -->
         <div class="voice-panel" id="voicePanel">
@@ -926,6 +1033,241 @@
             'nl-NL': { name: '🇳🇱 Nederlands', emoji: '🌷', label: 'Dutch' },
             'pl-PL': { name: '🇵🇱 Polski', emoji: '🌲', label: 'Polish' }
         };
+        
+        // =========================================
+        // QUANTUM LANGUAGE DETECTOR
+        // =========================================
+        class ChaiEmetQuantumLanguageDetector {
+            constructor() {
+                // מפת Unicode ranges לזיהוי מהיר
+                this.unicodeLangRanges = {
+                    '\u0590-\u05FF': 'he-IL', // עברית
+                    '\u0041-\u005A\u0061-\u007A': 'en-US', // אנגלית
+                    '\u00C0-\u00FF': 'fr-FR', // צרפתית
+                    '\u0400-\u04FF': 'ru-RU', // רוסית
+                    '\u0600-\u06FF': 'ar-SA', // ערבית
+                    '\u3040-\u309F\u30A0-\u30FF': 'ja-JP', // יפנית
+                    '\u4E00-\u9FFF': 'zh-CN', // סינית
+                    '\uAC00-\uD7AF': 'ko-KR', // קוריאנית
+                    '\u0900-\u097F': 'hi-IN', // הודית
+                    '\u0100-\u017F': 'pl-PL', // פולנית
+                };
+                
+                this.latencyHistory = [];
+                this.worker = null;
+                this.setupWorker();
+            }
+            
+            // =========================================
+            // Web Worker לעיבוד קוונטי
+            // =========================================
+            setupWorker() {
+                try {
+                    const workerCode = `
+                        let processingTime = 0;
+                        self.onmessage = function(e) {
+                            const start = performance.now();
+                            const { command, data } = e.data;
+                            
+                            if (command === 'detectLanguage') {
+                                // סימולציה של עיבוד קוונטי
+                                const binaryPattern = 0b01010101;
+                                const processed = data.length * binaryPattern;
+                                const latency = performance.now() - start;
+                                
+                                postMessage({ 
+                                    type: 'languageDetected', 
+                                    latency: latency,
+                                    binaryState: processed.toString(2).padStart(8, '0').slice(-4)
+                                });
+                            }
+                        };
+                    `;
+                    const blob = new Blob([workerCode], { type: 'application/javascript' });
+                    this.worker = new Worker(URL.createObjectURL(blob));
+                    this.worker.onmessage = (e) => {
+                        if (e.data.type === 'languageDetected') {
+                            this.updateQuantumMetrics(e.data.latency, e.data.binaryState);
+                        }
+                    };
+                    console.log('✅ Quantum Worker initialized');
+                } catch (e) {
+                    console.warn('⚠️ Worker setup failed:', e.message);
+                }
+            }
+            
+            // =========================================
+            // זיהוי שפה מהיר
+            // =========================================
+            detectLanguage(text) {
+                const start = performance.now();
+                
+                // ניסיון 1: זיהוי דרך Unicode ranges
+                for (const [range, lang] of Object.entries(this.unicodeLangRanges)) {
+                    const regex = new RegExp(`[${range}]`);
+                    if (regex.test(text)) {
+                        const time = performance.now() - start;
+                        this.updateQuantumMetrics(time, '1010');
+                        
+                        // שליחה ל-worker לעיבוד נוסף
+                        if (this.worker) {
+                            this.worker.postMessage({
+                                command: 'detectLanguage',
+                                data: text
+                            });
+                        }
+                        
+                        return lang;
+                    }
+                }
+                
+                // ניסיון 2: זיהוי דרך regex פשוט
+                if (/[א-ת]/.test(text)) return 'he-IL';
+                if (/[а-яА-Я]/.test(text)) return 'ru-RU';
+                if (/[\u0900-\u097F]/.test(text)) return 'hi-IN';
+                if (/[أ-ي]/.test(text)) return 'ar-SA';
+                if (/[ก-๙]/.test(text)) return 'th-TH';
+                if (/[ა-ჰ]/.test(text)) return 'ka-GE';
+                
+                const time = performance.now() - start;
+                this.updateQuantumMetrics(time, '0101');
+                return 'en-US'; // ברירת מחדל
+            }
+            
+            // =========================================
+            // עדכון מדדים
+            // =========================================
+            updateQuantumMetrics(latency, binaryState) {
+                this.latencyHistory.push(latency);
+                if (this.latencyHistory.length > 10) this.latencyHistory.shift();
+                
+                const avgLatency = this.latencyHistory.reduce((a, b) => a + b, 0) / this.latencyHistory.length;
+                
+                // עדכון UI
+                const latencyEl = document.getElementById('quantumLatency');
+                const binaryEl = document.getElementById('quantumBinary');
+                
+                if (latencyEl) latencyEl.textContent = avgLatency.toFixed(4);
+                if (binaryEl) binaryEl.textContent = binaryState || '0101';
+            }
+            
+            // =========================================
+            // עדכון שפה נוכחית
+            // =========================================
+            updateCurrentLanguage(langCode, confidence) {
+                const langKey = langCode.split('-')[0];
+                const langData = LANGUAGES_CONFIG[langCode];
+                
+                if (langData) {
+                    // עדכון מחוון שפה
+                    const indicator = document.getElementById('quantumLangIndicator');
+                    const emoji = document.getElementById('quantumLangEmoji');
+                    const name = document.getElementById('quantumLangName');
+                    const conf = document.getElementById('quantumConfidence');
+                    
+                    if (indicator) indicator.style.display = 'block';
+                    if (emoji) emoji.textContent = langData.emoji;
+                    if (name) name.textContent = langData.label;
+                    if (conf) conf.textContent = (confidence * 100).toFixed(1);
+                    
+                    // עדכון מטריקס
+                    const currentLang = document.getElementById('quantumCurrentLang');
+                    const currentConf = document.getElementById('quantumConf');
+                    
+                    if (currentLang) currentLang.textContent = langCode;
+                    if (currentConf) currentConf.textContent = (confidence * 100).toFixed(1);
+                    
+                    // הפעלת אנימציה
+                    const core = document.getElementById('quantumCore');
+                    if (core) {
+                        core.classList.add('quantum-active');
+                        setTimeout(() => core.classList.remove('quantum-active'), 2000);
+                    }
+                }
+            }
+        }
+        
+        // =========================================
+        // QUANTUM VISUALIZER
+        // =========================================
+        class QuantumVisualizer {
+            constructor(canvasId) {
+                this.canvas = document.getElementById(canvasId);
+                if (!this.canvas) return;
+                
+                this.ctx = this.canvas.getContext('2d');
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+                
+                this.particles = [];
+                this.audioContext = null;
+                this.analyser = null;
+                this.dataArray = null;
+                
+                window.addEventListener('resize', () => {
+                    this.canvas.width = window.innerWidth;
+                    this.canvas.height = window.innerHeight;
+                });
+            }
+            
+            // =========================================
+            // אתחול עם אודיו
+            // =========================================
+            initAudio(stream) {
+                try {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    this.analyser = this.audioContext.createAnalyser();
+                    this.analyser.fftSize = 256;
+                    
+                    const source = this.audioContext.createMediaStreamSource(stream);
+                    source.connect(this.analyser);
+                    
+                    this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+                    console.log('✅ Quantum Visualizer audio initialized');
+                } catch (e) {
+                    console.warn('⚠️ Visualizer audio init failed:', e.message);
+                }
+            }
+            
+            // =========================================
+            // רינדור
+            // =========================================
+            render() {
+                if (!this.ctx) return;
+                
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                if (this.analyser && this.dataArray) {
+                    this.analyser.getByteFrequencyData(this.dataArray);
+                    
+                    const centerX = this.canvas.width / 2;
+                    const centerY = this.canvas.height / 2;
+                    const radius = 100;
+                    
+                    // ציור גלי אנרגיה
+                    for (let i = 0; i < this.dataArray.length; i++) {
+                        const value = this.dataArray[i] / 255;
+                        const angle = (i / this.dataArray.length) * Math.PI * 2;
+                        
+                        const x = centerX + Math.cos(angle) * radius * (1 + value);
+                        const y = centerY + Math.sin(angle) * radius * (1 + value);
+                        
+                        this.ctx.beginPath();
+                        this.ctx.arc(x, y, 2 * value, 0, Math.PI * 2);
+                        this.ctx.fillStyle = `rgba(${value * 255}, ${100 + value * 155}, 255, ${0.3 + value * 0.4})`;
+                        this.ctx.fill();
+                    }
+                }
+                
+                requestAnimationFrame(() => this.render());
+            }
+        }
+        
+        // יצירת מופעים גלובליים
+        const quantumDetector = new ChaiEmetQuantumLanguageDetector();
+        const quantumVisualizer = new QuantumVisualizer('quantumVisualizer');
+        quantumVisualizer.render();
+        
         
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition = null;
@@ -1422,6 +1764,13 @@
                     simpleStream = stream;
                     simpleAudioChunks = [];
                     
+                    // 🎨 אתחול Quantum Visualizer
+                    try {
+                        quantumVisualizer.initAudio(stream);
+                    } catch (e) {
+                        console.log('Visualizer init skipped:', e.message);
+                    }
+                    
                     // Request Wake Lock - keeps recording even when tab is inactive
                     try {
                         if ('wakeLock' in navigator) {
@@ -1471,6 +1820,12 @@
                             if (response.ok) {
                                 const result = await response.json();
                                 const transcribedText = result.text || '[הקלטה התקבלה]';
+                                
+                                // 🧬 Quantum Language Detection
+                                const detectedLang = quantumDetector.detectLanguage(transcribedText);
+                                const confidence = result.confidence || 0.85;
+                                quantumDetector.updateCurrentLanguage(detectedLang, confidence);
+                                console.log(`🧬 Quantum detected: ${detectedLang} (${(confidence * 100).toFixed(1)}%)`);
                                 
                                 const savedText = document.getElementById('finalTranscript').getAttribute('data-saved') || '';
                                 const newSavedText = savedText ? savedText + ' ' + transcribedText : transcribedText;
