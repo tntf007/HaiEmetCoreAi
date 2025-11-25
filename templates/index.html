@@ -2075,7 +2075,7 @@
             
             const langName = LANGUAGES_CONFIG[currentVoiceLang]?.name || 'Unknown';
             const display = `[${langName}]\n\n${subtitles}`;
-            safeSetText('videoTranscript', display));
+            safeSetText('videoTranscript', display);
             
             const videoSubEl = document.getElementById('videoSubtitles');
             if (videoSubEl) videoSubEl.value = subtitles;
@@ -2095,7 +2095,7 @@
             const targetLang = document.getElementById('videoTranslang').value;
             if (!targetLang || !currentVideoSubtitles) return;
             
-            safeSetText('videoTranscript', '⏳ מתרגם...'));
+            safeSetText('videoTranscript', '⏳ מתרגם...');
             
             try {
                 const translated = await translateVideoText(currentVideoSubtitles, targetLang);
@@ -2103,7 +2103,7 @@
                 
                 const langName = LANGUAGES_CONFIG[targetLang]?.name || targetLang.toUpperCase();
                 const display = `[${langName}]\n\n${translated}`;
-                safeSetText('videoTranscript', display));
+                safeSetText('videoTranscript', display);
                 
                 videoTranscriptHistory.push({
                     text: translated,
@@ -2114,7 +2114,7 @@
                 });
                 
             } catch (e) {
-                safeSetText('videoTranscript', '❌ שגיאה בתרגום'));
+                safeSetText('videoTranscript', '❌ שגיאה בתרגום');
             }
         }
         
