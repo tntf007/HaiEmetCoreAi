@@ -322,14 +322,16 @@
             max-width: 70%;
             padding: 12px 15px;
             border-radius: 15px;
-            word-wrap: break-word;
-            line-height: 1.5;
-            font-size: 14px;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.9;
+            font-size: 15px;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
             direction: rtl;
             text-align: right;
             white-space: normal;
             word-break: break-word;
+            display: inline-block;
+            vertical-align: top;
+            unicode-bidi: plaintext;
         }
         
         .message.user .message-content {
@@ -338,6 +340,7 @@
             border-bottom-left-radius: 0;
             direction: rtl;
             text-align: right;
+            line-height: 1.9;
         }
         
         .message.assistant .message-content {
@@ -347,6 +350,7 @@
             border: 1px solid #e0e0e0;
             direction: rtl;
             text-align: right;
+            line-height: 1.9;
         }
         
         .message-time {
@@ -459,11 +463,14 @@
                 border-left: none;
                 border-right: 1px solid #e0e0e0;
                 transition: width 0.3s ease;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
             }
             
             .voice-panel.open {
-                width: 85vw !important;
+                width: 80vw !important;
                 box-shadow: -3px 0 15px rgba(0,0,0,0.2);
+                max-width: 350px;
             }
             
             .main-container {
@@ -475,6 +482,7 @@
                 right: 10px;
                 padding: 10px 12px;
                 font-size: 1em;
+                z-index: 1000;
             }
 
             .header h1 {
@@ -488,11 +496,21 @@
             .message-content {
                 max-width: 85%;
             }
+            
+            /* Device manager visible on mobile */
+            #audioDeviceSelect,
+            #videoDeviceSelect {
+                width: 100%;
+                padding: 10px;
+                margin: 8px 0;
+                font-size: 14px;
+            }
         }
 
         @media (max-width: 480px) {
             .voice-panel.open {
                 width: 100vw !important;
+                max-width: 100%;
             }
             
             .header h1 {
@@ -507,6 +525,7 @@
                 max-width: 90%;
                 font-size: 0.95em;
                 padding: 10px 12px;
+                line-height: 1.9;
             }
 
             input[type="text"] {
@@ -880,16 +899,19 @@
         // ============ DEVICE ENUMERATION ============
         async function enumerateDevices() {
             try {
-                // Request permissions first
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    audio: true, 
-                    video: true 
-                });
+                // Try to get permissions first (might fail on some devices)
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ 
+                        audio: true, 
+                        video: true 
+                    });
+                    stream.getTracks().forEach(track => track.stop());
+                } catch (permError) {
+                    // Permission denied or not available - continue anyway
+                    console.log('Permission request: ', permError.message);
+                }
                 
-                // Stop the stream
-                stream.getTracks().forEach(track => track.stop());
-                
-                // Now enumerate devices
+                // Enumerate devices (works even without permissions on some browsers)
                 const devices = await navigator.mediaDevices.enumerateDevices();
                 
                 availableAudioDevices = devices.filter(device => device.kind === 'audioinput');
@@ -897,30 +919,40 @@
                 
                 // Update audio device select
                 const audioSelect = document.getElementById('audioDeviceSelect');
-                audioSelect.innerHTML = '<option value="">🔄 זהוי אוטומטי</option>';
-                availableAudioDevices.forEach(device => {
-                    const option = document.createElement('option');
-                    option.value = device.deviceId;
-                    option.text = `🎙️ ${device.label || 'מיקרופון ' + device.deviceId.substring(0, 5)}`;
-                    audioSelect.appendChild(option);
-                });
+                if (audioSelect) {
+                    audioSelect.innerHTML = '<option value="">🔄 זהוי אוטומטי</option>';
+                    availableAudioDevices.forEach(device => {
+                        const option = document.createElement('option');
+                        option.value = device.deviceId;
+                        option.text = `🎙️ ${device.label || 'מיקרופון ' + device.deviceId.substring(0, 5)}`;
+                        audioSelect.appendChild(option);
+                    });
+                }
                 
                 // Update video device select
                 const videoSelect = document.getElementById('videoDeviceSelect');
-                videoSelect.innerHTML = '<option value="">🔄 זהוי אוטומטי</option>';
-                availableVideoDevices.forEach(device => {
-                    const option = document.createElement('option');
-                    option.value = device.deviceId;
-                    option.text = `📹 ${device.label || 'מצלמה ' + device.deviceId.substring(0, 5)}`;
-                    videoSelect.appendChild(option);
-                });
+                if (videoSelect) {
+                    videoSelect.innerHTML = '<option value="">🔄 זהוי אוטומטי</option>';
+                    availableVideoDevices.forEach(device => {
+                        const option = document.createElement('option');
+                        option.value = device.deviceId;
+                        option.text = `📹 ${device.label || 'מצלמה ' + device.deviceId.substring(0, 5)}`;
+                        videoSelect.appendChild(option);
+                    });
+                }
                 
-                addMessage(`🔍 סורק התקנים:\n📢 ${availableAudioDevices.length} מיקרופונים\n📹 ${availableVideoDevices.length} מצלמות`, false);
-                document.getElementById('statusIndicator').textContent = `✅ נמצאו ${availableAudioDevices.length + availableVideoDevices.length} התקנים`;
+                const totalDevices = availableAudioDevices.length + availableVideoDevices.length;
+                if (totalDevices > 0) {
+                    addMessage(`🔍 סורק התקנים:\n📢 ${availableAudioDevices.length} מיקרופונים\n📹 ${availableVideoDevices.length} מצלמות`, false);
+                    document.getElementById('statusIndicator').textContent = `✅ נמצאו ${totalDevices} התקנים`;
+                } else {
+                    addMessage(`⚠️ לא נמצאו התקנים - נא הן הרשאה למיקרופון/מצלמה בהגדרות`, false);
+                }
                 
             } catch (error) {
-                addMessage(`❌ שגיאה בסריקת התקנים: ${error.message}`, false);
-                document.getElementById('statusIndicator').textContent = '❌ אין גישה להתקנים';
+                console.error('Device enumeration error:', error);
+                addMessage(`⚠️ לא ניתן לסרוק התקנים: ${error.message}\nנא תן הרשאה בהגדרות`, false);
+                document.getElementById('statusIndicator').textContent = '⚠️ נדרשות הרשאות';
             }
         }
         
@@ -928,12 +960,22 @@
             selectedAudioDevice = document.getElementById('audioDeviceSelect').value;
             const deviceName = availableAudioDevices.find(d => d.deviceId === selectedAudioDevice)?.label || 'אוטומטי';
             addMessage(`🎙️ בחר כרטיס קול: ${deviceName}`, false);
+            
+            // Close panel on mobile after selection
+            if (window.innerWidth <= 768) {
+                document.getElementById('voicePanel').classList.remove('open');
+            }
         }
         
         function changeVideoDevice() {
             selectedVideoDevice = document.getElementById('videoDeviceSelect').value;
             const deviceName = availableVideoDevices.find(d => d.deviceId === selectedVideoDevice)?.label || 'אוטומטי';
             addMessage(`📹 בחר כרטיס וידאו: ${deviceName}`, false);
+            
+            // Close panel on mobile after selection
+            if (window.innerWidth <= 768) {
+                document.getElementById('voicePanel').classList.remove('open');
+            }
         }
         
         // ============ AUDIO OPTIMIZATION ============
