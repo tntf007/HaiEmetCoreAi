@@ -613,21 +613,36 @@ def discord_handler():
             
             # Extract message from options (slash command parameter)
             options = data.get('data', {}).get('options', [])
+            command_name = data.get('data', {}).get('name', '')
             logger.info(f"📝 Options received: {options}")
+            logger.info(f"🎯 Command name: {command_name}")
             
             text = ''
             
+            # First try to get text from options
             if options and len(options) > 0:
                 logger.info(f"📦 First option: {options[0]}")
                 text = options[0].get('value', '')
             
+            # If no text from options, use command name as trigger
+            if not text:
+                # Map Hebrew commands to English
+                command_map = {
+                    'התעוררי': 'wake up',
+                    'help': 'help',
+                    'chat': 'hello',
+                    'שלום': 'hello'
+                }
+                text = command_map.get(command_name, command_name)
+                logger.info(f"💡 Using command name as text: '{text}'")
+            
             logger.info(f"💬 Extracted text: '{text}'")
             
-            if not text:
+            if not text or text.strip() == '':
                 logger.warning("⚠️ No text extracted from Discord interaction")
                 return jsonify({
                     'type': 4,
-                    'data': {'content': '⚠️ Please provide a message in the /chat command'}
+                    'data': {'content': '👋 שלום! אני חי-אמת 💛 מה אוכל לעזור לך?'}
                 })
             
             logger.info(f"💬 Discord: {username} → {text}")
