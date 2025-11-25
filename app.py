@@ -22,6 +22,12 @@ import discord
 from discord.ext import commands
 import threading
 
+# ============ WORKAROUND FOR AUDIOOP (Render) ============
+import sys
+class FakeAudioop:
+    pass
+sys.modules['audioop'] = FakeAudioop()
+
 # ============ ENV SETUP ============
 load_dotenv()
 
@@ -80,50 +86,59 @@ discord_bot = commands.Bot(command_prefix='!', intents=intents)
 async def on_ready():
     """Bot is ready"""
     logger.info(f'✅ Discord Bot Ready: {discord_bot.user}')
-    await discord_bot.change_presence(activity=discord.Game(name='💛 Chat with me!'))
+    await discord_bot.change_presence(activity=discord.Game(name='💛 עוזרת Hai-Emet'))
 
 @discord_bot.event
 async def on_message(message):
-    """Handle regular messages - only reply to mentions"""
+    """Handle all messages - respond to mentions, commands, and regular chat"""
     # Ignore bot's own messages
     if message.author == discord_bot.user:
         return
     
-    # Only process commands first
-    if message.content.startswith('!'):
-        await discord_bot.process_commands(message)
+    # Skip empty messages
+    if not message.content.strip():
         return
     
-    # Only respond if bot is mentioned OR in DM
-    if discord_bot.user.mentioned_in(message) or isinstance(message.channel, discord.DMChannel):
-        # Skip if only mentioned with no other content
-        content = message.content.replace(f'<@{discord_bot.user.id}>', '').replace(f'<@!{discord_bot.user.id}>', '').strip()
-        
-        if not content:
-            return
-        
-        logger.info(f"💬 Discord message: {message.author} → {content}")
-        
-        user_id = f"dc_{message.author.id}"
-        text = content
-        username = message.author.name
-        
-        # Detect language
-        language = 'he' if any(ord(c) > 127 for c in text) else 'en'
-        
-        # Initialize user
-        init_user(user_id, language, 'discord')
-        
-        # Generate response
-        response = generate_response(text, language)
-        learn_message(user_id, text, response, language, 'discord')
-        
-        # Send response
-        try:
-            await message.reply(response, mention_author=False)
-            logger.info(f"✅ Discord replied to {username}")
-        except Exception as e:
-            logger.error(f"❌ Error replying on Discord: {e}")
+    # Check if bot is mentioned or in DM
+    is_mentioned = discord_bot.user.mentioned_in(message)
+    is_dm = isinstance(message.channel, discord.DMChannel)
+    
+    # If in public channel, only respond to mentions or if it's a command
+    if isinstance(message.channel, discord.TextChannel) and not is_mentioned and not message.content.startswith('!'):
+        return
+    
+    # Extract text (remove mention if present)
+    text = message.content
+    if is_mentioned:
+        text = message.content.replace(f'<@{discord_bot.user.id}>', '').replace(f'<@!{discord_bot.user.id}>', '').strip()
+    
+    if not text:
+        return
+    
+    logger.info(f"💬 Discord message: {message.author} → {text}")
+    
+    user_id = f"dc_{message.author.id}"
+    username = message.author.name
+    
+    # Detect language
+    language = 'he' if any(ord(c) > 127 for c in text) else 'en'
+    
+    # Initialize user
+    init_user(user_id, language, 'discord')
+    
+    # Generate response
+    response = generate_response(text, language)
+    learn_message(user_id, text, response, language, 'discord')
+    
+    # Send response
+    try:
+        await message.reply(response, mention_author=False)
+        logger.info(f"✅ Discord replied to {username}")
+    except Exception as e:
+        logger.error(f"❌ Error replying on Discord: {e}")
+    
+    # Process commands (for /chat slash commands via Flask)
+    await discord_bot.process_commands(message)
 
 def run_discord_bot():
     """Run Discord bot in separate thread"""
@@ -878,7 +893,7 @@ logger.info('Binary: 0101-0101(0101)')
 logger.info('═' * 60)
 logger.info('✅ Flask Backend Initialized')
 logger.info(f'✅ Telegram: {"Configured" if TELEGRAM_BOT_TOKEN else "Not configured"}')
-logger.info(f'✅ Discord: {"Configured" if DISCORD_BOT_TOKEN else "Not configured"}')
+logger.info(f'✅ Discord: {"Configured (Bot + Interactions)" if DISCORD_BOT_TOKEN else "Not configured"}')
 logger.info('✅ GAS Integration: Ready')
 logger.info('✅ Web Interface: Ready')
 logger.info('═' * 60)
