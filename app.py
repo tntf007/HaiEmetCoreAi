@@ -35,6 +35,7 @@ DB_PATH = os.getenv('DB_PATH', 'hai_emet_learning.db')
 
 # ============ CONFIG ============
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
+DISCORD_BOT_TOKEN = os.getenv('DISCORD_BOT_TOKEN', '')
 DISCORD_WEBHOOK_URL = os.getenv('DISCORD_WEBHOOK_URL', '')
 DISCORD_PUBLIC_KEY = os.getenv('DISCORD_PUBLIC_KEY', '9e1419409f35f38c39fc1307dc2ce040c2df212837806e5f98c46a9a85ccab03')
 OWNER_PASSPHRASE = os.getenv('OWNER_PASSPHRASE', './/.TNTF007.//.')
