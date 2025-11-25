@@ -39,7 +39,7 @@ async function sendMessage() {
     addMessage(message, true);
     messageInput.value = '';
     
-    statusEl.innerHTML = '<span class="loading"></span> שולח...';
+    statusEl.innerHTML = '<span class="loading"></span> ×©×•×œ×—...';
     
     try {
         const language = detectLanguage(message);
@@ -61,14 +61,14 @@ async function sendMessage() {
         
         if (data.status === 'success') {
             addMessage(data.reply, false);
-            statusEl.textContent = '✅ Connected';
+            statusEl.textContent = 'âœ… Connected';
         } else {
-            addMessage('❌ ' + (data.reply || 'שגיאה בשליחת ההודעה'), false);
-            statusEl.textContent = '⚠️ Error';
+            addMessage('âŒ ' + (data.reply || '×©×’×™××” ×‘×©×œ×™×—×ª ×”×”×•×“×¢×”'), false);
+            statusEl.textContent = 'âš ï¸ Error';
         }
     } catch (error) {
-        addMessage('❌ Connection error: ' + error.message, false);
-        statusEl.textContent = '❌ Disconnected';
+        addMessage('âŒ Connection error: ' + error.message, false);
+        statusEl.textContent = 'âŒ Disconnected';
     }
 }
 
@@ -79,4 +79,4 @@ messageInput.addEventListener('keypress', (e) => {
 
 messageInput.focus();
 
-4️⃣ Commit
+4ï¸âƒ£ Commit
