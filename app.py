@@ -453,6 +453,11 @@ def discord_handler():
     try:
         data = request.get_json()
         
+        # Handle Discord ping verification (type 1 = PING)
+        if data.get('type') == 1:
+            logger.info("🔔 Discord PING verification - responding PONG")
+            return jsonify({'type': 1})
+        
         user_id = f"dc_{data.get('user_id', 'unknown')}"
         text = data.get('message', '')
         username = data.get('username', 'User')
