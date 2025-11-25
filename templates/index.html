@@ -1034,7 +1034,7 @@
             } catch (error) {
                 console.error('Device enumeration error:', error);
                 addMessage(`⚠️ לא ניתן לסרוק התקנים: ${error.message}\nנא תן הרשאה בהגדרות`, false);
-                updateStatus( '⚠️ נדרשות הרשאות';
+                updateStatus('⚠️ נדרשות הרשאות');
             }
         }
         
@@ -1056,7 +1056,7 @@
             // Update status with visual indicator
             const bars = Math.round(volumePercent / 10);
             const volumeBar = '█'.repeat(Math.max(1, bars)) + '░'.repeat(Math.max(0, 10 - bars));
-            updateStatus( `🎤 ${volumeBar} ${Math.round(volumePercent)}%`;
+            updateStatus(`🎤 ${volumeBar} ${Math.round(volumePercent)}%`);
             
             // Continue animation
             animationId = requestAnimationFrame(drawVolumeMeter);
@@ -1147,7 +1147,6 @@
         // Initialize on page load
         window.addEventListener('DOMContentLoaded', () => {
             enumerateDevices();
-            updateOptimizationDisplay();
         });
         
         function getPrecisionTime() {
@@ -1365,7 +1364,7 @@
                 recognition.lang = currentVoiceLang;
             }
             const langName = LANGUAGES_CONFIG[newLang]?.name || 'Unknown';
-            updateStatus( `✅ Language: ${langName}`;
+            updateStatus(`✅ Language: ${langName}`);
         }
         
         let mediaRecorderFallback = null;
@@ -1470,11 +1469,11 @@
             recognition.onend = () => {
                 isRecording = false;
                 document.getElementById('recordBtn').classList.remove('recording');
-                updateStatus( '✅ Ready';
+                updateStatus('✅ Ready');
             };
             
             recognition.onerror = (event) => {
-                updateStatus( '❌ Error: ' + event.error;
+                updateStatus('❌ Error: ' + event.error);
             };
             } else {
                 // Fallback: Audio recording (iOS, Firefox, Chrome without Speech API)
@@ -1494,7 +1493,7 @@
                 mediaRecorderFallback.stop();
                 isRecordingMobile = false;
                 document.getElementById('recordBtn').classList.remove('recording');
-                updateStatus( '⏹️ Sending to server...';
+                updateStatus('⏹️ Sending to server...');
                 
                 // Stop volume meter animation
                 if (animationId) {
@@ -1574,7 +1573,7 @@
                             formData.append('browser', browser.isSafari ? 'safari' : browser.isIOS ? 'ios' : browser.isAndroid ? 'android' : 'other');
                             
                             addMessage(`📤 Uploading ${Math.round(blobSize / 1024)}KB...`, false);
-                            updateStatus( `📤 Uploading ${Math.round(blobSize / 1024)}KB...`;
+                            updateStatus(`📤 Uploading ${Math.round(blobSize / 1024)}KB...`);
                             
                             // Send to server with timeout
                             const controller = new AbortController();
@@ -1611,14 +1610,14 @@
                                     translateText(transcribedText, selectedTranslateLang);
                                 }
                                 
-                                updateStatus( '✅ Ready';
+                                updateStatus('✅ Ready');
                             } else {
                                 const errorText = await response.text();
-                                updateStatus( `❌ Server error ${response.status}`;
+                                updateStatus(`❌ Server error ${response.status}`);
                                 addMessage(`❌ שגיאה: ${response.status} - ${errorText.substring(0, 100)}`, false);
                             }
                         } catch (error) {
-                            updateStatus( '❌ Upload failed';
+                            updateStatus('❌ Upload failed');
                             if (error.name === 'AbortError') {
                                 addMessage('❌ Upload timeout - check connection', false);
                             } else {
@@ -1635,11 +1634,11 @@
                     mediaRecorderFallback.start();
                     isRecordingMobile = true;
                     document.getElementById('recordBtn').classList.add('recording');
-                    updateStatus( '🎧 הקלטה... דבר בעברית!';
+                    updateStatus('🎧 הקלטה... דבר בעברית!');
                     addMessage(`🎙️ הקלטה התחילה (${browser.isIOS ? 'iOS' : 'Android'}${browser.isChrome ? ' Chrome' : browser.isSafari ? ' Safari' : ''})`, false);
                     
                 } catch (error) {
-                    updateStatus( '❌ Microphone denied';
+                    updateStatus('❌ Microphone denied');
                     let errorMsg = error.message;
                     if (error.name === 'NotAllowedError') {
                         errorMsg = 'הן הרשאה למיקרופון בהגדרות';
@@ -1725,7 +1724,7 @@
             addMessage(message, true);
             const msgInput = document.getElementById('messageInput');
             if (msgInput) msgInput.value = '';
-            updateStatus( '⏳ משדרת תגובה...';
+            updateStatus('⏳ משדרת תגובה...');
             
             try {
                 const response = await fetch(API_URL, {
@@ -1747,7 +1746,7 @@
                     addMessage(data.reply, false);
                 }
                 
-                updateStatus( '✅ בחזרה מהליבה';
+                updateStatus('✅ בחזרה מהליבה');
                 
                 transcriptionHistory.push({
                     text: message,
@@ -1759,7 +1758,7 @@
                 
             } catch (error) {
                 addMessage('❌ שגיאה בחיבור לליבה.', false);
-                updateStatus( '❌ שגיאה';
+                updateStatus('❌ שגיאה');
             }
         }
         
