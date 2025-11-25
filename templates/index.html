@@ -323,12 +323,21 @@
             padding: 12px 15px;
             border-radius: 15px;
             word-wrap: break-word;
+            line-height: 1.5;
+            font-size: 14px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            direction: rtl;
+            text-align: right;
+            white-space: normal;
+            word-break: break-word;
         }
         
         .message.user .message-content {
             background: #667eea;
             color: white;
             border-bottom-left-radius: 0;
+            direction: rtl;
+            text-align: right;
         }
         
         .message.assistant .message-content {
@@ -336,6 +345,8 @@
             color: #333;
             border-bottom-right-radius: 0;
             border: 1px solid #e0e0e0;
+            direction: rtl;
+            text-align: right;
         }
         
         .message-time {
@@ -833,7 +844,8 @@
             'ar-SA': { name: '🇸🇦 العربية', emoji: '🌙', label: 'Arabic' },
             'ja-JP': { name: '🇯🇵 日本語', emoji: '🌸', label: 'Japanese' },
             'zh-CN': { name: '🇨🇳 中文', emoji: '🏮', label: 'Chinese' },
-            'ko-KR': { name: '🇰🇷 한국어', emoji: '🌟', label: 'Korean' },
+            'ko-KR': { name: '🇰🇷 한국어 (South)', emoji: '🌟', label: 'Korean South' },
+            'ko-KP': { name: '🇰🇵 조선말 (North)', emoji: '⭐', label: 'Korean North' },
             'hi-IN': { name: '🇮🇳 हिन्दी', emoji: '🎨', label: 'Hindi' },
             'nl-NL': { name: '🇳🇱 Nederlands', emoji: '🌷', label: 'Dutch' },
             'pl-PL': { name: '🇵🇱 Polski', emoji: '🌲', label: 'Polish' }
