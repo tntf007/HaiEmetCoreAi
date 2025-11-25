@@ -24,7 +24,7 @@ from nacl.exceptions import BadSignatureError
 load_dotenv()
 
 # ============ INITIALIZATION ============
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', static_url_path='/static')
 CORS(app)
 
 # Logging setup
