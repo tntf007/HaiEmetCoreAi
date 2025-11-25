@@ -475,7 +475,7 @@ def verify_discord_signature(request):
 
 @app.route('/discord', methods=['POST'])
 def discord_handler():
-    """Discord message handler - receives from Discord bot"""
+    """Discord message handler - receives from Discord interactions"""
     try:
         # Verify Discord signature first
         if not verify_discord_signature(request):
@@ -489,26 +489,42 @@ def discord_handler():
             logger.info("🔔 Discord PING verification - responding PONG")
             return jsonify({'type': 1})
         
-        user_id = f"dc_{data.get('user_id', 'unknown')}"
-        text = data.get('message', '')
-        username = data.get('username', 'User')
+        # Handle interaction commands/messages (type 2)
+        if data.get('type') == 2:
+            logger.info("💬 Discord interaction received")
+            
+            user_id = f"dc_{data.get('member', {}).get('user', {}).get('id', 'unknown')}"
+            username = data.get('member', {}).get('user', {}).get('username', 'User')
+            
+            # Get command or message
+            options = data.get('data', {}).get('options', [])
+            if options and len(options) > 0:
+                text = options[0].get('value', '')
+            else:
+                text = data.get('data', {}).get('name', 'hi')
+            
+            logger.info(f"💬 Discord: {username} → {text}")
+            
+            # Detect language
+            language = 'he' if any(ord(c) > 127 for c in text) else 'en'
+            
+            # Initialize user
+            init_user(user_id, language, 'discord')
+            
+            # Generate response
+            response = generate_response(text, language)
+            learn_message(user_id, text, response, language, 'discord')
+            
+            # Respond to Discord interaction (type 4 = CHANNEL_MESSAGE_WITH_SOURCE)
+            return jsonify({
+                'type': 4,
+                'data': {
+                    'content': response
+                }
+            })
         
-        logger.info(f"💬 Discord: {username} → {text}")
-        
-        # Detect language
-        language = 'he' if any(ord(c) > 127 for c in text) else 'en'
-        
-        # Initialize user
-        init_user(user_id, language, 'discord')
-        
-        # Learn and respond
-        response = generate_response(text, language)
-        learn_message(user_id, text, response, language, 'discord')
-        
-        # Send response back via Discord
-        send_discord_message(response)
-        
-        return jsonify({'status': 'success', 'response': response})
+        logger.warning(f"⚠️ Unknown interaction type: {data.get('type')}")
+        return jsonify({'error': 'Unknown interaction type'}), 400
     
     except Exception as e:
         logger.error(f'❌ Discord error: {e}')
