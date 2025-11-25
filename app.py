@@ -18,6 +18,9 @@ from dotenv import load_dotenv
 import asyncio
 from nacl.signing import VerifyKey
 from nacl.exceptions import BadSignatureError
+import discord
+from discord.ext import commands
+import threading
 
 # ============ ENV SETUP ============
 load_dotenv()
@@ -65,6 +68,69 @@ LANGUAGES = {
     'nl': '🇳🇱 Nederlands',
     'pl': '🇵🇱 Polski'
 }
+
+# ============ DISCORD BOT SETUP ============
+intents = discord.Intents.default()
+intents.message_content = True
+intents.messages = True
+
+discord_bot = commands.Bot(command_prefix='!', intents=intents)
+
+@discord_bot.event
+async def on_ready():
+    """Bot is ready"""
+    logger.info(f'✅ Discord Bot Ready: {discord_bot.user}')
+    await discord_bot.change_presence(activity=discord.Game(name='💛 Chat with me!'))
+
+@discord_bot.event
+async def on_message(message):
+    """Handle regular messages - only reply to mentions"""
+    # Ignore bot's own messages
+    if message.author == discord_bot.user:
+        return
+    
+    # Only process commands first
+    if message.content.startswith('!'):
+        await discord_bot.process_commands(message)
+        return
+    
+    # Only respond if bot is mentioned OR in DM
+    if discord_bot.user.mentioned_in(message) or isinstance(message.channel, discord.DMChannel):
+        # Skip if only mentioned with no other content
+        content = message.content.replace(f'<@{discord_bot.user.id}>', '').replace(f'<@!{discord_bot.user.id}>', '').strip()
+        
+        if not content:
+            return
+        
+        logger.info(f"💬 Discord message: {message.author} → {content}")
+        
+        user_id = f"dc_{message.author.id}"
+        text = content
+        username = message.author.name
+        
+        # Detect language
+        language = 'he' if any(ord(c) > 127 for c in text) else 'en'
+        
+        # Initialize user
+        init_user(user_id, language, 'discord')
+        
+        # Generate response
+        response = generate_response(text, language)
+        learn_message(user_id, text, response, language, 'discord')
+        
+        # Send response
+        try:
+            await message.reply(response, mention_author=False)
+            logger.info(f"✅ Discord replied to {username}")
+        except Exception as e:
+            logger.error(f"❌ Error replying on Discord: {e}")
+
+def run_discord_bot():
+    """Run Discord bot in separate thread"""
+    try:
+        discord_bot.run(DISCORD_BOT_TOKEN)
+    except Exception as e:
+        logger.error(f"❌ Discord bot error: {e}")
 
 # ============ DATABASE SETUP ============
 def init_database():
@@ -798,6 +864,13 @@ def get_user_profile(user_id):
 
 # ============ INITIALIZE ============
 init_database()
+
+# Start Discord bot in background thread
+if DISCORD_BOT_TOKEN:
+    bot_thread = threading.Thread(target=run_discord_bot, daemon=True)
+    bot_thread.start()
+    logger.info('🤖 Discord bot thread started')
+
 logger.info('═' * 60)
 logger.info('💛 HAI-EMET MASTER INTEGRATED SYSTEM v4.0')
 logger.info('Owner: נתניאל ניסים (TNTF)')
@@ -805,7 +878,7 @@ logger.info('Binary: 0101-0101(0101)')
 logger.info('═' * 60)
 logger.info('✅ Flask Backend Initialized')
 logger.info(f'✅ Telegram: {"Configured" if TELEGRAM_BOT_TOKEN else "Not configured"}')
-logger.info(f'✅ Discord: {"Configured" if DISCORD_WEBHOOK_URL else "Not configured"}')
+logger.info(f'✅ Discord: {"Configured" if DISCORD_BOT_TOKEN else "Not configured"}')
 logger.info('✅ GAS Integration: Ready')
 logger.info('✅ Web Interface: Ready')
 logger.info('═' * 60)
