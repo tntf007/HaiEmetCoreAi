@@ -556,19 +556,51 @@
             <div class="panel-header">🎤 טקסט בזמן אמת</div>
             
             <div class="panel-content">
-                <!-- STATUS -->
-                <div class="status-indicator" id="statusIndicator">
-                    ✅ Ready
+                <!-- INPUT MODE TOGGLE -->
+                <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                    <button class="control-btn" id="voiceMode" onclick="switchMode('voice')" style="flex: 1; background: #667eea; color: white; border: none;">
+                        🎤 הקלטה
+                    </button>
+                    <button class="control-btn" id="textMode" onclick="switchMode('text')" style="flex: 1; border-color: #667eea; color: #667eea;">
+                        ⌨️ הקלט
+                    </button>
                 </div>
                 
-                <!-- RECORD BUTTON -->
-                <button class="control-btn" id="recordBtn" onclick="toggleRecording()">
-                    🎤 הקלט
-                </button>
+                <!-- TEXT INPUT SECTION (hidden by default) -->
+                <div id="textInputSection" style="display: none; margin-bottom: 12px;">
+                    <div class="status-indicator" id="statusIndicatorText" style="margin-bottom: 8px;">
+                        ✅ Ready
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <input 
+                            type="text" 
+                            id="panelTextInput" 
+                            placeholder="כתוב משהו..."
+                            style="flex: 1; padding: 10px; border: 2px solid #667eea; border-radius: 8px; font-family: inherit; direction: rtl; text-align: right;"
+                            onkeypress="if(event.key==='Enter') sendMessageFromPanel()"
+                        />
+                        <button class="send-btn" onclick="sendMessageFromPanel()" style="padding: 10px 15px;">
+                            ✉️
+                        </button>
+                    </div>
+                </div>
                 
-                <button class="control-btn" onclick="clearTranscription()" style="border-color: #ff9800; color: #ff9800; margin-top: 8px;">
-                    🔄 נקה טקסט
-                </button>
+                <!-- VOICE RECORDING SECTION (shown by default) -->
+                <div id="voiceRecordingSection">
+                    <!-- STATUS -->
+                    <div class="status-indicator" id="statusIndicatorVoice">
+                        ✅ Ready
+                    </div>
+                    
+                    <!-- RECORD BUTTON -->
+                    <button class="control-btn" id="recordBtn" onclick="toggleRecording()">
+                        🎤 הקלט
+                    </button>
+                    
+                    <button class="control-btn" onclick="clearTranscription()" style="border-color: #ff9800; color: #ff9800; margin-top: 8px;">
+                        🔄 נקה טקסט
+                    </button>
+                </div>
                 
                 <!-- DEVICE SELECTION -->
                 <div class="section-title">🔊 בחירת כרטיס קול</div>
@@ -956,6 +988,30 @@
             }
         }
         
+        
+        function drawVolumeMeter() {
+            if (!analyserNode || !isRecordingMobile) return;
+            
+            const dataArray = new Uint8Array(analyserNode.frequencyBinCount);
+            analyserNode.getByteFrequencyData(dataArray);
+            
+            // Calculate average volume
+            let sum = 0;
+            for (let i = 0; i < dataArray.length; i++) {
+                sum += dataArray[i];
+            }
+            const average = sum / dataArray.length;
+            const volumePercent = (average / 255) * 100;
+            
+            // Update status with visual indicator
+            const bars = Math.round(volumePercent / 10);
+            const volumeBar = '█'.repeat(Math.max(1, bars)) + '░'.repeat(Math.max(0, 10 - bars));
+            document.getElementById('statusIndicator').textContent = `🎤 ${volumeBar} ${Math.round(volumePercent)}%`;
+            
+            // Continue animation
+            animationId = requestAnimationFrame(drawVolumeMeter);
+        }
+        
         function changeAudioDevice() {
             selectedAudioDevice = document.getElementById('audioDeviceSelect').value;
             const deviceName = availableAudioDevices.find(d => d.deviceId === selectedAudioDevice)?.label || 'אוטומטי';
@@ -1050,6 +1106,92 @@
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const seconds = String(now.getSeconds()).padStart(2, '0');
             return `${hours}:${minutes}:${seconds}`;
+        }
+        
+        
+        // Switch between voice and text input mode
+        function switchMode(mode) {
+            const voiceMode = document.getElementById('voiceMode');
+            const textMode = document.getElementById('textMode');
+            const voiceSection = document.getElementById('voiceRecordingSection');
+            const textSection = document.getElementById('textInputSection');
+            
+            if (mode === 'voice') {
+                // Switch to voice mode
+                voiceMode.style.background = '#667eea';
+                voiceMode.style.color = 'white';
+                voiceMode.style.borderColor = 'transparent';
+                
+                textMode.style.background = 'transparent';
+                textMode.style.color = '#667eea';
+                textMode.style.borderColor = '#667eea';
+                
+                voiceSection.style.display = 'block';
+                textSection.style.display = 'none';
+                
+                // Stop recording if in text mode
+                if (isRecordingMobile) {
+                    mediaRecorderFallback.stop();
+                    isRecordingMobile = false;
+                }
+                
+                addMessage('🎤 החליפה למצב הקלטה', false);
+            } else {
+                // Switch to text mode
+                textMode.style.background = '#667eea';
+                textMode.style.color = 'white';
+                textMode.style.borderColor = 'transparent';
+                
+                voiceMode.style.background = 'transparent';
+                voiceMode.style.color = '#667eea';
+                voiceMode.style.borderColor = '#667eea';
+                
+                voiceSection.style.display = 'none';
+                textSection.style.display = 'block';
+                
+                // Focus on text input
+                setTimeout(() => {
+                    document.getElementById('panelTextInput').focus();
+                }, 100);
+                
+                addMessage('⌨️ החליפה למצב הקלט', false);
+            }
+        }
+        
+        // Send message from panel text input
+        async function sendMessageFromPanel() {
+            const textInput = document.getElementById('panelTextInput');
+            const message = textInput.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message to chat
+            addMessage(message, true);
+            textInput.value = '';
+            
+            try {
+                // Send to server
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'chat',
+                        user_id: userId,
+                        message: message,
+                        language: currentVoiceLang.split('-')[0]
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const reply = data.response || 'תגובה לא ברורה';
+                    addMessage(reply, false);
+                } else {
+                    addMessage('❌ Error: Server error', false);
+                }
+            } catch (error) {
+                addMessage(`❌ Error: ${error.message}`, false);
+            }
         }
         
         function togglePanel() {
@@ -1176,6 +1318,10 @@
             }
         }
         
+        let audioContextFallback = null;
+        let analyserNode = null;
+        let animationId = null;
+
         async function toggleAudioRecordingFallback() {
             const browser = detectBrowser();
             
@@ -1185,6 +1331,11 @@
                 isRecordingMobile = false;
                 document.getElementById('recordBtn').classList.remove('recording');
                 document.getElementById('statusIndicator').textContent = '⏹️ Sending to server...';
+                
+                // Stop volume meter animation
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                }
             } else {
                 // Start recording
                 try {
@@ -1193,13 +1344,26 @@
                         audio: {
                             echoCancellation: true,
                             noiseSuppression: true,
-                            autoGainControl: true,
-                            sampleRate: 48000
+                            autoGainControl: false,  // Disable for better control
+                            sampleRate: { ideal: 48000 }
                         }
                     };
                     
                     streamFallback = await navigator.mediaDevices.getUserMedia(constraints);
                     audioChunksFallback = [];
+                    
+                    // Create audio context for volume meter
+                    if (!audioContextFallback) {
+                        audioContextFallback = new (window.AudioContext || window.webkitAudioContext)();
+                    }
+                    
+                    const sourceNode = audioContextFallback.createMediaStreamSource(streamFallback);
+                    analyserNode = audioContextFallback.createAnalyser();
+                    analyserNode.fftSize = 2048;
+                    sourceNode.connect(analyserNode);
+                    
+                    // Start volume meter animation
+                    drawVolumeMeter();
                     
                     // Choose mime type based on browser support
                     let mimeType = 'audio/webm;codecs=opus';
@@ -1229,15 +1393,24 @@
                         try {
                             // Create audio blob
                             const audioBlob = new Blob(audioChunksFallback, { type: mediaRecorderFallback.mimeType || 'audio/webm' });
+                            const blobSize = audioBlob.size;
+                            
+                            logger(`📊 Audio blob created: ${blobSize} bytes`);
+                            
+                            if (blobSize === 0) {
+                                addMessage('⚠️ Warning: No audio data recorded', false);
+                                return;
+                            }
                             
                             // Create FormData
                             const formData = new FormData();
                             formData.append('audio', audioBlob, `recording.${browser.isIOS ? 'wav' : 'webm'}`);
                             formData.append('language', currentVoiceLang);
                             formData.append('user_id', userId);
-                            formData.append('browser', browser.isSafari ? 'safari' : 'other');
+                            formData.append('browser', browser.isSafari ? 'safari' : browser.isIOS ? 'ios' : browser.isAndroid ? 'android' : 'other');
                             
-                            document.getElementById('statusIndicator').textContent = '📤 Uploading...';
+                            addMessage(`📤 Uploading ${Math.round(blobSize / 1024)}KB...`, false);
+                            document.getElementById('statusIndicator').textContent = `📤 Uploading ${Math.round(blobSize / 1024)}KB...`;
                             
                             // Send to server with timeout
                             const controller = new AbortController();
@@ -1250,6 +1423,8 @@
                             });
                             
                             clearTimeout(timeoutId);
+                            
+                            logger(`✅ Server response: ${response.status}`);
                             
                             if (response.ok) {
                                 const result = await response.json();
@@ -1275,8 +1450,8 @@
                                 document.getElementById('statusIndicator').textContent = '✅ Ready';
                             } else {
                                 const errorText = await response.text();
-                                document.getElementById('statusIndicator').textContent = '❌ Server error';
-                                addMessage(`❌ שגיאה: ${response.status}`, false);
+                                document.getElementById('statusIndicator').textContent = `❌ Server error ${response.status}`;
+                                addMessage(`❌ שגיאה: ${response.status} - ${errorText.substring(0, 100)}`, false);
                             }
                         } catch (error) {
                             document.getElementById('statusIndicator').textContent = '❌ Upload failed';
@@ -1349,6 +1524,11 @@
                 translatedBox.style.display = 'none';
                 document.getElementById('translatedText').textContent = '';
             }
+        }
+        
+        
+        function logger(msg) {
+            console.log(`[Hai-Emet] ${msg}`);
         }
         
         function addMessage(text, isUser = false) {
