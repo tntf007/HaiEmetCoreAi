@@ -976,7 +976,7 @@
                 const totalDevices = availableAudioDevices.length + availableVideoDevices.length;
                 if (totalDevices > 0) {
                     addMessage(`🔍 סורק התקנים:\n📢 ${availableAudioDevices.length} מיקרופונים\n📹 ${availableVideoDevices.length} מצלמות`, false);
-                    document.getElementById('statusIndicator').textContent = `✅ נמצאו ${totalDevices} התקנים`;
+                    safeSetText('statusIndicatorVoice', `✅ נמצאו ${totalDevices} התקנים`);
                 } else {
                     addMessage(`⚠️ לא נמצאו התקנים - נא הן הרשאה למיקרופון/מצלמה בהגדרות`, false);
                 }
@@ -984,7 +984,7 @@
             } catch (error) {
                 console.error('Device enumeration error:', error);
                 addMessage(`⚠️ לא ניתן לסרוק התקנים: ${error.message}\nנא תן הרשאה בהגדרות`, false);
-                document.getElementById('statusIndicator').textContent = '⚠️ נדרשות הרשאות';
+                updateStatus( '⚠️ נדרשות הרשאות';
             }
         }
         
@@ -1006,7 +1006,7 @@
             // Update status with visual indicator
             const bars = Math.round(volumePercent / 10);
             const volumeBar = '█'.repeat(Math.max(1, bars)) + '░'.repeat(Math.max(0, 10 - bars));
-            document.getElementById('statusIndicator').textContent = `🎤 ${volumeBar} ${Math.round(volumePercent)}%`;
+            updateStatus( `🎤 ${volumeBar} ${Math.round(volumePercent)}%`;
             
             // Continue animation
             animationId = requestAnimationFrame(drawVolumeMeter);
@@ -1078,16 +1078,20 @@
             };
         }
         
-        // Update optimization display
-        function updateOptimizationDisplay() {
-            document.getElementById('noiseSuppression').textContent = '✅ מופעל';
-            document.getElementById('autoGain').textContent = '✅ מופעל';
-            document.getElementById('sampleRate').textContent = '48KHz';
-            document.getElementById('bitDepth').textContent = '16-bit';
-            document.getElementById('videoResolution').textContent = '1920x1080';
-            document.getElementById('frameRate').textContent = '60fps';
-            document.getElementById('lighting').textContent = 'אוטומטי';
-            document.getElementById('focus').textContent = 'מתמשך';
+        // Smart status updater - updates whichever status indicator is visible
+        function updateStatus(text) {
+            const voiceStatus = document.getElementById('statusIndicatorVoice');
+            const textStatus = document.getElementById('statusIndicatorText');
+            const fallbackStatus = document.getElementById('statusIndicator');
+            
+            if (voiceStatus) voiceStatus.textContent = text;
+            if (textStatus) textStatus.textContent = text;
+            if (fallbackStatus) fallbackStatus.textContent = text;
+        }
+        
+        function safeUpdate(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = value;
         }
         
         // Initialize on page load
@@ -1151,7 +1155,8 @@
                 
                 // Focus on text input
                 setTimeout(() => {
-                    document.getElementById('panelTextInput').focus();
+                    const panelInput = document.getElementById('panelTextInput');
+                    if (panelInput) panelInput.focus();
                 }, 100);
                 
                 addMessage('⌨️ החליפה למצב הקלט', false);
@@ -1194,6 +1199,48 @@
             }
         }
         
+        // GLOBAL SAFE UPDATE FUNCTIONS
+        window.safeSetText = function(elementId, text) {
+            try {
+                const el = document.getElementById(elementId);
+                if (el) {
+                    el.textContent = text;
+                    return true;
+                }
+            } catch (e) {
+                console.warn(`Safe text update failed for ${elementId}`);
+            }
+            return false;
+        };
+        
+        window.safeSetHTML = function(elementId, html) {
+            try {
+                const el = document.getElementById(elementId);
+                if (el) {
+                    el.innerHTML = html;
+                    return true;
+                }
+            } catch (e) {
+                console.warn(`Safe HTML update failed for ${elementId}`);
+            }
+            return false;
+        };
+        
+        // Smart status updater
+        function updateStatus(text) {
+            try {
+                const voiceStatus = document.getElementById('statusIndicatorVoice');
+                const textStatus = document.getElementById('statusIndicatorText');
+                const fallbackStatus = document.getElementById('statusIndicator');
+                
+                if (voiceStatus) voiceStatus.textContent = text;
+                if (textStatus) textStatus.textContent = text;
+                if (fallbackStatus) fallbackStatus.textContent = text;
+            } catch (e) {
+                console.log('Status update: ' + text);
+            }
+        }
+        
         function togglePanel() {
             const panel = document.getElementById('voicePanel');
             panel.classList.toggle('open');
@@ -1201,7 +1248,7 @@
         
         function clearTranscription() {
             if (confirm('בטוח שרוצה למחוק את כל הטקסט?')) {
-                document.getElementById('finalTranscript').textContent = '';
+                safeSetText('finalTranscript', '');
                 document.getElementById('finalTranscript').setAttribute('data-saved', '');
                 transcriptionHistory = [];
             }
@@ -1221,7 +1268,7 @@
                 recognition.lang = currentVoiceLang;
             }
             const langName = LANGUAGES_CONFIG[newLang]?.name || 'Unknown';
-            document.getElementById('statusIndicator').textContent = `✅ Language: ${langName}`;
+            updateStatus( `✅ Language: ${langName}`;
         }
         
         let mediaRecorderFallback = null;
@@ -1254,11 +1301,11 @@
                     recognition.start();
                     isRecording = true;
                     document.getElementById('recordBtn').classList.add('recording');
-                    document.getElementById('statusIndicator').textContent = '🎧 מאזין...';
+                    updateStatus( '🎧 מאזין...';
                 }
                 
                 recognition.onstart = () => {
-                    document.getElementById('statusIndicator').textContent = '🎧 מאזין... דבר עכשיו!';
+                    updateStatus( '🎧 מאזין... דבר עכשיו!';
                 };
                 
                 recognition.onresult = (event) => {
@@ -1281,14 +1328,14 @@
                         const display = savedText ? 
                             savedText + '\n\n💬 ' + interimTranscript : 
                             interimTranscript;
-                        document.getElementById('finalTranscript').textContent = display;
+                        safeSetText('finalTranscript', display);
                     } else if (savedText) {
-                        document.getElementById('finalTranscript').textContent = savedText;
+                        safeSetText('finalTranscript', savedText);
                     }
                     
                     if (finalTranscript.trim()) {
                         const newSavedText = savedText ? savedText + ' ' + finalTranscript.trim() : finalTranscript.trim();
-                        document.getElementById('finalTranscript').textContent = newSavedText;
+                        safeSetText('finalTranscript', newSavedText);
                         document.getElementById('finalTranscript').setAttribute('data-saved', newSavedText);
                     
                     transcriptionHistory.push({
@@ -1306,11 +1353,11 @@
             recognition.onend = () => {
                 isRecording = false;
                 document.getElementById('recordBtn').classList.remove('recording');
-                document.getElementById('statusIndicator').textContent = '✅ Ready';
+                updateStatus( '✅ Ready';
             };
             
             recognition.onerror = (event) => {
-                document.getElementById('statusIndicator').textContent = '❌ Error: ' + event.error;
+                updateStatus( '❌ Error: ' + event.error;
             };
             } else {
                 // Fallback: Audio recording (iOS, Firefox, Chrome without Speech API)
@@ -1330,7 +1377,7 @@
                 mediaRecorderFallback.stop();
                 isRecordingMobile = false;
                 document.getElementById('recordBtn').classList.remove('recording');
-                document.getElementById('statusIndicator').textContent = '⏹️ Sending to server...';
+                updateStatus( '⏹️ Sending to server...';
                 
                 // Stop volume meter animation
                 if (animationId) {
@@ -1410,7 +1457,7 @@
                             formData.append('browser', browser.isSafari ? 'safari' : browser.isIOS ? 'ios' : browser.isAndroid ? 'android' : 'other');
                             
                             addMessage(`📤 Uploading ${Math.round(blobSize / 1024)}KB...`, false);
-                            document.getElementById('statusIndicator').textContent = `📤 Uploading ${Math.round(blobSize / 1024)}KB...`;
+                            updateStatus( `📤 Uploading ${Math.round(blobSize / 1024)}KB...`;
                             
                             // Send to server with timeout
                             const controller = new AbortController();
@@ -1432,7 +1479,7 @@
                                 
                                 const savedText = document.getElementById('finalTranscript').getAttribute('data-saved') || '';
                                 const newSavedText = savedText ? savedText + ' ' + transcribedText : transcribedText;
-                                document.getElementById('finalTranscript').textContent = newSavedText;
+                                safeSetText('finalTranscript', newSavedText);
                                 document.getElementById('finalTranscript').setAttribute('data-saved', newSavedText);
                                 
                                 transcriptionHistory.push({
@@ -1447,14 +1494,14 @@
                                     translateText(transcribedText, selectedTranslateLang);
                                 }
                                 
-                                document.getElementById('statusIndicator').textContent = '✅ Ready';
+                                updateStatus( '✅ Ready';
                             } else {
                                 const errorText = await response.text();
-                                document.getElementById('statusIndicator').textContent = `❌ Server error ${response.status}`;
+                                updateStatus( `❌ Server error ${response.status}`;
                                 addMessage(`❌ שגיאה: ${response.status} - ${errorText.substring(0, 100)}`, false);
                             }
                         } catch (error) {
-                            document.getElementById('statusIndicator').textContent = '❌ Upload failed';
+                            updateStatus( '❌ Upload failed';
                             if (error.name === 'AbortError') {
                                 addMessage('❌ Upload timeout - check connection', false);
                             } else {
@@ -1471,11 +1518,11 @@
                     mediaRecorderFallback.start();
                     isRecordingMobile = true;
                     document.getElementById('recordBtn').classList.add('recording');
-                    document.getElementById('statusIndicator').textContent = '🎧 הקלטה... דבר בעברית!';
+                    updateStatus( '🎧 הקלטה... דבר בעברית!';
                     addMessage(`🎙️ הקלטה התחילה (${browser.isIOS ? 'iOS' : 'Android'}${browser.isChrome ? ' Chrome' : browser.isSafari ? ' Safari' : ''})`, false);
                     
                 } catch (error) {
-                    document.getElementById('statusIndicator').textContent = '❌ Microphone denied';
+                    updateStatus( '❌ Microphone denied';
                     let errorMsg = error.message;
                     if (error.name === 'NotAllowedError') {
                         errorMsg = 'הן הרשאה למיקרופון בהגדרות';
@@ -1493,7 +1540,7 @@
                 const data = await response.json();
                 
                 if (data.responseStatus === 200) {
-                    document.getElementById('translatedText').textContent = data.responseData.translatedText;
+                    safeSetText('translatedText', data.responseData.translatedText);
                 }
             } catch (e) {
                 console.log('Translation unavailable');
@@ -1522,7 +1569,7 @@
                 }
             } else {
                 translatedBox.style.display = 'none';
-                document.getElementById('translatedText').textContent = '';
+                safeSetText('translatedText', '');
             }
         }
         
@@ -1559,8 +1606,9 @@
             if (!message) return;
             
             addMessage(message, true);
-            document.getElementById('messageInput').value = '';
-            document.getElementById('statusIndicator').textContent = '⏳ משדרת תגובה...';
+            const msgInput = document.getElementById('messageInput');
+            if (msgInput) msgInput.value = '';
+            updateStatus( '⏳ משדרת תגובה...';
             
             try {
                 const response = await fetch(API_URL, {
@@ -1582,7 +1630,7 @@
                     addMessage(data.reply, false);
                 }
                 
-                document.getElementById('statusIndicator').textContent = '✅ בחזרה מהליבה';
+                updateStatus( '✅ בחזרה מהליבה';
                 
                 transcriptionHistory.push({
                     text: message,
@@ -1594,7 +1642,7 @@
                 
             } catch (error) {
                 addMessage('❌ שגיאה בחיבור לליבה.', false);
-                document.getElementById('statusIndicator').textContent = '❌ שגיאה';
+                updateStatus( '❌ שגיאה';
             }
         }
         
@@ -1797,8 +1845,8 @@
                 uploadedFiles = [];
                 transcriptionHistory = [];
                 updateFilesList();
-                document.getElementById('finalTranscript').textContent = '';
-                document.getElementById('translatedText').textContent = '';
+                safeSetText('finalTranscript', '');
+                safeSetText('translatedText', '');
             }
         }
         
@@ -1882,8 +1930,8 @@
                     const videoTrack = stream.getVideoTracks()[0];
                     const settings = videoTrack.getSettings();
                     
-                    document.getElementById('videoResolution').textContent = `${settings.width}x${settings.height}`;
-                    document.getElementById('frameRate').textContent = `${settings.frameRate}fps`;
+                    safeSetText('videoResolution', `${settings.width}x${settings.height}`);
+                    safeSetText('frameRate', `${settings.frameRate}fps`);
                     
                     document.getElementById('videoContainer').style.display = 'block';
                     const videoPlayer = document.getElementById('videoPlayer');
@@ -1913,9 +1961,10 @@
             
             const langName = LANGUAGES_CONFIG[currentVoiceLang]?.name || 'Unknown';
             const display = `[${langName}]\n\n${subtitles}`;
-            document.getElementById('videoTranscript').textContent = display;
+            safeSetText('videoTranscript', display));
             
-            document.getElementById('videoSubtitles').value = subtitles;
+            const videoSubEl = document.getElementById('videoSubtitles');
+            if (videoSubEl) videoSubEl.value = subtitles;
             
             videoTranscriptHistory = [{
                 text: subtitles,
@@ -1924,14 +1973,15 @@
             }];
             
             addMessage(`🎬 עדכן כתוביות: ${subtitles.substring(0, 30)}...`, false);
-            document.getElementById('videoTranslang').focus();
+            const langSelect = document.getElementById('videoTranslang');
+            if (langSelect) langSelect.focus();
         }
         
         async function updateVideoTranslation() {
             const targetLang = document.getElementById('videoTranslang').value;
             if (!targetLang || !currentVideoSubtitles) return;
             
-            document.getElementById('videoTranscript').textContent = '⏳ מתרגם...';
+            safeSetText('videoTranscript', '⏳ מתרגם...'));
             
             try {
                 const translated = await translateVideoText(currentVideoSubtitles, targetLang);
@@ -1939,7 +1989,7 @@
                 
                 const langName = LANGUAGES_CONFIG[targetLang]?.name || targetLang.toUpperCase();
                 const display = `[${langName}]\n\n${translated}`;
-                document.getElementById('videoTranscript').textContent = display;
+                safeSetText('videoTranscript', display));
                 
                 videoTranscriptHistory.push({
                     text: translated,
@@ -1950,7 +2000,7 @@
                 });
                 
             } catch (e) {
-                document.getElementById('videoTranscript').textContent = '❌ שגיאה בתרגום';
+                safeSetText('videoTranscript', '❌ שגיאה בתרגום'));
             }
         }
         
@@ -2086,8 +2136,8 @@
                 const settings = audioTrack.getSettings();
                 
                 // Update display with actual settings
-                document.getElementById('sampleRate').textContent = `${settings.sampleRate}Hz`;
-                document.getElementById('noiseSuppression').textContent = settings.noiseSuppression ? '✅' : '⚠️';
+                safeSetText('sampleRate', `${settings.sampleRate}Hz`);
+                safeSetText('noiseSuppression', settings.noiseSuppression ? '✅' : '⚠️');
                 
                 mediaRecorder = new MediaRecorder(stream, {
                     mimeType: 'audio/webm;codecs=opus',
@@ -2107,12 +2157,12 @@
                 };
                 
                 mediaRecorder.start();
-                document.getElementById('statusIndicator').textContent = `🎙️ הקלטת אודיו ברמה אופטימלית (${settings.sampleRate}Hz)...`;
+                updateStatus( `🎙️ הקלטת אודיו ברמה אופטימלית (${settings.sampleRate}Hz)...`;
                 addMessage(`🎙️ הקלטה: ${availableAudioDevices.find(d => d.deviceId === selectedAudioDevice)?.label || 'מיקרופון ברירת מחדל'}`, false);
                 
             } catch (error) {
                 alert('שגיאה: ' + error.message);
-                document.getElementById('statusIndicator').textContent = '❌ שגיאה בהקלטה';
+                updateStatus( '❌ שגיאה בהקלטה';
             }
         }
         
@@ -2120,7 +2170,7 @@
             if (mediaRecorder && isAudioRecording) {
                 mediaRecorder.stop();
                 isAudioRecording = false;
-                document.getElementById('statusIndicator').textContent = '✅ אודיו שמור';
+                updateStatus( '✅ אודיו שמור';
                 mediaRecorder.stream.getTracks().forEach(track => track.stop());
             }
         }
