@@ -605,16 +605,22 @@ def discord_handler():
         # Handle interaction commands/messages (type 2)
         if data.get('type') == 2:
             logger.info("💬 Discord interaction received")
+            logger.info(f"📋 Full interaction data: {json.dumps(data, ensure_ascii=False)}")
             
             user_id = f"dc_{data.get('member', {}).get('user', {}).get('id', 'unknown')}"
             username = data.get('member', {}).get('user', {}).get('username', 'User')
             
             # Extract message from options (slash command parameter)
             options = data.get('data', {}).get('options', [])
+            logger.info(f"📝 Options received: {options}")
+            
             text = ''
             
             if options and len(options) > 0:
+                logger.info(f"📦 First option: {options[0]}")
                 text = options[0].get('value', '')
+            
+            logger.info(f"💬 Extracted text: '{text}'")
             
             if not text:
                 logger.warning("⚠️ No text extracted from Discord interaction")
