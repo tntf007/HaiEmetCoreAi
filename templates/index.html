@@ -2715,30 +2715,183 @@
                 return;
             }
             
-            const sections = transcriptionHistory.map((t, i) => 
-                new docx.Paragraph({
-                    text: `${i + 1}. [${t.time}s] ${t.text}`,
-                    spacing: { line: 360 }
-                })
-            );
+            // 📝 Create rich formatted sections
+            const sections = transcriptionHistory.map((t, i) => {
+                const isEven = i % 2 === 0;
+                return new docx.Paragraph({
+                    children: [
+                        new docx.TextRun({
+                            text: `${i + 1}. `,
+                            bold: true,
+                            color: "667eea",
+                            size: 24
+                        }),
+                        new docx.TextRun({
+                            text: `[${t.time}] `,
+                            italics: true,
+                            color: "999999",
+                            size: 20
+                        }),
+                        new docx.TextRun({
+                            text: t.text,
+                            size: 22,
+                            font: "Arial"
+                        })
+                    ],
+                    spacing: { 
+                        line: 360,
+                        before: 120,
+                        after: 120
+                    },
+                    shading: {
+                        fill: isEven ? "f8f9fa" : "ffffff",
+                        type: docx.ShadingType.CLEAR
+                    },
+                    border: {
+                        bottom: {
+                            color: "e0e0e0",
+                            space: 1,
+                            style: docx.BorderStyle.SINGLE,
+                            size: 6
+                        }
+                    }
+                });
+            });
             
+            // 📊 Create document with rich formatting
             const doc = new docx.Document({
                 sections: [{
+                    properties: {
+                        page: {
+                            margin: {
+                                top: 1440,
+                                right: 1440,
+                                bottom: 1440,
+                                left: 1440
+                            }
+                        }
+                    },
                     children: [
+                        // 💛 Main Title
                         new docx.Paragraph({
-                            text: '💛 חי-אמת - Transcription',
+                            children: [
+                                new docx.TextRun({
+                                    text: "💛 חי-אמת",
+                                    bold: true,
+                                    size: 48,
+                                    color: "ffd700"
+                                }),
+                                new docx.TextRun({
+                                    text: " - תמלול קולי",
+                                    bold: true,
+                                    size: 36,
+                                    color: "667eea"
+                                })
+                            ],
                             heading: docx.HeadingLevel.HEADING_1,
-                            spacing: { after: 400 }
+                            spacing: { after: 400 },
+                            alignment: docx.AlignmentType.CENTER,
+                            border: {
+                                bottom: {
+                                    color: "667eea",
+                                    space: 1,
+                                    style: docx.BorderStyle.DOUBLE,
+                                    size: 24
+                                }
+                            }
+                        }),
+                        
+                        // 📋 Metadata Table
+                        new docx.Table({
+                            width: {
+                                size: 100,
+                                type: docx.WidthType.PERCENTAGE
+                            },
+                            borders: {
+                                top: { style: docx.BorderStyle.SINGLE, size: 1, color: "667eea" },
+                                bottom: { style: docx.BorderStyle.SINGLE, size: 1, color: "667eea" },
+                                left: { style: docx.BorderStyle.SINGLE, size: 1, color: "667eea" },
+                                right: { style: docx.BorderStyle.SINGLE, size: 1, color: "667eea" }
+                            },
+                            rows: [
+                                new docx.TableRow({
+                                    children: [
+                                        new docx.TableCell({
+                                            children: [new docx.Paragraph({ text: "🌍 שפה:", bold: true })],
+                                            shading: { fill: "667eea", color: "ffffff" }
+                                        }),
+                                        new docx.TableCell({
+                                            children: [new docx.Paragraph(LANGUAGES_CONFIG[currentVoiceLang]?.name || 'Unknown')]
+                                        })
+                                    ]
+                                }),
+                                new docx.TableRow({
+                                    children: [
+                                        new docx.TableCell({
+                                            children: [new docx.Paragraph({ text: "🕐 זמן:", bold: true })],
+                                            shading: { fill: "667eea", color: "ffffff" }
+                                        }),
+                                        new docx.TableCell({
+                                            children: [new docx.Paragraph(new Date().toLocaleString('he-IL'))]
+                                        })
+                                    ]
+                                }),
+                                new docx.TableRow({
+                                    children: [
+                                        new docx.TableCell({
+                                            children: [new docx.Paragraph({ text: "📝 משפטים:", bold: true })],
+                                            shading: { fill: "667eea", color: "ffffff" }
+                                        }),
+                                        new docx.TableCell({
+                                            children: [new docx.Paragraph(transcriptionHistory.length.toString())]
+                                        })
+                                    ]
+                                })
+                            ]
+                        }),
+                        
+                        new docx.Paragraph({ text: "", spacing: { after: 400 } }),
+                        
+                        // 📄 Transcription Header
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: "📄 תמלול מלא",
+                                    bold: true,
+                                    size: 32,
+                                    color: "667eea"
+                                })
+                            ],
+                            heading: docx.HeadingLevel.HEADING_2,
+                            spacing: { after: 300 }
+                        }),
+                        
+                        // 💬 Transcription content
+                        ...sections,
+                        
+                        // 🔒 Footer
+                        new docx.Paragraph({ text: "", spacing: { before: 400 } }),
+                        new docx.Paragraph({
+                            children: [
+                                new docx.TextRun({
+                                    text: "═══════════════════════════════════",
+                                    color: "999999"
+                                })
+                            ],
+                            alignment: docx.AlignmentType.CENTER
                         }),
                         new docx.Paragraph({
-                            text: `שפה: ${LANGUAGES_CONFIG[currentVoiceLang]?.name || 'Unknown'}`,
-                            spacing: { after: 200 }
-                        }),
-                        new docx.Paragraph({
-                            text: `זמן: ${new Date().toLocaleString('he-IL')}`,
-                            spacing: { after: 400 }
-                        }),
-                        ...sections
+                            children: [
+                                new docx.TextRun({
+                                    text: "🔒 TNTF | Binary: 0101-0101(0101) | חי-אמת 💛",
+                                    italics: true,
+                                    size: 18,
+                                    color: "667eea"
+                                })
+                            ],
+                            alignment: docx.AlignmentType.CENTER,
+                            spacing: { before: 200 }
+                        })
                     ]
                 }]
             });
@@ -2746,7 +2899,7 @@
             docx.Packer.toBlob(doc).then(blob => {
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
-                const filename = `transcription_${Date.now()}.docx`;
+                const filename = `חי-אמת_תמלול_${Date.now()}.docx`;
                 link.download = filename;
                 link.click();
                 
@@ -2851,15 +3004,55 @@
                     const result = await response.json();
                     const transcribedText = result.text || result.transcription || '[לא התקבל תמלול]';
                     
-                    if (progressBar) progressBar.style.width = '100%';
-                    if (statusText) {
-                        statusText.textContent = '✅ תמלול הושלם!';
-                        statusText.style.color = '#FFD700';
-                    }
+                    // 🎯 Check if this is a MOCK response
+                    const isMockResponse = transcribedText.includes('[') || 
+                                          transcribedText.includes('התקבלה בהצלחה') ||
+                                          transcribedText.includes('received successfully');
                     
-                    // Show transcription
-                    if (transcriptionDiv) transcriptionDiv.style.display = 'block';
-                    if (transcriptionContent) transcriptionContent.textContent = transcribedText;
+                    if (progressBar) progressBar.style.width = '100%';
+                    
+                    if (isMockResponse) {
+                        // MOCK Response - show warning
+                        if (statusText) {
+                            statusText.innerHTML = '⚠️ תמלול MOCK - דורש Whisper API!';
+                            statusText.style.color = '#FFA500';
+                        }
+                        
+                        // Show mock message + instructions
+                        if (transcriptionDiv) transcriptionDiv.style.display = 'block';
+                        if (transcriptionContent) {
+                            transcriptionContent.innerHTML = `
+                                <div style="color: #FFA500; font-weight: bold; margin-bottom: 10px;">
+                                    ⚠️ זה תמלול מזויף (Mock)
+                                </div>
+                                <div style="color: white; margin-bottom: 10px;">
+                                    ${transcribedText}
+                                </div>
+                                <div style="background: rgba(255,165,0,0.2); padding: 10px; border-radius: 6px; font-size: 0.9em; line-height: 1.6;">
+                                    💡 <strong>לתמלול אמיתי צריך:</strong><br>
+                                    1. OpenAI Whisper API key<br>
+                                    2. להוסיף בשרת (app.py)<br>
+                                    3. עלות: $0.006/דקה<br>
+                                    <br>
+                                    <em>כרגע השרת רק מקבל את הקובץ אבל לא מתמלל אותו!</em>
+                                </div>
+                            `;
+                        }
+                        
+                        addMessage(`⚠️ ${file.name} - תמלול MOCK (דורש Whisper API)`, false);
+                    } else {
+                        // REAL Response
+                        if (statusText) {
+                            statusText.textContent = '✅ תמלול הושלם!';
+                            statusText.style.color = '#FFD700';
+                        }
+                        
+                        // Show transcription
+                        if (transcriptionDiv) transcriptionDiv.style.display = 'block';
+                        if (transcriptionContent) transcriptionContent.textContent = transcribedText;
+                        
+                        addMessage(`✅ ${file.name} תומלל בהצלחה!`, false);
+                    }
                     
                     // 🧬 Quantum Language Detection
                     const detectedLang = quantumDetector.detectLanguage(transcribedText);
@@ -3283,12 +3476,28 @@
                             if (fullText.trim()) {
                                 captionsFound = true;
                                 
-                                // Display captions
+                                // 🎯 Display captions in MAIN videoTranscript area
+                                const mainVideoTranscript = document.getElementById('videoTranscript');
+                                if (mainVideoTranscript) {
+                                    mainVideoTranscript.textContent = fullText.trim();
+                                    mainVideoTranscript.style.color = 'white';
+                                }
+                                
+                                // Also display in local div (backup)
                                 const transcriptDiv = document.getElementById(`ytTranscript_${videoId}`);
                                 if (transcriptDiv) {
                                     transcriptDiv.style.display = 'block';
                                     transcriptDiv.innerHTML = `<strong>📝 כתוביות (${lang}):</strong><br>${fullText.trim()}`;
                                 }
+                                
+                                // Save to videoTranscriptHistory
+                                videoTranscriptHistory.push({
+                                    text: fullText.trim(),
+                                    time: getExactTime(),
+                                    source: 'youtube',
+                                    videoId: videoId,
+                                    language: lang
+                                });
                                 
                                 // Save for download
                                 window[`ytCaptions_${videoId}`] = {
