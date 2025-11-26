@@ -1433,7 +1433,9 @@
         
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition = null;
+        let recognitionPool = new Map(); // 🎯 בריכת מנועי זיהוי - אחד לכל שפה!
         let isRecording = false;
+        let isWebSpeechActive = false; // 🎤 האם Web Speech API פעיל
         let transcriptionHistory = [];
         let uploadedFiles = [];
         let currentVoiceLang = 'he-IL';
@@ -1450,12 +1452,43 @@
         let availableAudioDevices = [];
         let availableVideoDevices = [];
         
-        if (SpeechRecognition) {
-            recognition = new SpeechRecognition();
-            recognition.continuous = true;
-            recognition.interimResults = true;
-            recognition.lang = currentVoiceLang;
+        // =========================================
+        // 🎤 WEB SPEECH API POOL - מנוע לכל שפה!
+        // =========================================
+        function setupWebSpeechPool() {
+            if (!SpeechRecognition) {
+                console.warn('⚠️ Web Speech API לא נתמך בדפדפן');
+                return false;
+            }
+            
+            console.log('🎯 מכין Web Speech API Pool...');
+            
+            // יצירת מנוע לכל שפה
+            Object.entries(LANGUAGES_CONFIG).forEach(([langCode, langData]) => {
+                try {
+                    const rec = new SpeechRecognition();
+                    rec.lang = langCode;
+                    rec.continuous = true;
+                    rec.interimResults = true;
+                    rec.maxAlternatives = 3;
+                    
+                    // שמירה בבריכה
+                    recognitionPool.set(langCode, rec);
+                    console.log(`✅ Web Speech engine ready: ${langCode}`);
+                    
+                } catch (e) {
+                    console.warn(`⚠️ לא הצלחתי ליצור מנוע ${langCode}: ${e.message}`);
+                }
+            });
+            
+            // ברירת מחדל
+            recognition = recognitionPool.get('he-IL') || recognitionPool.get('en-US');
+            console.log(`✅ Web Speech Pool מוכן! ${recognitionPool.size} מנועים`);
+            return true;
         }
+        
+        // 🚀 אתחול Web Speech Pool
+        const webSpeechReady = setupWebSpeechPool();
         
         // ============ DEVICE ENUMERATION ============
         async function enumerateDevices() {
@@ -1911,11 +1944,16 @@
         function changeVoiceLanguage() {
             const newLang = document.getElementById('voiceLang').value;
             currentVoiceLang = newLang;
-            if (recognition) {
-                recognition.lang = currentVoiceLang;
+            
+            // עדכון recognition מהבריכה
+            if (recognitionPool.has(newLang)) {
+                recognition = recognitionPool.get(newLang);
+                console.log(`🌍 החלפתי מנוע ל-${newLang}`);
             }
+            
             const langName = LANGUAGES_CONFIG[newLang]?.name || 'Unknown';
             updateStatus(`✅ Language: ${langName}`);
+            addMessage(`🌍 שפה שונתה ל-${langName}`, false);
         }
         
         let mediaRecorderFallback = null;
@@ -1944,6 +1982,18 @@
                 document.getElementById('recordBtn').classList.remove('recording');
                 safeSetText('recordBtn', '🎤 הקלט');
                 updateStatus('⏹️ שולח לשרת...');
+                
+                // 🎤 עצירת Web Speech API
+                if (isWebSpeechActive && recognitionPool.has(currentVoiceLang)) {
+                    try {
+                        const rec = recognitionPool.get(currentVoiceLang);
+                        rec.stop();
+                        isWebSpeechActive = false;
+                        console.log('🎤 Web Speech API נעצר');
+                    } catch (e) {
+                        console.warn(`⚠️ שגיאה בעצירת Web Speech: ${e.message}`);
+                    }
+                }
                 
                 // Release wake lock
                 if (wakeLock) {
@@ -2061,6 +2111,62 @@
                     safeSetText('recordBtn', '⏹️ עצור');
                     updateStatus('🎧 מקליט... דבר עכשיו!');
                     addMessage('🎙️ הקלטה התחילה - ממשיכה גם בלשוניות אחרות', false);
+                    
+                    // 🎤 הפעלת Web Speech API לתמלול בזמן אמת!
+                    if (webSpeechReady && recognitionPool.has(currentVoiceLang)) {
+                        const rec = recognitionPool.get(currentVoiceLang);
+                        
+                        rec.onresult = (event) => {
+                            const last = event.results.length - 1;
+                            const transcript = event.results[last][0].transcript;
+                            const confidence = event.results[last][0].confidence || 0.85;
+                            
+                            // עדכון UI בזמן אמת
+                            const savedText = document.getElementById('finalTranscript').getAttribute('data-saved') || '';
+                            const displayText = savedText ? savedText + ' ' + transcript : transcript;
+                            safeSetText('finalTranscript', displayText);
+                            
+                            // אם סופי - שמירה
+                            if (event.results[last].isFinal) {
+                                document.getElementById('finalTranscript').setAttribute('data-saved', displayText);
+                                
+                                // Quantum Language Detection
+                                const detectedLang = quantumDetector.detectLanguage(transcript);
+                                quantumDetector.updateCurrentLanguage(detectedLang, confidence);
+                                
+                                // הוספה להיסטוריה
+                                transcriptionHistory.push({
+                                    text: transcript,
+                                    time: getExactTime(),
+                                    lang: currentVoiceLang,
+                                    source: 'web-speech'
+                                });
+                                
+                                // תרגום אם נבחר
+                                if (selectedTranslateLang) {
+                                    translateText(transcript, selectedTranslateLang);
+                                }
+                            }
+                        };
+                        
+                        rec.onerror = (event) => {
+                            console.warn(`⚠️ Web Speech error: ${event.error}`);
+                        };
+                        
+                        rec.onend = () => {
+                            isWebSpeechActive = false;
+                            console.log('🎤 Web Speech stopped');
+                        };
+                        
+                        try {
+                            rec.start();
+                            isWebSpeechActive = true;
+                            console.log('🎤 Web Speech API התחיל!');
+                            addMessage('🎤 תמלול בזמן אמת פעיל!', false);
+                        } catch (e) {
+                            console.warn(`⚠️ לא הצלחתי להפעיל Web Speech: ${e.message}`);
+                        }
+                    }
                 })
                 .catch(error => {
                     updateStatus('❌ שגיאה בהרשאות');
@@ -2088,6 +2194,18 @@
                 if (liveStreamInterval) {
                     clearInterval(liveStreamInterval);
                     liveStreamInterval = null;
+                }
+                
+                // 🎤 עצירת Web Speech API
+                if (isWebSpeechActive && recognitionPool.has(currentVoiceLang)) {
+                    try {
+                        const rec = recognitionPool.get(currentVoiceLang);
+                        rec.stop();
+                        isWebSpeechActive = false;
+                        console.log('🔴 Live Web Speech API נעצר');
+                    } catch (e) {
+                        console.warn(`⚠️ שגיאה בעצירת Live Web Speech: ${e.message}`);
+                    }
                 }
                 
                 document.getElementById('liveStreamBtn').classList.remove('recording');
@@ -2201,6 +2319,65 @@
                 safeSetText('liveStreamBtn', '⏹️ עצור שידור');
                 updateStatus('🔴 שידור חי פעיל!');
                 addMessage('🔴 שידור חי התחיל - תמלול בזמן אמת כל 3 שניות', false);
+                
+                // 🎤 הפעלת Web Speech API לשידור חי!
+                if (webSpeechReady && recognitionPool.has(currentVoiceLang)) {
+                    const rec = recognitionPool.get(currentVoiceLang);
+                    
+                    rec.onresult = (event) => {
+                        const last = event.results.length - 1;
+                        const transcript = event.results[last][0].transcript;
+                        const confidence = event.results[last][0].confidence || 0.85;
+                        
+                        // עדכון UI בזמן אמת
+                        const savedText = document.getElementById('finalTranscript').getAttribute('data-saved') || '';
+                        const displayText = savedText ? savedText + ' ' + transcript : transcript;
+                        safeSetText('finalTranscript', displayText);
+                        
+                        // אם סופי - שמירה והצגה
+                        if (event.results[last].isFinal) {
+                            document.getElementById('finalTranscript').setAttribute('data-saved', displayText);
+                            
+                            // הצגה בצ'אט
+                            addMessage(`🔴 [Live] ${transcript}`, false);
+                            
+                            // Quantum Language Detection
+                            const detectedLang = quantumDetector.detectLanguage(transcript);
+                            quantumDetector.updateCurrentLanguage(detectedLang, confidence);
+                            
+                            // תרגום בזמן אמת
+                            if (selectedTranslateLang && transcript.trim()) {
+                                translateText(transcript, selectedTranslateLang);
+                            }
+                            
+                            // הוספה להיסטוריה
+                            transcriptionHistory.push({
+                                text: transcript,
+                                time: getExactTime(),
+                                lang: currentVoiceLang,
+                                source: 'live-web-speech'
+                            });
+                        }
+                    };
+                    
+                    rec.onerror = (event) => {
+                        console.warn(`⚠️ Live Web Speech error: ${event.error}`);
+                    };
+                    
+                    rec.onend = () => {
+                        isWebSpeechActive = false;
+                        console.log('🎤 Live Web Speech stopped');
+                    };
+                    
+                    try {
+                        rec.start();
+                        isWebSpeechActive = true;
+                        console.log('🔴 Live Web Speech API התחיל!');
+                        addMessage('🎤 תמלול חי ישיר פעיל!', false);
+                    } catch (e) {
+                        console.warn(`⚠️ לא הצלחתי להפעיל Live Web Speech: ${e.message}`);
+                    }
+                }
                 
                 // Update quantum metrics
                 const metricsEl = document.getElementById('quantumMetrics');
