@@ -2914,6 +2914,208 @@
             });
         }
         
+        // =========================================
+        // 🚀 FAST TRANSCRIPTION WITH WEB SPEECH API
+        // =========================================
+        async function transcribeAudioFileWithWebSpeech(file) {
+            return new Promise(async (resolve, reject) => {
+                console.log('🚀 Starting Fast Web Speech transcription...');
+                
+                // Create floating popup
+                const popup = document.createElement('div');
+                popup.id = 'fastTranscriptionPopup';
+                popup.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    padding: 25px;
+                    border-radius: 16px;
+                    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+                    z-index: 10000;
+                    min-width: 400px;
+                    max-width: 600px;
+                    color: white;
+                `;
+                
+                popup.innerHTML = `
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <div style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">
+                            🚀 תמלול מהיר
+                        </div>
+                        <div style="font-size: 14px; opacity: 0.9;">
+                            ${file.name}
+                        </div>
+                    </div>
+                    
+                    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span>מהירות:</span>
+                            <span id="speedValue">2.0x</span>
+                        </div>
+                        <input type="range" id="speedSlider" min="1" max="3" step="0.5" value="2" 
+                               style="width: 100%; cursor: pointer;">
+                        
+                        <div style="margin-top: 15px;">
+                            <div style="font-size: 12px; opacity: 0.8; margin-bottom: 5px;">התקדמות</div>
+                            <div style="background: rgba(255,255,255,0.2); height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div id="fastProgress" style="background: #FFD700; height: 100%; width: 0%; transition: width 0.3s;"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-top: 5px;">
+                                <span id="currentTime">0:00</span>
+                                <span id="totalTime">0:00</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin-bottom: 15px; max-height: 150px; overflow-y: auto; font-size: 14px; line-height: 1.6; direction: rtl; text-align: right;" id="liveTranscript">
+                        <span style="opacity: 0.6;">ממתין לתמלול...</span>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <button id="startFastBtn" style="flex: 1; background: #28a745; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px;">
+                            ▶ התחל
+                        </button>
+                        <button id="cancelFastBtn" style="flex: 1; background: #dc3545; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px;">
+                            ✖ ביטול
+                        </button>
+                    </div>
+                `;
+                
+                document.body.appendChild(popup);
+                
+                // Elements
+                const speedSlider = document.getElementById('speedSlider');
+                const speedValue = document.getElementById('speedValue');
+                const fastProgress = document.getElementById('fastProgress');
+                const currentTimeEl = document.getElementById('currentTime');
+                const totalTimeEl = document.getElementById('totalTime');
+                const liveTranscriptEl = document.getElementById('liveTranscript');
+                const startBtn = document.getElementById('startFastBtn');
+                const cancelBtn = document.getElementById('cancelFastBtn');
+                
+                // Create hidden audio player
+                const audioURL = URL.createObjectURL(file);
+                const audio = new Audio(audioURL);
+                audio.volume = 0; // MUTED!
+                audio.playbackRate = 2.0; // Fast by default
+                
+                let transcribedText = '';
+                let isTranscribing = false;
+                
+                // Speed slider
+                speedSlider.addEventListener('input', (e) => {
+                    const speed = parseFloat(e.target.value);
+                    speedValue.textContent = speed.toFixed(1) + 'x';
+                    if (audio) audio.playbackRate = speed;
+                });
+                
+                // Format time
+                function formatTime(seconds) {
+                    const mins = Math.floor(seconds / 60);
+                    const secs = Math.floor(seconds % 60);
+                    return `${mins}:${secs.toString().padStart(2, '0')}`;
+                }
+                
+                // Update progress
+                audio.addEventListener('loadedmetadata', () => {
+                    totalTimeEl.textContent = formatTime(audio.duration);
+                });
+                
+                audio.addEventListener('timeupdate', () => {
+                    const progress = (audio.currentTime / audio.duration) * 100;
+                    fastProgress.style.width = progress + '%';
+                    currentTimeEl.textContent = formatTime(audio.currentTime);
+                });
+                
+                // Start transcription
+                startBtn.addEventListener('click', async () => {
+                    if (isTranscribing) return;
+                    isTranscribing = true;
+                    
+                    startBtn.textContent = '⏸ מתמלל...';
+                    startBtn.disabled = true;
+                    startBtn.style.opacity = '0.6';
+                    
+                    try {
+                        // Get Web Speech Recognition
+                        if (!webSpeechReady || !recognitionPool.has(currentVoiceLang)) {
+                            throw new Error('Web Speech API לא זמין');
+                        }
+                        
+                        const rec = recognitionPool.get(currentVoiceLang);
+                        
+                        rec.onresult = (event) => {
+                            const last = event.results.length - 1;
+                            const transcript = event.results[last][0].transcript;
+                            
+                            // Update live display
+                            if (event.results[last].isFinal) {
+                                transcribedText += transcript + ' ';
+                                liveTranscriptEl.textContent = transcribedText;
+                                liveTranscriptEl.scrollTop = liveTranscriptEl.scrollHeight;
+                            } else {
+                                // Show interim result
+                                liveTranscriptEl.textContent = transcribedText + transcript + '...';
+                            }
+                        };
+                        
+                        rec.onerror = (event) => {
+                            console.error('Web Speech error:', event.error);
+                        };
+                        
+                        rec.onend = () => {
+                            console.log('Web Speech ended');
+                        };
+                        
+                        // Start recognition
+                        rec.start();
+                        console.log('✅ Web Speech started');
+                        
+                        // Play audio (muted, fast)
+                        await audio.play();
+                        console.log('✅ Audio playing (muted)');
+                        
+                        // Wait for audio to finish
+                        audio.addEventListener('ended', () => {
+                            console.log('✅ Audio finished');
+                            
+                            // Stop recognition
+                            rec.stop();
+                            
+                            // Close popup after 1 second
+                            setTimeout(() => {
+                                document.body.removeChild(popup);
+                                URL.revokeObjectURL(audioURL);
+                                
+                                // Resolve with transcription
+                                resolve({
+                                    success: true,
+                                    text: transcribedText.trim(),
+                                    method: 'web-speech-fast',
+                                    speed: audio.playbackRate
+                                });
+                            }, 1000);
+                        });
+                        
+                    } catch (error) {
+                        console.error('Fast transcription error:', error);
+                        document.body.removeChild(popup);
+                        reject(error);
+                    }
+                });
+                
+                // Cancel button
+                cancelBtn.addEventListener('click', () => {
+                    if (audio) audio.pause();
+                    document.body.removeChild(popup);
+                    URL.revokeObjectURL(audioURL);
+                    reject(new Error('Cancelled by user'));
+                });
+            });
+        }
+        
         async function handleAudioUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -2954,8 +3156,17 @@
                         <div id="transcriptionContent_${timestamp}"></div>
                     </div>
                     
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                        <button onclick="startFastTranscription(${timestamp}, '${file.name.replace(/'/g, "\\'")}', '${file.type}')" style="background: #28a745; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px;">
+                            🚀 תמלול מהיר<br><span style="font-size: 11px; opacity: 0.8;">(חינמי, Web Speech)</span>
+                        </button>
+                        <button onclick="startServerTranscription(${timestamp})" style="background: #667eea; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px;">
+                            ☁️ תמלול בשרת<br><span style="font-size: 11px; opacity: 0.8;">(Whisper API)</span>
+                        </button>
+                    </div>
+                    
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                        <button onclick="downloadAudioTranscription(${timestamp}, 'txt')" style="background: #28a745; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                        <button onclick="downloadAudioTranscription(${timestamp}, 'txt')" style="background: #17a2b8; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold;">
                             📄 הורד TXT
                         </button>
                         <button onclick="downloadAudioTranscription(${timestamp}, 'docx')" style="background: #17a2b8; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold;">
@@ -2972,10 +3183,165 @@
                 transcriptionBox.parentNode.insertBefore(playerDiv, transcriptionBox.nextSibling);
             }
             
+            // Update status - waiting for user choice
+            const statusText = document.getElementById(`audioStatus_${timestamp}`);
+            if (statusText) {
+                statusText.innerHTML = '👆 בחר שיטת תמלול';
+                statusText.style.color = '#FFD700';
+            }
+            
+            addMessage(`✅ ${file.name} מוכן - בחר שיטת תמלול`, false);
+        }
+        
+        // 🚀 Fast transcription button handler
+        async function startFastTranscription(timestamp, filename, filetype) {
+            const audio = document.getElementById(`audio_${timestamp}`);
+            if (!audio) return;
+            
+            const statusText = document.getElementById(`audioStatus_${timestamp}`);
+            const transcriptionDiv = document.getElementById(`transcriptionText_${timestamp}`);
+            const transcriptionContent = document.getElementById(`transcriptionContent_${timestamp}`);
+            
+            if (statusText) statusText.textContent = '🚀 מכין תמלול מהיר...';
+            
+            try {
+                // Get file from audio source
+                const audioSrc = audio.querySelector('source').src;
+                const response = await fetch(audioSrc);
+                const blob = await response.blob();
+                const file = new File([blob], filename, { type: filetype });
+                
+                // Call fast transcription
+                const result = await transcribeAudioFileWithWebSpeech(file);
+                
+                if (result.success && result.text) {
+                    // Show result
+                    if (statusText) {
+                        statusText.innerHTML = `✅ תמלול הושלם! (מהירות: ${result.speed}x)`;
+                        statusText.style.color = '#28a745';
+                    }
+                    
+                    if (transcriptionDiv) transcriptionDiv.style.display = 'block';
+                    if (transcriptionContent) transcriptionContent.textContent = result.text;
+                    
+                    // Save for download
+                    window[`audioTranscription_${timestamp}`] = {
+                        filename: filename,
+                        text: result.text,
+                        timestamp: timestamp
+                    };
+                    
+                    // Update main transcript
+                    const savedText = document.getElementById('finalTranscript').getAttribute('data-saved') || '';
+                    const newText = savedText ? savedText + '\n\n📄 ' + filename + ':\n' + result.text : '📄 ' + filename + ':\n' + result.text;
+                    safeSetText('finalTranscript', newText);
+                    document.getElementById('finalTranscript').setAttribute('data-saved', newText);
+                    
+                    addMessage(`✅ ${filename} - תמלול מהיר הושלם!`, false);
+                }
+            } catch (error) {
+                console.error('Fast transcription error:', error);
+                if (statusText) {
+                    statusText.innerHTML = '❌ שגיאה: ' + error.message;
+                    statusText.style.color = '#dc3545';
+                }
+                addMessage(`❌ ${filename} - תמלול נכשל: ${error.message}`, false);
+            }
+        }
+        
+        // ☁️ Server transcription button handler  
+        async function startServerTranscription(timestamp) {
+            const audio = document.getElementById(`audio_${timestamp}`);
+            if (!audio) return;
+            
             // 🎯 REAL TRANSCRIPTION - Send to server
             try {
                 const progressBar = document.getElementById(`audioProgress_${timestamp}`);
                 const statusText = document.getElementById(`audioStatus_${timestamp}`);
+                const transcriptionDiv = document.getElementById(`transcriptionText_${timestamp}`);
+                const transcriptionContent = document.getElementById(`transcriptionContent_${timestamp}`);
+                
+                // Get file from audio
+                const audioSrc = audio.querySelector('source').src;
+                const response = await fetch(audioSrc);
+                const blob = await response.blob();
+                const filename = audio.parentElement.querySelector('div').textContent.replace('🎵 ', '').trim();
+                const file = new File([blob], filename, { type: blob.type });
+                
+                // Show progress
+                if (statusText) statusText.textContent = '📤 מעלה לשרת...';
+                if (progressBar) progressBar.style.width = '10%';
+                
+                // Create FormData
+                const formData = new FormData();
+                formData.append('audio', file);
+                formData.append('language', currentVoiceLang);
+                formData.append('user_id', userId);
+                
+                if (statusText) statusText.textContent = '🔄 מתמלל...';
+                if (progressBar) progressBar.style.width = '30%';
+                
+                // Send to server
+                const serverResponse = await fetch('https://haiemetweb.onrender.com/transcribe', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (progressBar) progressBar.style.width = '70%';
+                
+                if (serverResponse.ok) {
+                    const result = await serverResponse.json();
+                    const transcribedText = result.text || result.transcription || '[לא התקבל תמלול]';
+                    
+                    // Check if this is a MOCK response
+                    const isMockResponse = transcribedText.includes('[') || 
+                                          transcribedText.includes('התקבלה בהצלחה') ||
+                                          transcribedText.includes('received successfully');
+                    
+                    if (progressBar) progressBar.style.width = '100%';
+                    
+                    if (isMockResponse) {
+                        // MOCK Response - show warning
+                        if (statusText) {
+                            statusText.innerHTML = '⚠️ תמלול MOCK - דורש Whisper API!';
+                            statusText.style.color = '#FFA500';
+                        }
+                        
+                        // Show mock message + instructions
+                        if (transcriptionDiv) transcriptionDiv.style.display = 'block';
+                        if (transcriptionContent) {
+                            transcriptionContent.innerHTML = `
+                                <div style="color: #FFA500; font-weight: bold; margin-bottom: 10px;">
+                                    ⚠️ זה תמלול מזויף (Mock)
+                                </div>
+                                <div style="color: white; margin-bottom: 10px;">
+                                    ${transcribedText}
+                                </div>
+                                <div style="background: rgba(255,165,0,0.2); padding: 10px; border-radius: 6px; font-size: 0.9em; line-height: 1.6;">
+                                    💡 <strong>לתמלול אמיתי בשרת צריך:</strong><br>
+                                    1. OpenAI Whisper API key<br>
+                                    2. להוסיף בשרת (app.py)<br>
+                                    3. עלות: $0.006/דקה<br>
+                                    <br>
+                                    <strong>או השתמש ב"🚀 תמלול מהיר" - חינמי!</strong>
+                                </div>
+                            `;
+                        }
+                        
+                        addMessage(`⚠️ ${filename} - תמלול MOCK (השתמש בתמלול מהיר!)`, false);
+                    } else {
+                        // REAL Response
+                        if (statusText) {
+                            statusText.textContent = '✅ תמלול הושלם!';
+                            statusText.style.color = '#FFD700';
+                        }
+                        
+                        // Show transcription
+                        if (transcriptionDiv) transcriptionDiv.style.display = 'block';
+                        if (transcriptionContent) transcriptionContent.textContent = transcribedText;
+                        
+                        addMessage(`✅ ${filename} תומלל בהצלחה!`, false);
+                    }
                 const transcriptionDiv = document.getElementById(`transcriptionText_${timestamp}`);
                 const transcriptionContent = document.getElementById(`transcriptionContent_${timestamp}`);
                 
@@ -3039,7 +3405,7 @@
                             `;
                         }
                         
-                        addMessage(`⚠️ ${file.name} - תמלול MOCK (דורש Whisper API)`, false);
+                        addMessage(`⚠️ ${filename} - תמלול MOCK (השתמש בתמלול מהיר!)`, false);
                     } else {
                         // REAL Response
                         if (statusText) {
@@ -3051,7 +3417,7 @@
                         if (transcriptionDiv) transcriptionDiv.style.display = 'block';
                         if (transcriptionContent) transcriptionContent.textContent = transcribedText;
                         
-                        addMessage(`✅ ${file.name} תומלל בהצלחה!`, false);
+                        addMessage(`✅ ${filename} תומלל בהצלחה!`, false);
                     }
                     
                     // 🧬 Quantum Language Detection
@@ -3059,34 +3425,25 @@
                     const confidence = result.confidence || 0.85;
                     quantumDetector.updateCurrentLanguage(detectedLang, confidence);
                     
-                    // Update file transcription
-                    const fileIndex = uploadedFiles.findIndex(f => f.id === timestamp);
-                    if (fileIndex >= 0) {
-                        uploadedFiles[fileIndex].transcription = transcribedText;
-                        uploadedFiles[fileIndex].transcriptionReady = true;
-                        updateFilesList();
-                    }
-                    
                     // Store for download
                     window[`audioTranscription_${timestamp}`] = {
-                        filename: file.name,
+                        filename: filename,
                         text: transcribedText,
                         timestamp: timestamp
                     };
                     
                     // Also update main transcript area
                     const savedText = document.getElementById('finalTranscript').getAttribute('data-saved') || '';
-                    const newText = savedText ? savedText + '\n\n📄 ' + file.name + ':\n' + transcribedText : '📄 ' + file.name + ':\n' + transcribedText;
+                    const newText = savedText ? savedText + '\n\n📄 ' + filename + ':\n' + transcribedText : '📄 ' + filename + ':\n' + transcribedText;
                     safeSetText('finalTranscript', newText);
                     document.getElementById('finalTranscript').setAttribute('data-saved', newText);
                     
-                    addMessage(`✅ ${file.name} תומלל בהצלחה!`, false);
                 } else {
-                    throw new Error(`Server error: ${response.status}`);
+                    throw new Error(`Server error: ${serverResponse.status}`);
                 }
                 
             } catch (error) {
-                console.error('Audio transcription error:', error);
+                console.error('Server transcription error:', error);
                 const statusText = document.getElementById(`audioStatus_${timestamp}`);
                 const progressBar = document.getElementById(`audioProgress_${timestamp}`);
                 
@@ -3099,11 +3456,11 @@
                     progressBar.style.background = '#ff4444';
                 }
                 
-                addMessage(`❌ תמלול ${file.name} נכשל: ${error.message}`, false);
+                addMessage(`❌ תמלול נכשל: ${error.message}`, false);
                 
                 // Store empty for download
                 window[`audioTranscription_${timestamp}`] = {
-                    filename: file.name,
+                    filename: 'unknown',
                     text: '[תמלול נכשל]',
                     timestamp: timestamp
                 };
