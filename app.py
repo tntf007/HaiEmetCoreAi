@@ -91,6 +91,7 @@ def init_database():
             user_id TEXT,
             text TEXT,
             language TEXT,
+            filename TEXT,
             timestamp TIMESTAMP,
             accuracy_score REAL DEFAULT 1.0,
             FOREIGN KEY (user_id) REFERENCES users(id)
@@ -231,8 +232,8 @@ def learn_transcription(user_id: str, text: str, language: str, accuracy: float 
     c = conn.cursor()
     
     try:
-        c.execute('INSERT INTO transcriptions (user_id, text, language, timestamp, accuracy_score) VALUES (?, ?, ?, ?, ?)',
-                  (user_id, text, language, datetime.now(), accuracy))
+        c.execute('INSERT INTO transcriptions (user_id, text, language, filename, timestamp, accuracy_score) VALUES (?, ?, ?, ?, ?, ?)',
+                  (user_id, text, language, None, datetime.now(), accuracy))
         conn.commit()
         update_learning_pattern(user_id, f"voice_{language}", "transcription")
         logger.info(f'✅ Learned transcription: {text[:50]}')
