@@ -1950,20 +1950,31 @@
             popup.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); z-index: 10000; min-width: 450px; color: white;';
             popup.innerHTML = `
                 <div style="text-align: center; margin-bottom: 20px;">
-                    <div style="font-size: 28px; font-weight: bold; margin-bottom: 10px;">🚀 תמלול מהיר</div>
+                    <div style="font-size: 28px; font-weight: bold; margin-bottom: 10px;">
+                        🚀 תמלול מהיר
+                        <span id="recordingDots_${timestamp}" style="color: #FFD700; display: inline-block; width: 30px;"></span>
+                    </div>
                     <div style="font-size: 14px; opacity: 0.9;">${filename}</div>
                 </div>
                 <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 10px; margin-bottom: 15px;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span>מהירות:</span>
+                        <span>מהירות השמע:</span>
                         <span id="speedValue_${timestamp}">2.0x</span>
                     </div>
                     <input type="range" id="speedSlider_${timestamp}" min="1" max="3" step="0.5" value="2" 
+                        style="width: 100%; cursor: pointer; margin-bottom: 15px;">
+                    
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <span>עוצמת קול:</span>
+                        <span id="volumeValue_${timestamp}">50%</span>
+                    </div>
+                    <input type="range" id="volumeSlider_${timestamp}" min="0" max="100" step="10" value="50" 
                         style="width: 100%; cursor: pointer; margin-bottom: 20px;">
+                    
                     <div style="margin-top: 15px;">
                         <div style="display: flex; justify-content: space-between; font-size: 12px; opacity: 0.8; margin-bottom: 5px;">
                             <span>התקדמות</span>
-                            <span id="percentText_${timestamp}">0%</span>
+                            <span id="percentText_${timestamp}" style="font-size: 18px; font-weight: bold; color: #FFD700;">0%</span>
                         </div>
                         <div style="background: rgba(255,255,255,0.2); height: 10px; border-radius: 5px; overflow: hidden;">
                             <div id="popupProgress_${timestamp}" style="background: #FFD700; height: 100%; width: 0%; transition: width 0.3s;"></div>
@@ -1998,7 +2009,13 @@
             const popupProgress = document.getElementById(`popupProgress_${timestamp}`);
             const currentTimeEl = document.getElementById(`currentTime_${timestamp}`);
             const totalTimeEl = document.getElementById(`totalTime_${timestamp}`);
-            const liveTranscriptEl = document.getElementById(`liveTranscript_${timestamp}`);
+            const speedSlider = document.getElementById(`speedSlider_${timestamp}`);
+            const speedValue = document.getElementById(`speedValue_${timestamp}`);
+            const volumeSlider = document.getElementById(`volumeSlider_${timestamp}`);
+            const volumeValue = document.getElementById(`volumeValue_${timestamp}`);
+            const popupProgress = document.getElementById(`popupProgress_${timestamp}`);
+            const currentTimeEl = document.getElementById(`currentTime_${timestamp}`);
+            const totalTimeEl = document.getElementById(`totalTime_${timestamp}`);
             const transcriptTextEl = document.getElementById(`transcriptText_${timestamp}`);
             const translationTextEl = document.getElementById(`translationText_${timestamp}`);
             const startBtn = document.getElementById(`startBtn_${timestamp}`);
@@ -2011,7 +2028,7 @@
             
             const audioURL = URL.createObjectURL(file);
             const audioPlayer = new Audio(audioURL);
-            audioPlayer.volume = 0;
+            audioPlayer.volume = 0.5; // ✅ AUDIBLE - תשמע את השמע!
             audioPlayer.playbackRate = 2.0;
             
             let transcribedText = '';
@@ -2036,7 +2053,7 @@
                 popupProgress.style.width = progress.toFixed(1) + '%';
                 currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
                 
-                // Show percentage in popup
+                // Show percentage in popup - BIG AND BOLD
                 const percentText = document.getElementById(`percentText_${timestamp}`);
                 if (percentText) {
                     percentText.textContent = progressInt + '%';
@@ -2058,10 +2075,18 @@
                 }
             });
             
+            // ✅ SPEED CONTROL
             speedSlider.addEventListener('input', (e) => {
                 const speed = parseFloat(e.target.value);
                 speedValue.textContent = speed.toFixed(1) + 'x';
                 if (audioPlayer) audioPlayer.playbackRate = speed;
+            });
+            
+            // ✅ VOLUME CONTROL
+            volumeSlider.addEventListener('input', (e) => {
+                const vol = parseInt(e.target.value);
+                volumeValue.textContent = vol + '%';
+                if (audioPlayer) audioPlayer.volume = vol / 100;
             });
             
             startBtn.addEventListener('click', async () => {
@@ -2070,6 +2095,14 @@
                 startBtn.textContent = '⏸ מתמלל...';
                 startBtn.disabled = true;
                 startBtn.style.opacity = '0.6';
+                
+                // ✅ ANIMATED DOTS - shows it's working!
+                const dotsEl = document.getElementById(`recordingDots_${timestamp}`);
+                let dotCount = 0;
+                const dotsInterval = setInterval(() => {
+                    dotCount = (dotCount + 1) % 4;
+                    dotsEl.textContent = '.'.repeat(dotCount);
+                }, 500);
                 
                 try {
                     if (!webSpeechReady || !recognitionPool.has(currentVoiceLang)) {
@@ -2081,6 +2114,8 @@
                     rec.onresult = (event) => {
                         const last = event.results.length - 1;
                         const transcript = event.results[last][0].transcript;
+                        
+                        console.log('🎤 זיהוי:', transcript); // ✅ DEBUG - רואים שזה עובד!
                         
                         if (event.results[last].isFinal) {
                             transcribedText += transcript + ' ';
@@ -2123,10 +2158,13 @@
                         console.log('Web Speech ended');
                     };
                     
+                    console.log('🎬 מתחיל תמלול...'); // ✅ DEBUG
                     rec.start();
                     await audioPlayer.play();
+                    console.log('▶️ אודיו מנוגן!'); // ✅ DEBUG
                     
                     audioPlayer.addEventListener('ended', () => {
+                        clearInterval(dotsInterval); // Stop dots animation
                         rec.stop();
                         setTimeout(() => {
                             document.body.removeChild(popup);
@@ -2166,6 +2204,7 @@
                     });
                     
                 } catch (error) {
+                    clearInterval(dotsInterval);
                     document.body.removeChild(popup);
                     const statusText = document.getElementById(`audioStatus_${timestamp}`);
                     if (statusText) {
