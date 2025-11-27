@@ -1909,7 +1909,7 @@
                     </div>
                     
                     <div style="font-size: 0.9em; color: white; margin-bottom: 12px; font-weight: 600;" id="audioStatus_${timestamp}">
-                        🚀 מתחיל תמלול מהיר...
+                        🚀 מתחיל תמלול מהיר... <span id="audioPercent_${timestamp}" style="color: #FFD700;">0%</span>
                     </div>
                     
                     <div id="transcriptionText_${timestamp}" style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; color: white; min-height: 60px; margin-bottom: 12px; display: none; line-height: 1.8; direction: rtl; text-align: right;">
@@ -2027,16 +2027,34 @@
                 totalTimeEl.textContent = formatTime(audioPlayer.duration);
             });
             
-            // ✅ REAL-TIME PROGRESS UPDATE
+            // ✅ REAL-TIME PROGRESS UPDATE - BOTH POPUP & BOTTOM PANEL
             audioPlayer.addEventListener('timeupdate', () => {
                 const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+                const progressInt = Math.floor(progress);
+                
+                // Update popup
                 popupProgress.style.width = progress.toFixed(1) + '%';
                 currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
                 
-                // Show percentage
+                // Show percentage in popup
                 const percentText = document.getElementById(`percentText_${timestamp}`);
                 if (percentText) {
-                    percentText.textContent = Math.floor(progress) + '%';
+                    percentText.textContent = progressInt + '%';
+                }
+                
+                // ✅ UPDATE BOTTOM PANEL TOO!
+                const bottomProgress = document.getElementById(`audioProgress_${timestamp}`);
+                const bottomPercent = document.getElementById(`audioPercent_${timestamp}`);
+                const bottomStatus = document.getElementById(`audioStatus_${timestamp}`);
+                
+                if (bottomProgress) {
+                    bottomProgress.style.width = progress + '%';
+                }
+                if (bottomPercent) {
+                    bottomPercent.textContent = progressInt + '%';
+                }
+                if (bottomStatus && progressInt < 100) {
+                    bottomStatus.innerHTML = `⏳ מתמלל... <span id="audioPercent_${timestamp}" style="color: #FFD700;">${progressInt}%</span>`;
                 }
             });
             
