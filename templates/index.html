@@ -2299,7 +2299,7 @@
                     
                     console.log('📤 שולח לשרת:', filename);
                     
-                    const serverResponse = await fetch('https://haiemetweb.onrender.com/exec', {
+                    const serverResponse = await fetch('https://haiemetweb.onrender.com/transcribe', {
                         method: 'POST',
                         body: formData
                     });
@@ -2311,8 +2311,8 @@
                     const result = await serverResponse.json();
                     console.log('📥 תשובה מהשרת:', result);
                     
-                    if (result.status === 'success' && result.transcript) {
-                        transcribedText = result.transcript;
+                    if (result.text) {
+                        transcribedText = result.text;
                         
                         // ✅ UPDATE POPUP TRANSCRIPTION
                         if (transcriptTextEl) {
