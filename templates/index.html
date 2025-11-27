@@ -1936,13 +1936,33 @@
             }
             
             addMessage(`🚀 ${file.name} - מתחיל תמלול מהיר אוטומטי...`, false);
-            startFastTranscription(timestamp, file.name, file.type);
+            
+            // ✅ WAIT FOR DOM TO BE READY
+            setTimeout(() => {
+                startFastTranscription(timestamp, file.name, file.type, audioURL);
+            }, 100);
         }
 
         // ✅ FIX 1: POPUP WITH PROGRESS BAR
-        async function startFastTranscription(timestamp, filename, filetype) {
+        async function startFastTranscription(timestamp, filename, filetype, audioURL) {
             const audio = document.getElementById(`audio_${timestamp}`);
-            if (!audio) return;
+            if (!audio) {
+                console.error('Audio element not found:', `audio_${timestamp}`);
+                return;
+            }
+            
+            // ✅ GET AUDIO URL FROM EXISTING ELEMENT IF NOT PROVIDED
+            if (!audioURL) {
+                const source = audio.querySelector('source');
+                if (source && source.src) {
+                    audioURL = source.src;
+                } else {
+                    console.error('No audio source found');
+                    return;
+                }
+            }
+            
+            console.log('🎬 Starting fast transcription for:', filename);
             
             // Create beautiful popup with progress
             const popup = document.createElement('div');
@@ -1985,19 +2005,19 @@
                         </div>
                     </div>
                 </div>
-                <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 8px; max-height: 120px; overflow-y: auto; font-size: 13px; line-height: 1.6; direction: rtl; text-align: right;" id="liveTranscript_${timestamp}">
-                    <div style="opacity: 0.7; font-size: 11px; margin-bottom: 5px;">תמלול:</div>
-                    <div id="transcriptText_${timestamp}">ממתין...</div>
+                <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 8px; max-height: 250px; overflow-y: auto; font-size: 14px; line-height: 1.8; direction: rtl; text-align: right;" id="liveTranscript_${timestamp}">
+                    <div style="opacity: 0.7; font-size: 12px; margin-bottom: 5px;">📝 תמלול בזמן אמת:</div>
+                    <div id="transcriptText_${timestamp}" style="white-space: pre-wrap;">ממתין לתמלול...</div>
                 </div>
-                <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 15px; max-height: 120px; overflow-y: auto; font-size: 13px; line-height: 1.6; direction: rtl; text-align: right;" id="liveTranslation_${timestamp}">
-                    <div style="opacity: 0.7; font-size: 11px; margin-bottom: 5px;">תרגום:</div>
+                <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 15px; max-height: 150px; overflow-y: auto; font-size: 13px; line-height: 1.6; direction: rtl; text-align: right;" id="liveTranslation_${timestamp}">
+                    <div style="opacity: 0.7; font-size: 11px; margin-bottom: 5px;">🌐 תרגום:</div>
                     <div id="translationText_${timestamp}">ממתין...</div>
                 </div>
                 
                 <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
                     <div style="font-weight: bold; margin-bottom: 10px; color: #FFD700;">🎵 נגן אודיו</div>
                     <audio id="popupAudio_${timestamp}" controls style="width: 100%; border-radius: 8px;">
-                        <source src="${audioURL}" type="${file.type}">
+                        <source src="${audioURL}" type="${filetype}">
                     </audio>
                 </div>
                 
@@ -2011,6 +2031,9 @@
                 </div>
                 
                 <div style="display: flex; gap: 10px;">
+                    <button id="minimizeBtn_${timestamp}" style="flex: 1; background: #ffc107; color: #333; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px;">
+                        🔽 מזער
+                    </button>
                     <button id="closeBtn_${timestamp}" style="flex: 1; background: #dc3545; color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px;">
                         ✖ סגור
                     </button>
@@ -2027,23 +2050,18 @@
             const totalTimeEl = document.getElementById(`totalTime_${timestamp}`);
             const transcriptTextEl = document.getElementById(`transcriptText_${timestamp}`);
             const translationTextEl = document.getElementById(`translationText_${timestamp}`);
+            const minimizeBtn = document.getElementById(`minimizeBtn_${timestamp}`);
             const closeBtn = document.getElementById(`closeBtn_${timestamp}`);
             const downloadTXTBtn = document.getElementById(`downloadTXT_${timestamp}`);
             const downloadDOCXBtn = document.getElementById(`downloadDOCX_${timestamp}`);
             const popupAudio = document.getElementById(`popupAudio_${timestamp}`);
             
-            const audioSrc = audio.querySelector('source').src;
-            const response = await fetch(audioSrc);
-            const blob = await response.blob();
-            const file = new File([blob], filename, { type: filetype });
-            
-            const audioURL = URL.createObjectURL(file);
+            // ✅ CREATE AUDIO PLAYER FOR PLAYBACK
             const audioPlayer = new Audio(audioURL);
             audioPlayer.volume = 0.5;
             audioPlayer.playbackRate = 2.0;
             
             let transcribedText = '';
-            let isTranscribing = false;
             
             function formatTime(seconds) {
                 const mins = Math.floor(seconds / 60);
@@ -2153,6 +2171,31 @@
                 });
             });
             
+            // ✅ MINIMIZE BUTTON - Hide popup and add restore button to panel
+            minimizeBtn.addEventListener('click', () => {
+                popup.style.display = 'none';
+                
+                // ✅ ADD RESTORE BUTTON TO PANEL
+                const audioPlayerDiv = document.getElementById(`audioPlayer_${timestamp}`);
+                if (audioPlayerDiv) {
+                    // Check if restore button already exists
+                    let restoreBtn = document.getElementById(`restoreBtn_${timestamp}`);
+                    if (!restoreBtn) {
+                        restoreBtn = document.createElement('button');
+                        restoreBtn.id = `restoreBtn_${timestamp}`;
+                        restoreBtn.style.cssText = 'width: 100%; background: #ffc107; color: #333; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 8px;';
+                        restoreBtn.textContent = '🔼 פתח חלון תמלול';
+                        restoreBtn.addEventListener('click', () => {
+                            popup.style.display = 'block';
+                            restoreBtn.remove();
+                        });
+                        audioPlayerDiv.insertBefore(restoreBtn, audioPlayerDiv.firstChild);
+                    }
+                }
+                
+                addMessage(`🔽 ${filename} - חלון ממוזער, לחץ 🔼 לפתיחה`, false);
+            });
+            
             // ✅ CLOSE BUTTON - Manual close only
             closeBtn.addEventListener('click', () => {
                 if (audioPlayer) {
@@ -2211,6 +2254,12 @@
                     panelDiv.id = `panelContent_${timestamp}`;
                     panelDiv.innerHTML = panelHTML;
                     audioPlayerDiv.appendChild(panelDiv);
+                }
+                
+                // ✅ REMOVE RESTORE BUTTON IF IT EXISTS
+                const restoreBtn = document.getElementById(`restoreBtn_${timestamp}`);
+                if (restoreBtn) {
+                    restoreBtn.remove();
                 }
                 
                 document.body.removeChild(popup);
