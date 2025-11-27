@@ -1961,7 +1961,10 @@
                     <input type="range" id="speedSlider_${timestamp}" min="1" max="3" step="0.5" value="2" 
                         style="width: 100%; cursor: pointer; margin-bottom: 20px;">
                     <div style="margin-top: 15px;">
-                        <div style="font-size: 12px; opacity: 0.8; margin-bottom: 5px;">התקדמות</div>
+                        <div style="display: flex; justify-content: space-between; font-size: 12px; opacity: 0.8; margin-bottom: 5px;">
+                            <span>התקדמות</span>
+                            <span id="percentText_${timestamp}">0%</span>
+                        </div>
                         <div style="background: rgba(255,255,255,0.2); height: 10px; border-radius: 5px; overflow: hidden;">
                             <div id="popupProgress_${timestamp}" style="background: #FFD700; height: 100%; width: 0%; transition: width 0.3s;"></div>
                         </div>
@@ -1971,8 +1974,13 @@
                         </div>
                     </div>
                 </div>
-                <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 15px; max-height: 180px; overflow-y: auto; font-size: 14px; line-height: 1.8; direction: rtl; text-align: right;" id="liveTranscript_${timestamp}">
-                    <span style="opacity: 0.6;">ממתין לתמלול...</span>
+                <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 8px; max-height: 120px; overflow-y: auto; font-size: 13px; line-height: 1.6; direction: rtl; text-align: right;" id="liveTranscript_${timestamp}">
+                    <div style="opacity: 0.7; font-size: 11px; margin-bottom: 5px;">תמלול:</div>
+                    <div id="transcriptText_${timestamp}">ממתין...</div>
+                </div>
+                <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 15px; max-height: 120px; overflow-y: auto; font-size: 13px; line-height: 1.6; direction: rtl; text-align: right;" id="liveTranslation_${timestamp}">
+                    <div style="opacity: 0.7; font-size: 11px; margin-bottom: 5px;">תרגום:</div>
+                    <div id="translationText_${timestamp}">ממתין...</div>
                 </div>
                 <div style="display: flex; gap: 10px;">
                     <button id="startBtn_${timestamp}" style="flex: 1; background: #28a745; color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px;">
@@ -1991,6 +1999,8 @@
             const currentTimeEl = document.getElementById(`currentTime_${timestamp}`);
             const totalTimeEl = document.getElementById(`totalTime_${timestamp}`);
             const liveTranscriptEl = document.getElementById(`liveTranscript_${timestamp}`);
+            const transcriptTextEl = document.getElementById(`transcriptText_${timestamp}`);
+            const translationTextEl = document.getElementById(`translationText_${timestamp}`);
             const startBtn = document.getElementById(`startBtn_${timestamp}`);
             const cancelBtn = document.getElementById(`cancelBtn_${timestamp}`);
             
@@ -2017,10 +2027,17 @@
                 totalTimeEl.textContent = formatTime(audioPlayer.duration);
             });
             
+            // ✅ REAL-TIME PROGRESS UPDATE
             audioPlayer.addEventListener('timeupdate', () => {
                 const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-                popupProgress.style.width = progress + '%';
+                popupProgress.style.width = progress.toFixed(1) + '%';
                 currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
+                
+                // Show percentage
+                const percentText = document.getElementById(`percentText_${timestamp}`);
+                if (percentText) {
+                    percentText.textContent = Math.floor(progress) + '%';
+                }
             });
             
             speedSlider.addEventListener('input', (e) => {
@@ -2049,10 +2066,34 @@
                         
                         if (event.results[last].isFinal) {
                             transcribedText += transcript + ' ';
-                            liveTranscriptEl.textContent = transcribedText;
-                            liveTranscriptEl.scrollTop = liveTranscriptEl.scrollHeight;
+                            
+                            // ✅ Update transcript window
+                            if (transcriptTextEl) {
+                                transcriptTextEl.textContent = transcribedText;
+                                const container = document.getElementById(`liveTranscript_${timestamp}`);
+                                if (container) container.scrollTop = container.scrollHeight;
+                            }
+                            
+                            // ✅ Translate and show in translation window
+                            if (selectedTranslateLang && translationTextEl) {
+                                translateText(transcript, selectedTranslateLang).then(translated => {
+                                    const currentTranslation = translationTextEl.textContent === 'ממתין...' || translationTextEl.textContent === 'בחר שפת תרגום בהגדרות' ? '' : translationTextEl.textContent;
+                                    translationTextEl.textContent = currentTranslation + ' ' + translated;
+                                    const container = document.getElementById(`liveTranslation_${timestamp}`);
+                                    if (container) container.scrollTop = container.scrollHeight;
+                                }).catch(err => {
+                                    console.warn('Translation error:', err);
+                                });
+                            } else if (translationTextEl && translationTextEl.textContent === 'ממתין...') {
+                                // Show message if no translation language selected
+                                translationTextEl.textContent = 'בחר שפת תרגום בהגדרות';
+                                translationTextEl.style.opacity = '0.6';
+                            }
                         } else {
-                            liveTranscriptEl.textContent = transcribedText + transcript + '...';
+                            // Show interim results
+                            if (transcriptTextEl) {
+                                transcriptTextEl.textContent = transcribedText + transcript + '...';
+                            }
                         }
                     };
                     
@@ -2073,7 +2114,7 @@
                             document.body.removeChild(popup);
                             URL.revokeObjectURL(audioURL);
                             
-                            // Update UI with results
+                            // ✅ NOW update UI below with final results
                             const statusText = document.getElementById(`audioStatus_${timestamp}`);
                             const transcriptionDiv = document.getElementById(`transcriptionText_${timestamp}`);
                             const transcriptionContent = document.getElementById(`transcriptionContent_${timestamp}`);
@@ -2099,6 +2140,10 @@
                             document.getElementById('finalTranscript').setAttribute('data-saved', newText);
                             
                             addMessage(`✅ ${filename} - תמלול הושלם!`, false);
+                            
+                            // ✅ ALLOW NEW FILE UPLOAD - reset the input
+                            const fileInput = document.getElementById('audioInput');
+                            if (fileInput) fileInput.value = '';
                         }, 1000);
                     });
                     
@@ -2110,6 +2155,10 @@
                         statusText.style.color = '#dc3545';
                     }
                     addMessage(`❌ ${filename} - תמלול נכשל: ${error.message}`, false);
+                    
+                    // ✅ ALLOW NEW FILE UPLOAD
+                    const fileInput = document.getElementById('audioInput');
+                    if (fileInput) fileInput.value = '';
                 }
             });
             
@@ -2118,6 +2167,10 @@
                 document.body.removeChild(popup);
                 URL.revokeObjectURL(audioURL);
                 addMessage(`❌ ${filename} - בוטל על ידי המשתמש`, false);
+                
+                // ✅ ALLOW NEW FILE UPLOAD
+                const fileInput = document.getElementById('audioInput');
+                if (fileInput) fileInput.value = '';
             });
         }
 
@@ -2601,10 +2654,14 @@
                 const data = await response.json();
                 
                 if (data.responseStatus === 200) {
-                    safeSetText('translatedText', data.responseData.translatedText);
+                    const translated = data.responseData.translatedText;
+                    safeSetText('translatedText', translated);
+                    return translated; // ✅ Return for popup use
                 }
+                return text; // Return original if translation fails
             } catch (e) {
                 console.log('Translation unavailable');
+                return text; // Return original on error
             }
         }
 
