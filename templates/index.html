@@ -2271,7 +2271,7 @@
                 if (fileInput) fileInput.value = '';
             });
             
-            // ✅ AUTO-START TRANSCRIPTION
+            // ✅ AUTO-START TRANSCRIPTION - SEND TO SERVER
             const dotsEl = document.getElementById(`recordingDots_${timestamp}`);
             let dotCount = 0;
             const dotsInterval = setInterval(() => {
@@ -2281,79 +2281,75 @@
             
             (async () => {
                 try {
-                    if (!webSpeechReady || !recognitionPool.has(currentVoiceLang)) {
-                        throw new Error('Web Speech API לא זמין');
-                    }
+                    console.log('📤 שולח קובץ לשרת לתמלול...');
                     
-                    const rec = recognitionPool.get(currentVoiceLang);
-                    
-                    rec.onresult = (event) => {
-                        const last = event.results.length - 1;
-                        const transcript = event.results[last][0].transcript;
-                        
-                        console.log('🎤 זיהוי:', transcript);
-                        
-                        if (event.results[last].isFinal) {
-                            transcribedText += transcript + ' ';
-                            
-                            // ✅ UPDATE POPUP TRANSCRIPTION
-                            if (transcriptTextEl) {
-                                transcriptTextEl.textContent = transcribedText;
-                                const container = document.getElementById(`liveTranscript_${timestamp}`);
-                                if (container) container.scrollTop = container.scrollHeight;
-                            }
-                            
-                            // ✅ UPDATE BOTTOM PANEL TRANSCRIPTION IN REAL-TIME!
-                            const bottomTranscript = document.getElementById(`transcriptionContent_${timestamp}`);
-                            if (bottomTranscript) {
-                                bottomTranscript.textContent = transcribedText;
-                                const transcriptionBox = document.getElementById(`transcriptionText_${timestamp}`);
-                                if (transcriptionBox) transcriptionBox.scrollTop = transcriptionBox.scrollHeight;
-                            }
-                            
-                            if (selectedTranslateLang && translationTextEl) {
-                                translateText(transcript, selectedTranslateLang).then(translated => {
-                                    const currentTranslation = translationTextEl.textContent === 'ממתין...' || translationTextEl.textContent === 'בחר שפת תרגום בהגדרות' ? '' : translationTextEl.textContent;
-                                    translationTextEl.textContent = currentTranslation + ' ' + translated;
-                                    const container = document.getElementById(`liveTranslation_${timestamp}`);
-                                    if (container) container.scrollTop = container.scrollHeight;
-                                }).catch(err => {
-                                    console.warn('Translation error:', err);
-                                });
-                            } else if (translationTextEl && translationTextEl.textContent === 'ממתין...') {
-                                translationTextEl.textContent = 'בחר שפת תרגום בהגדרות';
-                                translationTextEl.style.opacity = '0.6';
-                            }
-                        } else {
-                            // ✅ UPDATE BOTH FOR INTERIM RESULTS TOO!
-                            if (transcriptTextEl) {
-                                transcriptTextEl.textContent = transcribedText + transcript + '...';
-                            }
-                            const bottomTranscript = document.getElementById(`transcriptionContent_${timestamp}`);
-                            if (bottomTranscript) {
-                                bottomTranscript.textContent = transcribedText + transcript + '...';
-                            }
-                        }
-                    };
-                    
-                    rec.onerror = (event) => {
-                        console.error('Web Speech error:', event.error);
-                    };
-                    
-                    rec.onend = () => {
-                        console.log('Web Speech ended');
-                    };
-                    
-                    console.log('🎬 מתחיל תמלול אוטומטי...');
-                    rec.start();
+                    // ✅ START AUDIO PLAYBACK
                     await audioPlayer.play();
                     console.log('▶️ אודיו מנוגן!');
                     
+                    // ✅ FETCH AUDIO FILE AND SEND TO SERVER
+                    const response = await fetch(audioURL);
+                    const blob = await response.blob();
+                    
+                    const formData = new FormData();
+                    formData.append('audio', blob, filename);
+                    formData.append('language', currentVoiceLang);
+                    formData.append('user_id', userId);
+                    formData.append('browser', 'upload');
+                    
+                    console.log('📤 שולח לשרת:', filename);
+                    
+                    const serverResponse = await fetch('https://haiemetweb.onrender.com/exec', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (!serverResponse.ok) {
+                        throw new Error(`Server error: ${serverResponse.status}`);
+                    }
+                    
+                    const result = await serverResponse.json();
+                    console.log('📥 תשובה מהשרת:', result);
+                    
+                    if (result.status === 'success' && result.transcript) {
+                        transcribedText = result.transcript;
+                        
+                        // ✅ UPDATE POPUP TRANSCRIPTION
+                        if (transcriptTextEl) {
+                            transcriptTextEl.textContent = transcribedText;
+                            const container = document.getElementById(`liveTranscript_${timestamp}`);
+                            if (container) container.scrollTop = container.scrollHeight;
+                        }
+                        
+                        // ✅ UPDATE BOTTOM PANEL TRANSCRIPTION
+                        const bottomTranscript = document.getElementById(`transcriptionContent_${timestamp}`);
+                        if (bottomTranscript) {
+                            bottomTranscript.textContent = transcribedText;
+                            const transcriptionBox = document.getElementById(`transcriptionText_${timestamp}`);
+                            if (transcriptionBox) transcriptionBox.scrollTop = transcriptionBox.scrollHeight;
+                        }
+                        
+                        // ✅ TRANSLATE IF NEEDED
+                        if (selectedTranslateLang && translationTextEl) {
+                            translateText(transcribedText, selectedTranslateLang).then(translated => {
+                                translationTextEl.textContent = translated;
+                                const container = document.getElementById(`liveTranslation_${timestamp}`);
+                                if (container) container.scrollTop = container.scrollHeight;
+                            }).catch(err => {
+                                console.warn('Translation error:', err);
+                            });
+                        }
+                        
+                        console.log('✅ תמלול הושלם!');
+                    } else {
+                        throw new Error(result.error || 'No transcript received');
+                    }
+                    
                     audioPlayer.addEventListener('ended', () => {
                         clearInterval(dotsInterval);
-                        rec.stop();
+                        dotsEl.textContent = '';
                         
-                        // ✅ DON'T CLOSE POPUP - Just update status
+                        // ✅ UPDATE STATUS
                         const statusText = document.getElementById(`audioStatus_${timestamp}`);
                         const transcriptionDiv = document.getElementById(`transcriptionText_${timestamp}`);
                         const transcriptionContent = document.getElementById(`transcriptionContent_${timestamp}`);
@@ -2378,9 +2374,10 @@
                         safeSetText('finalTranscript', newText);
                         document.getElementById('finalTranscript').setAttribute('data-saved', newText);
                         
-                        addMessage(`✅ ${filename} - תמלול הושלם! לחץ ✖ לסגור`, false);
+                        addMessage(`✅ ${filename} - ניגון הושלם!`, false);
                         
-                        // Change button text
+                        // Update buttons
+                        if (minimizeBtn) minimizeBtn.textContent = '🔽 מזער';
                         closeBtn.textContent = '✅ סגור (הושלם)';
                         closeBtn.style.background = '#28a745';
                         
@@ -2391,6 +2388,7 @@
                     
                 } catch (error) {
                     clearInterval(dotsInterval);
+                    dotsEl.textContent = '';
                     console.error('Transcription error:', error);
                     
                     const statusText = document.getElementById(`audioStatus_${timestamp}`);
@@ -2398,6 +2396,13 @@
                         statusText.innerHTML = '❌ שגיאה: ' + error.message;
                         statusText.style.color = '#dc3545';
                     }
+                    
+                    // ✅ UPDATE POPUP WITH ERROR
+                    if (transcriptTextEl) {
+                        transcriptTextEl.textContent = '❌ שגיאה בתמלול: ' + error.message;
+                        transcriptTextEl.style.color = '#dc3545';
+                    }
+                    
                     addMessage(`❌ ${filename} - תמלול נכשל: ${error.message}`, false);
                     
                     closeBtn.textContent = '✖ סגור (שגיאה)';
