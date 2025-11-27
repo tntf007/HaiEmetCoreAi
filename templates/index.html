@@ -1912,17 +1912,17 @@
                         🚀 מתחיל תמלול מהיר... <span id="audioPercent_${timestamp}" style="color: #FFD700;">0%</span>
                     </div>
                     
-                    <div id="transcriptionText_${timestamp}" style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; color: white; min-height: 60px; margin-bottom: 12px; display: none; line-height: 1.8; direction: rtl; text-align: right;">
-                        <div style="font-weight: bold; margin-bottom: 6px; color: #FFD700;">📝 תמלול:</div>
-                        <div id="transcriptionContent_${timestamp}"></div>
+                    <div id="transcriptionText_${timestamp}" style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; color: white; min-height: 100px; max-height: 200px; overflow-y: auto; margin-bottom: 12px; line-height: 1.8; direction: rtl; text-align: right;">
+                        <div style="font-weight: bold; margin-bottom: 6px; color: #FFD700;">📝 תמלול בזמן אמת:</div>
+                        <div id="transcriptionContent_${timestamp}">⏳ ממתין לתמלול...</div>
                     </div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <button onclick="downloadAudioTranscription(${timestamp}, 'docx')" style="background: #28a745; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                            📋 הורד DOCX
+                        </button>
                         <button onclick="downloadAudioTranscription(${timestamp}, 'txt')" style="background: #17a2b8; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold;">
                             📄 הורד TXT
-                        </button>
-                        <button onclick="downloadAudioTranscription(${timestamp}, 'docx')" style="background: #17a2b8; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                            📋 הורד DOCX
                         </button>
                     </div>
                 </div>
@@ -2002,11 +2002,11 @@
                 </div>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
-                    <button id="downloadTXT_${timestamp}" style="background: #28a745; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                        📄 הורד TXT
-                    </button>
-                    <button id="downloadDOCX_${timestamp}" style="background: #17a2b8; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                    <button id="downloadDOCX_${timestamp}" style="background: #28a745; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold;">
                         📋 הורד DOCX
+                    </button>
+                    <button id="downloadTXT_${timestamp}" style="background: #17a2b8; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                        📄 הורד TXT
                     </button>
                 </div>
                 
@@ -2187,11 +2187,11 @@
                             ` : ''}
                             
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
-                                <button onclick="downloadPanelTranscription(${timestamp}, 'txt', '${filename.replace(/'/g, "\\'")}', \`${transcriptText.replace(/`/g, '\\`')}\`)" style="background: #28a745; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                                    📄 הורד TXT
-                                </button>
-                                <button onclick="downloadPanelTranscription(${timestamp}, 'docx', '${filename.replace(/'/g, "\\'")}', \`${transcriptText.replace(/`/g, '\\`')}\`)" style="background: #17a2b8; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                                <button onclick="downloadPanelTranscription(${timestamp}, 'docx', '${filename.replace(/'/g, "\\'")}', \`${transcriptText.replace(/`/g, '\\`')}\`)" style="background: #28a745; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold;">
                                     📋 הורד DOCX
+                                </button>
+                                <button onclick="downloadPanelTranscription(${timestamp}, 'txt', '${filename.replace(/'/g, "\\'")}', \`${transcriptText.replace(/`/g, '\\`')}\`)" style="background: #17a2b8; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                                    📄 הורד TXT
                                 </button>
                             </div>
                             
@@ -2247,10 +2247,19 @@
                         if (event.results[last].isFinal) {
                             transcribedText += transcript + ' ';
                             
+                            // ✅ UPDATE POPUP TRANSCRIPTION
                             if (transcriptTextEl) {
                                 transcriptTextEl.textContent = transcribedText;
                                 const container = document.getElementById(`liveTranscript_${timestamp}`);
                                 if (container) container.scrollTop = container.scrollHeight;
+                            }
+                            
+                            // ✅ UPDATE BOTTOM PANEL TRANSCRIPTION IN REAL-TIME!
+                            const bottomTranscript = document.getElementById(`transcriptionContent_${timestamp}`);
+                            if (bottomTranscript) {
+                                bottomTranscript.textContent = transcribedText;
+                                const transcriptionBox = document.getElementById(`transcriptionText_${timestamp}`);
+                                if (transcriptionBox) transcriptionBox.scrollTop = transcriptionBox.scrollHeight;
                             }
                             
                             if (selectedTranslateLang && translationTextEl) {
@@ -2267,8 +2276,13 @@
                                 translationTextEl.style.opacity = '0.6';
                             }
                         } else {
+                            // ✅ UPDATE BOTH FOR INTERIM RESULTS TOO!
                             if (transcriptTextEl) {
                                 transcriptTextEl.textContent = transcribedText + transcript + '...';
+                            }
+                            const bottomTranscript = document.getElementById(`transcriptionContent_${timestamp}`);
+                            if (bottomTranscript) {
+                                bottomTranscript.textContent = transcribedText + transcript + '...';
                             }
                         }
                     };
