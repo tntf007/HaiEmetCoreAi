@@ -1994,11 +1994,8 @@
                     <div id="translationText_${timestamp}">ממתין...</div>
                 </div>
                 <div style="display: flex; gap: 10px;">
-                    <button id="startBtn_${timestamp}" style="flex: 1; background: #28a745; color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px;">
-                        ▶ התחל
-                    </button>
-                    <button id="cancelBtn_${timestamp}" style="flex: 1; background: #dc3545; color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px;">
-                        ✖ ביטול
+                    <button id="closeBtn_${timestamp}" style="flex: 1; background: #dc3545; color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px;">
+                        ✖ סגור
                     </button>
                 </div>
             `;
@@ -2013,8 +2010,7 @@
             const totalTimeEl = document.getElementById(`totalTime_${timestamp}`);
             const transcriptTextEl = document.getElementById(`transcriptText_${timestamp}`);
             const translationTextEl = document.getElementById(`translationText_${timestamp}`);
-            const startBtn = document.getElementById(`startBtn_${timestamp}`);
-            const cancelBtn = document.getElementById(`cancelBtn_${timestamp}`);
+            const closeBtn = document.getElementById(`closeBtn_${timestamp}`);
             
             const audioSrc = audio.querySelector('source').src;
             const response = await fetch(audioSrc);
@@ -2023,7 +2019,7 @@
             
             const audioURL = URL.createObjectURL(file);
             const audioPlayer = new Audio(audioURL);
-            audioPlayer.volume = 0.5; // ✅ AUDIBLE - תשמע את השמע!
+            audioPlayer.volume = 0.5;
             audioPlayer.playbackRate = 2.0;
             
             let transcribedText = '';
@@ -2039,22 +2035,18 @@
                 totalTimeEl.textContent = formatTime(audioPlayer.duration);
             });
             
-            // ✅ REAL-TIME PROGRESS UPDATE - BOTH POPUP & BOTTOM PANEL
             audioPlayer.addEventListener('timeupdate', () => {
                 const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
                 const progressInt = Math.floor(progress);
                 
-                // Update popup
                 popupProgress.style.width = progress.toFixed(1) + '%';
                 currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
                 
-                // Show percentage in popup - BIG AND BOLD
                 const percentText = document.getElementById(`percentText_${timestamp}`);
                 if (percentText) {
                     percentText.textContent = progressInt + '%';
                 }
                 
-                // ✅ UPDATE BOTTOM PANEL TOO!
                 const bottomProgress = document.getElementById(`audioProgress_${timestamp}`);
                 const bottomPercent = document.getElementById(`audioPercent_${timestamp}`);
                 const bottomStatus = document.getElementById(`audioStatus_${timestamp}`);
@@ -2070,35 +2062,56 @@
                 }
             });
             
-            // ✅ SPEED CONTROL
             speedSlider.addEventListener('input', (e) => {
                 const speed = parseFloat(e.target.value);
                 speedValue.textContent = speed.toFixed(1) + 'x';
                 if (audioPlayer) audioPlayer.playbackRate = speed;
             });
             
-            // ✅ VOLUME CONTROL
             volumeSlider.addEventListener('input', (e) => {
                 const vol = parseInt(e.target.value);
                 volumeValue.textContent = vol + '%';
                 if (audioPlayer) audioPlayer.volume = vol / 100;
             });
             
-            startBtn.addEventListener('click', async () => {
-                if (isTranscribing) return;
-                isTranscribing = true;
-                startBtn.textContent = '⏸ מתמלל...';
-                startBtn.disabled = true;
-                startBtn.style.opacity = '0.6';
+            // ✅ CLOSE BUTTON - Manual close only
+            closeBtn.addEventListener('click', () => {
+                if (audioPlayer) {
+                    audioPlayer.pause();
+                    audioPlayer.currentTime = 0;
+                }
+                document.body.removeChild(popup);
+                URL.revokeObjectURL(audioURL);
                 
-                // ✅ ANIMATED DOTS - shows it's working!
-                const dotsEl = document.getElementById(`recordingDots_${timestamp}`);
-                let dotCount = 0;
-                const dotsInterval = setInterval(() => {
-                    dotCount = (dotCount + 1) % 4;
-                    dotsEl.textContent = '.'.repeat(dotCount);
-                }, 500);
+                // Add reopen button to panel
+                const audioPlayerDiv = document.getElementById(`audioPlayer_${timestamp}`);
+                if (audioPlayerDiv && !document.getElementById(`reopenBtn_${timestamp}`)) {
+                    const reopenBtn = document.createElement('button');
+                    reopenBtn.id = `reopenBtn_${timestamp}`;
+                    reopenBtn.style.cssText = 'background: #667eea; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 8px;';
+                    reopenBtn.textContent = '🔄 פתח חלון תמלול שוב';
+                    reopenBtn.onclick = () => {
+                        startFastTranscription(timestamp, filename, filetype);
+                        reopenBtn.remove();
+                    };
+                    audioPlayerDiv.appendChild(reopenBtn);
+                }
                 
+                addMessage(`✖ ${filename} - חלון נסגר`, false);
+                
+                const fileInput = document.getElementById('audioInput');
+                if (fileInput) fileInput.value = '';
+            });
+            
+            // ✅ AUTO-START TRANSCRIPTION
+            const dotsEl = document.getElementById(`recordingDots_${timestamp}`);
+            let dotCount = 0;
+            const dotsInterval = setInterval(() => {
+                dotCount = (dotCount + 1) % 4;
+                dotsEl.textContent = '.'.repeat(dotCount);
+            }, 500);
+            
+            (async () => {
                 try {
                     if (!webSpeechReady || !recognitionPool.has(currentVoiceLang)) {
                         throw new Error('Web Speech API לא זמין');
@@ -2110,19 +2123,17 @@
                         const last = event.results.length - 1;
                         const transcript = event.results[last][0].transcript;
                         
-                        console.log('🎤 זיהוי:', transcript); // ✅ DEBUG - רואים שזה עובד!
+                        console.log('🎤 זיהוי:', transcript);
                         
                         if (event.results[last].isFinal) {
                             transcribedText += transcript + ' ';
                             
-                            // ✅ Update transcript window
                             if (transcriptTextEl) {
                                 transcriptTextEl.textContent = transcribedText;
                                 const container = document.getElementById(`liveTranscript_${timestamp}`);
                                 if (container) container.scrollTop = container.scrollHeight;
                             }
                             
-                            // ✅ Translate and show in translation window
                             if (selectedTranslateLang && translationTextEl) {
                                 translateText(transcript, selectedTranslateLang).then(translated => {
                                     const currentTranslation = translationTextEl.textContent === 'ממתין...' || translationTextEl.textContent === 'בחר שפת תרגום בהגדרות' ? '' : translationTextEl.textContent;
@@ -2133,12 +2144,10 @@
                                     console.warn('Translation error:', err);
                                 });
                             } else if (translationTextEl && translationTextEl.textContent === 'ממתין...') {
-                                // Show message if no translation language selected
                                 translationTextEl.textContent = 'בחר שפת תרגום בהגדרות';
                                 translationTextEl.style.opacity = '0.6';
                             }
                         } else {
-                            // Show interim results
                             if (transcriptTextEl) {
                                 transcriptTextEl.textContent = transcribedText + transcript + '...';
                             }
@@ -2153,54 +2162,55 @@
                         console.log('Web Speech ended');
                     };
                     
-                    console.log('🎬 מתחיל תמלול...'); // ✅ DEBUG
+                    console.log('🎬 מתחיל תמלול אוטומטי...');
                     rec.start();
                     await audioPlayer.play();
-                    console.log('▶️ אודיו מנוגן!'); // ✅ DEBUG
+                    console.log('▶️ אודיו מנוגן!');
                     
                     audioPlayer.addEventListener('ended', () => {
-                        clearInterval(dotsInterval); // Stop dots animation
+                        clearInterval(dotsInterval);
                         rec.stop();
-                        setTimeout(() => {
-                            document.body.removeChild(popup);
-                            URL.revokeObjectURL(audioURL);
-                            
-                            // ✅ NOW update UI below with final results
-                            const statusText = document.getElementById(`audioStatus_${timestamp}`);
-                            const transcriptionDiv = document.getElementById(`transcriptionText_${timestamp}`);
-                            const transcriptionContent = document.getElementById(`transcriptionContent_${timestamp}`);
-                            const progressBar = document.getElementById(`audioProgress_${timestamp}`);
-                            
-                            if (progressBar) progressBar.style.width = '100%';
-                            if (statusText) {
-                                statusText.innerHTML = `✅ תמלול הושלם!`;
-                                statusText.style.color = '#28a745';
-                            }
-                            if (transcriptionDiv) transcriptionDiv.style.display = 'block';
-                            if (transcriptionContent) transcriptionContent.textContent = transcribedText.trim();
-                            
-                            window[`audioTranscription_${timestamp}`] = {
-                                filename: filename,
-                                text: transcribedText.trim(),
-                                timestamp: timestamp
-                            };
-                            
-                            const savedText = document.getElementById('finalTranscript').getAttribute('data-saved') || '';
-                            const newText = savedText ? savedText + '\n\n📄 ' + filename + ':\n' + transcribedText.trim() : '📄 ' + filename + ':\n' + transcribedText.trim();
-                            safeSetText('finalTranscript', newText);
-                            document.getElementById('finalTranscript').setAttribute('data-saved', newText);
-                            
-                            addMessage(`✅ ${filename} - תמלול הושלם!`, false);
-                            
-                            // ✅ ALLOW NEW FILE UPLOAD - reset the input
-                            const fileInput = document.getElementById('audioInput');
-                            if (fileInput) fileInput.value = '';
-                        }, 1000);
+                        
+                        // ✅ DON'T CLOSE POPUP - Just update status
+                        const statusText = document.getElementById(`audioStatus_${timestamp}`);
+                        const transcriptionDiv = document.getElementById(`transcriptionText_${timestamp}`);
+                        const transcriptionContent = document.getElementById(`transcriptionContent_${timestamp}`);
+                        const progressBar = document.getElementById(`audioProgress_${timestamp}`);
+                        
+                        if (progressBar) progressBar.style.width = '100%';
+                        if (statusText) {
+                            statusText.innerHTML = `✅ תמלול הושלם! <span style="color: #FFD700;">100%</span>`;
+                            statusText.style.color = '#28a745';
+                        }
+                        if (transcriptionDiv) transcriptionDiv.style.display = 'block';
+                        if (transcriptionContent) transcriptionContent.textContent = transcribedText.trim();
+                        
+                        window[`audioTranscription_${timestamp}`] = {
+                            filename: filename,
+                            text: transcribedText.trim(),
+                            timestamp: timestamp
+                        };
+                        
+                        const savedText = document.getElementById('finalTranscript').getAttribute('data-saved') || '';
+                        const newText = savedText ? savedText + '\n\n📄 ' + filename + ':\n' + transcribedText.trim() : '📄 ' + filename + ':\n' + transcribedText.trim();
+                        safeSetText('finalTranscript', newText);
+                        document.getElementById('finalTranscript').setAttribute('data-saved', newText);
+                        
+                        addMessage(`✅ ${filename} - תמלול הושלם! לחץ ✖ לסגור`, false);
+                        
+                        // Change button text
+                        closeBtn.textContent = '✅ סגור (הושלם)';
+                        closeBtn.style.background = '#28a745';
+                        
+                        // Reset file input for next upload
+                        const fileInput = document.getElementById('audioInput');
+                        if (fileInput) fileInput.value = '';
                     });
                     
                 } catch (error) {
                     clearInterval(dotsInterval);
-                    document.body.removeChild(popup);
+                    console.error('Transcription error:', error);
+                    
                     const statusText = document.getElementById(`audioStatus_${timestamp}`);
                     if (statusText) {
                         statusText.innerHTML = '❌ שגיאה: ' + error.message;
@@ -2208,22 +2218,9 @@
                     }
                     addMessage(`❌ ${filename} - תמלול נכשל: ${error.message}`, false);
                     
-                    // ✅ ALLOW NEW FILE UPLOAD
-                    const fileInput = document.getElementById('audioInput');
-                    if (fileInput) fileInput.value = '';
+                    closeBtn.textContent = '✖ סגור (שגיאה)';
                 }
-            });
-            
-            cancelBtn.addEventListener('click', () => {
-                if (audioPlayer) audioPlayer.pause();
-                document.body.removeChild(popup);
-                URL.revokeObjectURL(audioURL);
-                addMessage(`❌ ${filename} - בוטל על ידי המשתמש`, false);
-                
-                // ✅ ALLOW NEW FILE UPLOAD
-                const fileInput = document.getElementById('audioInput');
-                if (fileInput) fileInput.value = '';
-            });
+            })();
         }
 
         function downloadAudioTranscription(timestamp, format) {
