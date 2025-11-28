@@ -2271,7 +2271,7 @@
                 if (fileInput) fileInput.value = '';
             });
             
-            // ✅ AUTO-START TRANSCRIPTION - SEND TO SERVER
+            // ✅ AUTO-START TRANSCRIPTION WITH MICROPHONE (LIKE LIVE STREAMING!)
             const dotsEl = document.getElementById(`recordingDots_${timestamp}`);
             let dotCount = 0;
             const dotsInterval = setInterval(() => {
@@ -2281,73 +2281,108 @@
             
             (async () => {
                 try {
-                    console.log('📤 שולח קובץ לשרת לתמלול...');
+                    console.log('🎬 מתחיל תמלול בזמן אמת...');
                     
-                    // ✅ START AUDIO PLAYBACK
-                    await audioPlayer.play();
-                    console.log('▶️ אודיו מנוגן!');
-                    
-                    // ✅ FETCH AUDIO FILE AND SEND TO SERVER
-                    const response = await fetch(audioURL);
-                    const blob = await response.blob();
-                    
-                    const formData = new FormData();
-                    formData.append('audio', blob, filename);
-                    formData.append('language', currentVoiceLang);
-                    formData.append('user_id', userId);
-                    formData.append('browser', 'upload');
-                    
-                    console.log('📤 שולח לשרת:', filename);
-                    
-                    const serverResponse = await fetch('https://haiemetweb.onrender.com/transcribe', {
-                        method: 'POST',
-                        body: formData
-                    });
-                    
-                    if (!serverResponse.ok) {
-                        throw new Error(`Server error: ${serverResponse.status}`);
+                    // ✅ CHECK WEB SPEECH API
+                    if (!webSpeechReady || !recognitionPool.has(currentVoiceLang)) {
+                        throw new Error('Web Speech API לא זמין');
                     }
                     
-                    const result = await serverResponse.json();
-                    console.log('📥 תשובה מהשרת:', result);
+                    // ✅ GET MICROPHONE ACCESS (TO HEAR THE AUDIO PLAYING!)
+                    const stream = await navigator.mediaDevices.getUserMedia(getOptimizedAudioConstraints());
+                    console.log('🎤 מיקרופון מוכן לשמוע את האודיו!');
                     
-                    if (result.text) {
-                        transcribedText = result.text;
+                    // ✅ START WEB SPEECH API
+                    const rec = recognitionPool.get(currentVoiceLang);
+                    
+                    rec.onresult = (event) => {
+                        const last = event.results.length - 1;
+                        const transcript = event.results[last][0].transcript;
                         
-                        // ✅ UPDATE POPUP TRANSCRIPTION
-                        if (transcriptTextEl) {
-                            transcriptTextEl.textContent = transcribedText;
-                            const container = document.getElementById(`liveTranscript_${timestamp}`);
-                            if (container) container.scrollTop = container.scrollHeight;
-                        }
+                        console.log('🎤 זיהוי:', transcript);
                         
-                        // ✅ UPDATE BOTTOM PANEL TRANSCRIPTION
-                        const bottomTranscript = document.getElementById(`transcriptionContent_${timestamp}`);
-                        if (bottomTranscript) {
-                            bottomTranscript.textContent = transcribedText;
-                            const transcriptionBox = document.getElementById(`transcriptionText_${timestamp}`);
-                            if (transcriptionBox) transcriptionBox.scrollTop = transcriptionBox.scrollHeight;
-                        }
-                        
-                        // ✅ TRANSLATE IF NEEDED
-                        if (selectedTranslateLang && translationTextEl) {
-                            translateText(transcribedText, selectedTranslateLang).then(translated => {
-                                translationTextEl.textContent = translated;
-                                const container = document.getElementById(`liveTranslation_${timestamp}`);
+                        if (event.results[last].isFinal) {
+                            transcribedText += transcript + ' ';
+                            
+                            // ✅ UPDATE POPUP TRANSCRIPTION
+                            if (transcriptTextEl) {
+                                transcriptTextEl.textContent = transcribedText;
+                                transcriptTextEl.style.color = 'white';
+                                transcriptTextEl.style.opacity = '1';
+                                const container = document.getElementById(`liveTranscript_${timestamp}`);
                                 if (container) container.scrollTop = container.scrollHeight;
-                            }).catch(err => {
-                                console.warn('Translation error:', err);
-                            });
+                            }
+                            
+                            // ✅ UPDATE BOTTOM PANEL TRANSCRIPTION
+                            const bottomTranscript = document.getElementById(`transcriptionContent_${timestamp}`);
+                            if (bottomTranscript) {
+                                bottomTranscript.textContent = transcribedText;
+                                const transcriptionBox = document.getElementById(`transcriptionText_${timestamp}`);
+                                if (transcriptionBox) transcriptionBox.scrollTop = transcriptionBox.scrollHeight;
+                            }
+                            
+                            // ✅ TRANSLATE IF NEEDED
+                            if (selectedTranslateLang && translationTextEl) {
+                                translateText(transcript, selectedTranslateLang).then(translated => {
+                                    const currentTranslation = translationTextEl.textContent === 'ממתין...' || translationTextEl.textContent === 'בחר שפת תרגום בהגדרות' ? '' : translationTextEl.textContent;
+                                    translationTextEl.textContent = currentTranslation + ' ' + translated;
+                                    const container = document.getElementById(`liveTranslation_${timestamp}`);
+                                    if (container) container.scrollTop = container.scrollHeight;
+                                }).catch(err => {
+                                    console.warn('Translation error:', err);
+                                });
+                            }
+                        } else {
+                            // ✅ UPDATE BOTH FOR INTERIM RESULTS
+                            if (transcriptTextEl) {
+                                transcriptTextEl.textContent = transcribedText + transcript + '...';
+                            }
+                            const bottomTranscript = document.getElementById(`transcriptionContent_${timestamp}`);
+                            if (bottomTranscript) {
+                                bottomTranscript.textContent = transcribedText + transcript + '...';
+                            }
                         }
-                        
-                        console.log('✅ תמלול הושלם!');
-                    } else {
-                        throw new Error(result.error || 'No transcript received');
-                    }
+                    };
+                    
+                    rec.onerror = (event) => {
+                        console.error('Web Speech error:', event.error);
+                    };
+                    
+                    rec.onend = () => {
+                        console.log('Web Speech ended');
+                    };
+                    
+                    // ✅ START WEB SPEECH + AUDIO PLAYER TOGETHER!
+                    console.log('🎤 מפעיל Web Speech...');
+                    rec.start();
+                    
+                    console.log('▶️ מנגן אודיו...');
+                    await audioPlayer.play();
+                    
+                    console.log('✅ אודיו מנוגן + מיקרופון מקליט בזמן אמת!');
+                    addMessage(`🎤 ${filename} - תמלול בזמן אמת פעיל!`, false);
                     
                     audioPlayer.addEventListener('ended', () => {
                         clearInterval(dotsInterval);
                         dotsEl.textContent = '';
+                        
+                        // ✅ STOP WEB SPEECH
+                        if (rec) {
+                            try {
+                                rec.stop();
+                                console.log('🎤 Web Speech נעצר');
+                            } catch (e) {
+                                console.warn('Error stopping recognition:', e);
+                            }
+                        }
+                        
+                        // ✅ STOP MICROPHONE STREAM
+                        if (stream) {
+                            stream.getTracks().forEach(track => {
+                                track.stop();
+                                console.log('🎤 מיקרופון נעצר');
+                            });
+                        }
                         
                         // ✅ UPDATE STATUS
                         const statusText = document.getElementById(`audioStatus_${timestamp}`);
@@ -2361,20 +2396,26 @@
                             statusText.style.color = '#28a745';
                         }
                         if (transcriptionDiv) transcriptionDiv.style.display = 'block';
-                        if (transcriptionContent) transcriptionContent.textContent = transcribedText.trim();
+                        if (transcriptionContent && transcribedText) {
+                            transcriptionContent.textContent = transcribedText.trim();
+                        }
                         
-                        window[`audioTranscription_${timestamp}`] = {
-                            filename: filename,
-                            text: transcribedText.trim(),
-                            timestamp: timestamp
-                        };
-                        
-                        const savedText = document.getElementById('finalTranscript').getAttribute('data-saved') || '';
-                        const newText = savedText ? savedText + '\n\n📄 ' + filename + ':\n' + transcribedText.trim() : '📄 ' + filename + ':\n' + transcribedText.trim();
-                        safeSetText('finalTranscript', newText);
-                        document.getElementById('finalTranscript').setAttribute('data-saved', newText);
-                        
-                        addMessage(`✅ ${filename} - ניגון הושלם!`, false);
+                        if (transcribedText) {
+                            window[`audioTranscription_${timestamp}`] = {
+                                filename: filename,
+                                text: transcribedText.trim(),
+                                timestamp: timestamp
+                            };
+                            
+                            const savedText = document.getElementById('finalTranscript').getAttribute('data-saved') || '';
+                            const newText = savedText ? savedText + '\n\n📄 ' + filename + ':\n' + transcribedText.trim() : '📄 ' + filename + ':\n' + transcribedText.trim();
+                            safeSetText('finalTranscript', newText);
+                            document.getElementById('finalTranscript').setAttribute('data-saved', newText);
+                            
+                            addMessage(`✅ ${filename} - תמלול הושלם!`, false);
+                        } else {
+                            addMessage(`⚠️ ${filename} - לא זוהה טקסט. נסה להעלות את עוצמת הקול!`, false);
+                        }
                         
                         // Update buttons
                         if (minimizeBtn) minimizeBtn.textContent = '🔽 מזער';
