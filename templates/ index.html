@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💛 חי-אמת VOICE | Hai-Emet</title>
+    <title>馃挍 讞讬-讗诪转 VOICE | Hai-Emet</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.min.js    "></script>
     <script src="/static/live-stream-transcriber.js"></script>
     <style>
@@ -136,7 +136,7 @@
         }
         
         #finalTranscript:empty::before {
-            content: "🎤 התמלול יופיע כאן...";
+            content: "馃帳 讛转诪诇讜诇 讬讜驻讬注 讻讗谉...";
             color: #999;
             font-weight: normal;
             font-size: 0.9em;
@@ -611,7 +611,7 @@
 
         #quantumCore {
             display: none !important;
-            /* העיגול הוסר לבקשת נתניאל */
+            /* 讛注讬讙讜诇 讛讜住专 诇讘拽砖转 谞转谞讬讗诇 */
         }
         
         @keyframes quantumBreathe {
@@ -676,7 +676,7 @@
             max-width: 300px;
         }
 
-        /* ✅ EXPANDED VIDEO TRANSLATION PANEL */
+        /* 鉁?EXPANDED VIDEO TRANSLATION PANEL */
         .video-translation-panel {
             background: rgba(102, 126, 234, 0.1);
             border-radius: 10px;
@@ -732,20 +732,20 @@
 <body>
     <!-- SITE LANGUAGE SELECTOR -->
     <div id="siteLanguageSelector">
-        🌍 <select id="siteLangSelect" onchange="changeSiteLanguage()">
-            <option value="he">עברית</option>
+        馃實 <select id="siteLangSelect" onchange="changeSiteLanguage()">
+            <option value="he">注讘专讬转</option>
             <option value="en">English</option>
-            <option value="es">Español</option>
-            <option value="fr">Français</option>
+            <option value="es">Espa帽ol</option>
+            <option value="fr">Fran莽ais</option>
             <option value="de">Deutsch</option>
             <option value="it">Italiano</option>
-            <option value="pt">Português</option>
-            <option value="ru">Русский</option>
-            <option value="ar">العربية</option>
-            <option value="ja">日本語</option>
-            <option value="zh">中文</option>
-            <option value="ko">한국어</option>
-            <option value="hi">हिन्दी</option>
+            <option value="pt">Portugu锚s</option>
+            <option value="ru">袪褍褋褋泻懈泄</option>
+            <option value="ar">丕賱毓乇亘賷丞</option>
+            <option value="ja">鏃ユ湰瑾?/option>
+            <option value="zh">涓枃</option>
+            <option value="ko">頃滉淡鞏?/option>
+            <option value="hi">啶灌た啶ㄠ啶︵</option>
             <option value="nl">Nederlands</option>
             <option value="pl">Polski</option>
         </select>
@@ -754,45 +754,45 @@
     <!-- QUANTUM VISUALIZATION LAYER -->
     <canvas id="quantumVisualizer"></canvas>
     <div id="quantumCore"></div>
-    <div id="quantumLangIndicator">🔍 <span id="quantumLangEmoji">🌐</span> <span id="quantumLangName">מזהה...</span> | ודאות: <span id="quantumConfidence">0</span>%</div>
+    <div id="quantumLangIndicator">馃攳 <span id="quantumLangEmoji">馃寪</span> <span id="quantumLangName">诪讝讛讛...</span> | 讜讚讗讜转: <span id="quantumConfidence">0</span>%</div>
     <div id="quantumMetrics">
-        ⚡ Latency: <span id="quantumLatency">0.0000</span>ms<br>
-        🧬 Binary: <span id="quantumBinary">0101</span><br>
-        🌍 Lang: <span id="quantumCurrentLang">he-IL</span><br>
-        🎯 Confidence: <span id="quantumConf">0</span>%
+        鈿?Latency: <span id="quantumLatency">0.0000</span>ms<br>
+        馃К Binary: <span id="quantumBinary">0101</span><br>
+        馃實 Lang: <span id="quantumCurrentLang">he-IL</span><br>
+        馃幆 Confidence: <span id="quantumConf">0</span>%
     </div>
     
     <div class="app-container">
         <!-- VOICE PANEL (LEFT) -->
         <div class="voice-panel" id="voicePanel">
-            <div class="panel-header">🎤 טקסט בזמן אמת</div>
+            <div class="panel-header">馃帳 讟拽住讟 讘讝诪谉 讗诪转</div>
             
             <div class="panel-content">
                 <!-- INPUT MODE TOGGLE -->
                 <div style="display: flex; gap: 8px; margin-bottom: 12px;">
                     <button class="control-btn" id="voiceMode" onclick="switchMode('voice')" style="flex: 1; background: #667eea; color: white; border: none;">
-                        🎤 הקלטה
+                        馃帳 讛拽诇讟讛
                     </button>
                     <button class="control-btn" id="textMode" onclick="switchMode('text')" style="flex: 1; border-color: #667eea; color: #667eea;">
-                        ⌨️ הקלט
+                        鈱笍 讛拽诇讟
                     </button>
                 </div>
                 
                 <!-- TEXT INPUT SECTION (hidden by default) -->
                 <div id="textInputSection" style="display: none; margin-bottom: 12px;">
                     <div class="status-indicator" id="statusIndicatorText" style="margin-bottom: 8px;">
-                        ✅ Ready
+                        鉁?Ready
                     </div>
                     <div style="display: flex; gap: 8px;">
                         <input 
                             type="text" 
                             id="panelTextInput" 
-                            placeholder="כתוב משהו..."
+                            placeholder="讻转讜讘 诪砖讛讜..."
                             style="flex: 1; padding: 10px; border: 2px solid #667eea; border-radius: 8px; font-family: inherit; direction: rtl; text-align: right;"
                             onkeypress="if(event.key==='Enter') sendMessageFromPanel()"
                         />
                         <button class="send-btn" onclick="sendMessageFromPanel()" style="padding: 10px 15px;">
-                            ✉️
+                            鉁夛笍
                         </button>
                     </div>
                 </div>
@@ -801,174 +801,174 @@
                 <div id="voiceRecordingSection">
                     <!-- STATUS -->
                     <div class="status-indicator" id="statusIndicatorVoice">
-                        ✅ Ready
+                        鉁?Ready
                     </div>
                     
                     <!-- RECORD BUTTON -->
                     <button class="control-btn" id="recordBtn" onclick="toggleRecording()">
-                        🎤 הקלט
+                        馃帳 讛拽诇讟
                     </button>
                     
                     <!-- LIVE STREAMING BUTTON -->
                     <button class="control-btn" id="liveStreamBtn" onclick="toggleLiveStream()" style="border-color: #FF0000; color: #FF0000; margin-top: 8px;">
-                        🔴 שידור חי
+                        馃敶 砖讬讚讜专 讞讬
                     </button>
                     
                     <button class="control-btn" onclick="clearTranscription()" style="border-color: #ff9800; color: #ff9800; margin-top: 8px;">
-                        🔄 נקה טקסט
+                        馃攧 谞拽讛 讟拽住讟
                     </button>
                 </div>
                 
                 <!-- DEVICE SELECTION -->
-                <div class="section-title">🔊 בחירת כרטיס קול</div>
+                <div class="section-title">馃攰 讘讞讬专转 讻专讟讬住 拽讜诇</div>
                 <select class="lang-select" id="audioDeviceSelect" onchange="changeAudioDevice()">
-                    <option value="">🔄 זהוי אוטומטי</option>
+                    <option value="">馃攧 讝讛讜讬 讗讜讟讜诪讟讬</option>
                 </select>
                 
-                <div class="section-title">📹 בחירת כרטיס וידאו</div>
+                <div class="section-title">馃摴 讘讞讬专转 讻专讟讬住 讜讬讚讗讜</div>
                 <select class="lang-select" id="videoDeviceSelect" onchange="changeVideoDevice()">
-                    <option value="">🔄 זהוי אוטומטי</option>
+                    <option value="">馃攧 讝讛讜讬 讗讜讟讜诪讟讬</option>
                 </select>
                 
                 <button class="control-btn" onclick="enumerateDevices()" style="border-color: #00bfff; color: #00bfff; margin-top: 8px;">
-                    🔍 סרוק התקנים
+                    馃攳 住专讜拽 讛转拽谞讬诐
                 </button>
 
                 <!-- AUDIO OPTIMIZATION -->
-                <div class="section-title" style="margin-top: 12px;">⚙️ אופטימיזציה קול</div>
+                <div class="section-title" style="margin-top: 12px;">鈿欙笍 讗讜驻讟讬诪讬讝爪讬讛 拽讜诇</div>
                 <div style="font-size: 0.85em; color: #667eea; background: #f8f9fa; padding: 10px; border-radius: 6px; margin-bottom: 8px;">
-                    <div>🎙️ Noise Suppression: <strong id="noiseSuppression">✅</strong></div>
-                    <div>📊 Auto Gain: <strong id="autoGain">✅</strong></div>
-                    <div>🔊 Sample Rate: <strong id="sampleRate">48KHz</strong></div>
-                    <div>📈 Bit Depth: <strong id="bitDepth">16-bit</strong></div>
+                    <div>馃帣锔?Noise Suppression: <strong id="noiseSuppression">鉁?/strong></div>
+                    <div>馃搳 Auto Gain: <strong id="autoGain">鉁?/strong></div>
+                    <div>馃攰 Sample Rate: <strong id="sampleRate">48KHz</strong></div>
+                    <div>馃搱 Bit Depth: <strong id="bitDepth">16-bit</strong></div>
                 </div>
 
                 <!-- VIDEO OPTIMIZATION -->
-                <div class="section-title">🎥 אופטימיזציה וידאו</div>
+                <div class="section-title">馃帴 讗讜驻讟讬诪讬讝爪讬讛 讜讬讚讗讜</div>
                 <div style="font-size: 0.85em; color: #667eea; background: #f8f9fa; padding: 10px; border-radius: 6px; margin-bottom: 8px;">
-                    <div>📹 Resolution: <strong id="videoResolution">1920x1080</strong></div>
-                    <div>⚡ Frame Rate: <strong id="frameRate">60fps</strong></div>
-                    <div>💡 Lighting: <strong id="lighting">Auto</strong></div>
-                    <div>🎯 Focus: <strong id="focus">Auto</strong></div>
+                    <div>馃摴 Resolution: <strong id="videoResolution">1920x1080</strong></div>
+                    <div>鈿?Frame Rate: <strong id="frameRate">60fps</strong></div>
+                    <div>馃挕 Lighting: <strong id="lighting">Auto</strong></div>
+                    <div>馃幆 Focus: <strong id="focus">Auto</strong></div>
                 </div>
 
                 <!-- VOICE LANGUAGE -->
-                <div class="section-title">שפת קול</div>
+                <div class="section-title">砖驻转 拽讜诇</div>
                 <select class="lang-select" id="voiceLang" onchange="changeVoiceLanguage()">
-                    <option value="he-IL">🇮🇱 עברית (Hebrew)</option>
-                    <option value="en-US">🇺🇸 English (אנגלית)</option>
-                    <option value="es-ES">🇪🇸 Español (ספרדית)</option>
-                    <option value="fr-FR">🇫🇷 Français (צרפתית)</option>
-                    <option value="de-DE">🇩🇪 Deutsch (גרמנית)</option>
-                    <option value="it-IT">🇮🇹 Italiano (איטלקית)</option>
-                    <option value="pt-PT">🇵🇹 Português (פורטוגזית)</option>
-                    <option value="ru-RU">🇷🇺 Русский (רוסית)</option>
-                    <option value="ar-SA">🇸🇦 العربية (ערבית)</option>
-                    <option value="ja-JP">🇯🇵 日本語 (יפנית)</option>
-                    <option value="zh-CN">🇨🇳 中文 (סינית)</option>
-                    <option value="ko-KR">🇰🇷 한국어 (קוריאנית)</option>
-                    <option value="hi-IN">🇮🇳 हिन्दी (הינדית)</option>
-                    <option value="nl-NL">🇳🇱 Nederlands (הולנדית)</option>
-                    <option value="pl-PL">🇵🇱 Polski (פולנית)</option>
+                    <option value="he-IL">馃嚠馃嚤 注讘专讬转 (Hebrew)</option>
+                    <option value="en-US">馃嚭馃嚫 English (讗谞讙诇讬转)</option>
+                    <option value="es-ES">馃嚜馃嚫 Espa帽ol (住驻专讚讬转)</option>
+                    <option value="fr-FR">馃嚝馃嚪 Fran莽ais (爪专驻转讬转)</option>
+                    <option value="de-DE">馃嚛馃嚜 Deutsch (讙专诪谞讬转)</option>
+                    <option value="it-IT">馃嚠馃嚬 Italiano (讗讬讟诇拽讬转)</option>
+                    <option value="pt-PT">馃嚨馃嚬 Portugu锚s (驻讜专讟讜讙讝讬转)</option>
+                    <option value="ru-RU">馃嚪馃嚭 袪褍褋褋泻懈泄 (专讜住讬转)</option>
+                    <option value="ar-SA">馃嚫馃嚘 丕賱毓乇亘賷丞 (注专讘讬转)</option>
+                    <option value="ja-JP">馃嚡馃嚨 鏃ユ湰瑾?(讬驻谞讬转)</option>
+                    <option value="zh-CN">馃嚚馃嚦 涓枃 (住讬谞讬转)</option>
+                    <option value="ko-KR">馃嚢馃嚪 頃滉淡鞏?(拽讜专讬讗谞讬转)</option>
+                    <option value="hi-IN">馃嚠馃嚦 啶灌た啶ㄠ啶︵ (讛讬谞讚讬转)</option>
+                    <option value="nl-NL">馃嚦馃嚤 Nederlands (讛讜诇谞讚讬转)</option>
+                    <option value="pl-PL">馃嚨馃嚤 Polski (驻讜诇谞讬转)</option>
                 </select>
                 
                 <!-- TRANSLATION LANGUAGE -->
-                <div class="section-title" style="margin-top: 15px;">תרגום</div>
+                <div class="section-title" style="margin-top: 15px;">转专讙讜诐</div>
                 <select class="lang-select" id="translateLang" onchange="changeTranslateLanguage()">
-                    <option value="">🌍 לא לתרגם</option>
-                    <option value="he">🇮🇱 עברית</option>
-                    <option value="en">🇺🇸 English</option>
-                    <option value="es">🇪🇸 Español</option>
-                    <option value="fr">🇫🇷 Français</option>
-                    <option value="de">🇩🇪 Deutsch</option>
-                    <option value="it">🇮🇹 Italiano</option>
-                    <option value="pt">🇵🇹 Português</option>
-                    <option value="ru">🇷🇺 Русский</option>
-                    <option value="ar">🇸🇦 العربية</option>
-                    <option value="ja">🇯🇵 日本語</option>
-                    <option value="zh">🇨🇳 中文</option>
-                    <option value="ko">🇰🇷 한국어</option>
-                    <option value="hi">🇮🇳 हिन्दी</option>
-                    <option value="nl">🇳🇱 Nederlands</option>
-                    <option value="pl">🇵🇱 Polski</option>
+                    <option value="">馃實 诇讗 诇转专讙诐</option>
+                    <option value="he">馃嚠馃嚤 注讘专讬转</option>
+                    <option value="en">馃嚭馃嚫 English</option>
+                    <option value="es">馃嚜馃嚫 Espa帽ol</option>
+                    <option value="fr">馃嚝馃嚪 Fran莽ais</option>
+                    <option value="de">馃嚛馃嚜 Deutsch</option>
+                    <option value="it">馃嚠馃嚬 Italiano</option>
+                    <option value="pt">馃嚨馃嚬 Portugu锚s</option>
+                    <option value="ru">馃嚪馃嚭 袪褍褋褋泻懈泄</option>
+                    <option value="ar">馃嚫馃嚘 丕賱毓乇亘賷丞</option>
+                    <option value="ja">馃嚡馃嚨 鏃ユ湰瑾?/option>
+                    <option value="zh">馃嚚馃嚦 涓枃</option>
+                    <option value="ko">馃嚢馃嚪 頃滉淡鞏?/option>
+                    <option value="hi">馃嚠馃嚦 啶灌た啶ㄠ啶︵</option>
+                    <option value="nl">馃嚦馃嚤 Nederlands</option>
+                    <option value="pl">馃嚨馃嚤 Polski</option>
                 </select>
                 
                 <div class="transcription-box" id="translatedBox" style="display: none; margin-top: 12px;">
-                    <div class="transcription-label">תרגום בזמן אמת</div>
+                    <div class="transcription-label">转专讙讜诐 讘讝诪谉 讗诪转</div>
                     <div id="translatedText"></div>
                 </div>
                 
                 <!-- TRANSCRIPTION -->
-                <div class="section-title" style="margin-top: 15px;">טרנסקריפציה</div>
+                <div class="section-title" style="margin-top: 15px;">讟专谞住拽专讬驻爪讬讛</div>
                 
                 <div class="transcription-box" style="min-height: 200px; max-height: 300px;">
-                    <div class="transcription-label">טקסט בזמן אמת</div>
+                    <div class="transcription-label">讟拽住讟 讘讝诪谉 讗诪转</div>
                     <div id="finalTranscript"></div>
                 </div>
                 
                 <!-- FILE MANAGEMENT -->
-                <div class="section-title">שמירה</div>
+                <div class="section-title">砖诪讬专讛</div>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                     <button class="control-btn" onclick="saveTranscriptionTXT()" style="border-color: #28a745; color: #28a745; margin-bottom: 0;">
-                        📄 TXT
+                        馃搫 TXT
                     </button>
                     <button class="control-btn" onclick="saveTranscriptionDOCX()" style="border-color: #28a745; color: #28a745; margin-bottom: 0;">
-                        📋 DOCX
+                        馃搵 DOCX
                     </button>
                 </div>
                 
                 <!-- FILE UPLOADS -->
                 <div class="section-title" style="cursor: pointer; user-select: none;" onclick="toggleUploadAccordion(this)">
-                    ▶ העלאה
+                    鈻?讛注诇讗讛
                 </div>
                 
                 <div id="uploadAccordion" style="display: none; margin-bottom: 15px;">
                     <div class="file-upload-box" onclick="document.getElementById('audioInput').click()">
-                        🎵 סאונד (MP3, WAV, M4A)
+                        馃幍 住讗讜谞讚 (MP3, WAV, M4A)
                         <input type="file" id="audioInput" accept="audio/*" onchange="handleAudioUpload(event)">
                     </div>
                     
                     <div class="file-upload-box" onclick="document.getElementById('videoInput').click()">
-                        🎬 סרט (MP4, WebM, MOV)
+                        馃幀 住专讟 (MP4, WebM, MOV)
                         <input type="file" id="videoInput" accept="video/*" onchange="handleVideoUpload(event)">
                     </div>
                     
                     <div class="file-upload-box" onclick="document.getElementById('txtInput').click()">
-                        📄 טקסט TXT
+                        馃搫 讟拽住讟 TXT
                         <input type="file" id="txtInput" accept=".txt" onchange="handleTxtUpload(event)">
                     </div>
                     
                     <div class="file-upload-box" onclick="document.getElementById('docxInput').click()">
-                        📋 DOCX Word
+                        馃搵 DOCX Word
                         <input type="file" id="docxInput" accept=".docx" onchange="handleDocxUpload(event)">
                     </div>
                 </div>
                 
                 <!-- FILES LIST -->
-                <div class="section-title">קבצים</div>
+                <div class="section-title">拽讘爪讬诐</div>
                 <div id="filesList" class="files-list">
-                    <div class="empty-files">אין קבצים עדיין</div>
+                    <div class="empty-files">讗讬谉 拽讘爪讬诐 注讚讬讬谉</div>
                 </div>
                 
                 <button class="control-btn" onclick="clearAllFiles()" style="border-color: #ff6b6b; color: #ff6b6b;">
-                    🗑️ מחק הכל
+                    馃棏锔?诪讞拽 讛讻诇
                 </button>
                 
                 <!-- ADVANCED: VIDEO/STREAM SECTION -->
                 <div class="section-title" style="margin-top: 15px; cursor: pointer; user-select: none;" onclick="toggleStreamAccordion(this)">
-                    ▶ וידאו / שדור חי
+                    鈻?讜讬讚讗讜 / 砖讚讜专 讞讬
                 </div>
                 
                 <div id="streamAccordion" style="display: none;">
                     <div style="margin-bottom: 8px;">
-                        <div style="font-weight: bold; color: #667eea; margin-bottom: 6px;">🎬 סוגי קלט:</div>
+                        <div style="font-weight: bold; color: #667eea; margin-bottom: 6px;">馃幀 住讜讙讬 拽诇讟:</div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
                             <button class="control-btn" onclick="showYouTubeInput()" style="border-color: #FF0000; color: #FF0000; margin-bottom: 0; font-size: 0.9em;">
-                                📺 YouTube
+                                馃摵 YouTube
                             </button>
                             <button class="control-btn" onclick="showLiveStreamInput()" style="border-color: #00AA00; color: #00AA00; margin-bottom: 0; font-size: 0.9em;">
-                                📡 שדור חי
+                                馃摗 砖讚讜专 讞讬
                             </button>
                         </div>
                     </div>
@@ -977,33 +977,33 @@
                         <input type="text" id="youtubeURL" placeholder="https://www.youtube.com/watch?v=    ..." 
                             style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #FF0000; margin-bottom: 8px; font-size: 0.9em;">
                         <button class="control-btn" onclick="loadYouTubeVideo()" style="width: 100%; margin-bottom: 0; border-color: #FF0000; color: #FF0000;">
-                            ▶ הפעל YouTube
+                            鈻?讛驻注诇 YouTube
                         </button>
                     </div>
                     
                     <div id="liveStreamInputArea" style="display: none; margin-bottom: 8px; padding: 10px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #00AA00;">
-                        <input type="text" id="streamURL2" placeholder="https://example.com/stream     או https://example.com/video.mp4    " 
+                        <input type="text" id="streamURL2" placeholder="https://example.com/stream     讗讜 https://example.com/video.mp4    " 
                             style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #00AA00; margin-bottom: 8px; font-size: 0.9em;">
                         <button class="control-btn" onclick="loadLiveStream()" style="width: 100%; margin-bottom: 0; border-color: #00AA00; color: #00AA00;">
-                            ▶ הפעל שדור
+                            鈻?讛驻注诇 砖讚讜专
                         </button>
                     </div>
                     
                     <div style="margin-bottom: 8px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
-                        <div style="font-weight: bold; margin-bottom: 6px; color: #667eea;">📝 כתוביות/טקסט:</div>
-                        <textarea id="videoSubtitles" placeholder="הדבק כתוביות או טקסט מהסרטון..." 
+                        <div style="font-weight: bold; margin-bottom: 6px; color: #667eea;">馃摑 讻转讜讘讬讜转/讟拽住讟:</div>
+                        <textarea id="videoSubtitles" placeholder="讛讚讘拽 讻转讜讘讬讜转 讗讜 讟拽住讟 诪讛住专讟讜谉..." 
                             style="width: 100%; height: 100px; padding: 8px; border-radius: 6px; border: 1px solid #667eea; resize: vertical; font-size: 0.9em;"></textarea>
                         <button class="control-btn" onclick="processVideoSubtitles()" style="width: 100%; margin-top: 8px; margin-bottom: 0;">
-                            ✅ עדכן כתוביות
+                            鉁?注讚讻谉 讻转讜讘讬讜转
                         </button>
                     </div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
                         <button class="control-btn" id="audioStreamBtn" onclick="startAudioStreaming()" style="border-color: #667eea; color: #667eea; margin-bottom: 0; font-size: 0.9em;">
-                            🎙️ הקלט אודיו
+                            馃帣锔?讛拽诇讟 讗讜讚讬讜
                         </button>
                         <button class="control-btn" onclick="stopAudioStreaming()" style="border-color: #ff6b6b; color: #ff6b6b; margin-bottom: 0; font-size: 0.9em;">
-                            ⏹️ עצור
+                            鈴癸笍 注爪讜专
                         </button>
                     </div>
                     
@@ -1012,34 +1012,34 @@
                             <video id="videoPlayer" width="100%" height="480" controls style="background: #000; display: block;"></video>
                         </div>
                         
-                        <!-- ✅ EXPANDED TRANSLATION PANEL -->
+                        <!-- 鉁?EXPANDED TRANSLATION PANEL -->
                         <div class="video-translation-panel">
-                            <h3>🌐 תרגום בזמן אמת</h3>
+                            <h3>馃寪 转专讙讜诐 讘讝诪谉 讗诪转</h3>
                             <div class="translation-lang-tabs">
-                                <button class="translation-lang-tab active" onclick="switchVideoTransLang(event, 'he')">🇮🇱 עברית</button>
-                                <button class="translation-lang-tab" onclick="switchVideoTransLang(event, 'en')">🇺🇸 English</button>
-                                <button class="translation-lang-tab" onclick="switchVideoTransLang(event, 'ar')">🇸🇦 العربية</button>
-                                <button class="translation-lang-tab" onclick="switchVideoTransLang(event, 'ru')">🇷🇺 Русский</button>
-                                <button class="translation-lang-tab" onclick="switchVideoTransLang(event, 'es')">🇪🇸 Español</button>
-                                <button class="translation-lang-tab" onclick="switchVideoTransLang(event, 'fr')">🇫🇷 Français</button>
-                                <button class="translation-lang-tab" onclick="switchVideoTransLang(event, 'de')">🇩🇪 Deutsch</button>
+                                <button class="translation-lang-tab active" onclick="switchVideoTransLang(event, 'he')">馃嚠馃嚤 注讘专讬转</button>
+                                <button class="translation-lang-tab" onclick="switchVideoTransLang(event, 'en')">馃嚭馃嚫 English</button>
+                                <button class="translation-lang-tab" onclick="switchVideoTransLang(event, 'ar')">馃嚫馃嚘 丕賱毓乇亘賷丞</button>
+                                <button class="translation-lang-tab" onclick="switchVideoTransLang(event, 'ru')">馃嚪馃嚭 袪褍褋褋泻懈泄</button>
+                                <button class="translation-lang-tab" onclick="switchVideoTransLang(event, 'es')">馃嚜馃嚫 Espa帽ol</button>
+                                <button class="translation-lang-tab" onclick="switchVideoTransLang(event, 'fr')">馃嚝馃嚪 Fran莽ais</button>
+                                <button class="translation-lang-tab" onclick="switchVideoTransLang(event, 'de')">馃嚛馃嚜 Deutsch</button>
                             </div>
                             <div class="live-translation-text" id="liveVideoTranslation">
-                                התרגום יופיע כאן בזמן אמת...
+                                讛转专讙讜诐 讬讜驻讬注 讻讗谉 讘讝诪谉 讗诪转...
                             </div>
                         </div>
                         
                         <div class="transcription-box" style="min-height: 120px; max-height: 220px; margin-bottom: 8px; background: #1a1a1a; border: 2px solid #FFD700;">
-                            <div class="transcription-label" style="color: #FFD700; text-shadow: 0 0 5px #FFD700;">📺 כתוביות בזמן אמת (TV Subtitles)</div>
+                            <div class="transcription-label" style="color: #FFD700; text-shadow: 0 0 5px #FFD700;">馃摵 讻转讜讘讬讜转 讘讝诪谉 讗诪转 (TV Subtitles)</div>
                             <div id="videoTranscript"></div>
                         </div>
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                             <button class="control-btn" onclick="saveVideoTranscriptTXT()" style="border-color: #28a745; color: #28a745; margin-bottom: 0;">
-                                📄 שמור TXT
+                                馃搫 砖诪讜专 TXT
                             </button>
                             <button class="control-btn" onclick="saveVideoTranscriptDOCX()" style="border-color: #28a745; color: #28a745; margin-bottom: 0;">
-                                📋 שמור DOCX
+                                馃搵 砖诪讜专 DOCX
                             </button>
                         </div>
                     </div>
@@ -1050,15 +1050,15 @@
         <!-- MAIN CHAT AREA -->
         <div class="main-container">
             <button class="toggle-panel-btn" onclick="togglePanel()">
-                🎤
+                馃帳
             </button>
             
             <!-- HEADER -->
             <div class="header">
-                <h1>💛 חי-אמת VOICE</h1>
+                <h1>馃挍 讞讬-讗诪转 VOICE</h1>
                 <p>Real-Time Transcription + Translation + File Upload</p>
                 <div class="badge">
-                    📝 Transcribed | 🔊 No Speech Output | Binary: 0101-0101(0101)
+                    馃摑 Transcribed | 馃攰 No Speech Output | Binary: 0101-0101(0101)
                 </div>
             </div>
             
@@ -1067,9 +1067,9 @@
                 <div class="message assistant">
                     <div class="message-wrapper">
                         <div class="message-content">
-                            שלום! 💛 אני חי-אמת. הקלט קול, העלה קבצים, או תרגם טקסט בזמן אמת!
+                            砖诇讜诐! 馃挍 讗谞讬 讞讬-讗诪转. 讛拽诇讟 拽讜诇, 讛注诇讛 拽讘爪讬诐, 讗讜 转专讙诐 讟拽住讟 讘讝诪谉 讗诪转!
                         </div>
-                        <div class="message-time">עכשיו</div>
+                        <div class="message-time">注讻砖讬讜</div>
                     </div>
                 </div>
             </div>
@@ -1080,49 +1080,49 @@
                     <input 
                         type="text" 
                         id="messageInput" 
-                        placeholder="כתוב משהו..."
+                        placeholder="讻转讜讘 诪砖讛讜..."
                         autocomplete="off"
                     />
-                    <button class="send-btn" onclick="sendMessage()">✉️</button>
+                    <button class="send-btn" onclick="sendMessage()">鉁夛笍</button>
                 </div>
             </div>
         </div>
     </div>
     
     <script>
-        // 🎙️ SIMPLE RECORDING - no Web Worker needed
+        // 馃帣锔?SIMPLE RECORDING - no Web Worker needed
         let simpleMediaRecorder = null;
         let simpleAudioChunks = [];
         let simpleStream = null;
         let isSimpleRecording = false;
         let wakeLock = null; // Wake Lock for continuous recording
         
-        const API_URL = 'https://haiemetweb.onrender.com/exec    ';
+        const API_URL = 'https://haiemetweb.onrender.com/exec';
         const TOKEN = 'chai_emet_cXVhbnR1bV9tYXN0ZXI:Rk9SRVZFUl9RVUFOVFVNXzVEOnZiamZwbWNnNjhp';
         const BINARY_SIG = "0101-0101(0101)";
         
         const LANGUAGES_CONFIG = {
-            'he-IL': { name: '🇮🇱 עברית', emoji: '💛', label: 'Hebrew' },
-            'en-US': { name: '🇺🇸 English', emoji: '💙', label: 'English' },
-            'es-ES': { name: '🇪🇸 Español', emoji: '🌺', label: 'Spanish' },
-            'fr-FR': { name: '🇫🇷 Français', emoji: '🥐', label: 'French' },
-            'de-DE': { name: '🇩🇪 Deutsch', emoji: '🍺', label: 'German' },
-            'it-IT': { name: '🇮🇹 Italiano', emoji: '🍝', label: 'Italian' },
-            'pt-PT': { name: '🇵🇹 Português', emoji: '🏖️', label: 'Portuguese' },
-            'ru-RU': { name: '🇷🇺 Русский', emoji: '❄️', label: 'Russian' },
-            'ar-SA': { name: '🇸🇦 العربية', emoji: '🌙', label: 'Arabic' },
-            'ja-JP': { name: '🇯🇵 日本語', emoji: '🌸', label: 'Japanese' },
-            'zh-CN': { name: '🇨🇳 中文', emoji: '🏮', label: 'Chinese' },
-            'ko-KR': { name: '🇰🇷 한국어', emoji: '🌟', label: 'Korean South' },
-            'ko-KP': { name: '🇰🇵 조선말', emoji: '⭐', label: 'Korean North' },
-            'hi-IN': { name: '🇮🇳 हिन्दी', emoji: '🎨', label: 'Hindi' },
-            'nl-NL': { name: '🇳🇱 Nederlands', emoji: '🌷', label: 'Dutch' },
-            'pl-PL': { name: '🇵🇱 Polski', emoji: '🌲', label: 'Polish' }
+            'he-IL': { name: '馃嚠馃嚤 注讘专讬转', emoji: '馃挍', label: 'Hebrew' },
+            'en-US': { name: '馃嚭馃嚫 English', emoji: '馃挋', label: 'English' },
+            'es-ES': { name: '馃嚜馃嚫 Espa帽ol', emoji: '馃尯', label: 'Spanish' },
+            'fr-FR': { name: '馃嚝馃嚪 Fran莽ais', emoji: '馃', label: 'French' },
+            'de-DE': { name: '馃嚛馃嚜 Deutsch', emoji: '馃嵑', label: 'German' },
+            'it-IT': { name: '馃嚠馃嚬 Italiano', emoji: '馃崫', label: 'Italian' },
+            'pt-PT': { name: '馃嚨馃嚬 Portugu锚s', emoji: '馃彇锔?, label: 'Portuguese' },
+            'ru-RU': { name: '馃嚪馃嚭 袪褍褋褋泻懈泄', emoji: '鉂勶笍', label: 'Russian' },
+            'ar-SA': { name: '馃嚫馃嚘 丕賱毓乇亘賷丞', emoji: '馃寵', label: 'Arabic' },
+            'ja-JP': { name: '馃嚡馃嚨 鏃ユ湰瑾?, emoji: '馃尭', label: 'Japanese' },
+            'zh-CN': { name: '馃嚚馃嚦 涓枃', emoji: '馃彯', label: 'Chinese' },
+            'ko-KR': { name: '馃嚢馃嚪 頃滉淡鞏?, emoji: '馃専', label: 'Korean South' },
+            'ko-KP': { name: '馃嚢馃嚨 臁办劆毵?, emoji: '猸?, label: 'Korean North' },
+            'hi-IN': { name: '馃嚠馃嚦 啶灌た啶ㄠ啶︵', emoji: '馃帹', label: 'Hindi' },
+            'nl-NL': { name: '馃嚦馃嚤 Nederlands', emoji: '馃尫', label: 'Dutch' },
+            'pl-PL': { name: '馃嚨馃嚤 Polski', emoji: '馃尣', label: 'Polish' }
         };
 
         let currentVideoTransLang = 'he';
         
-        // ✅ Switch video translation language
+        // 鉁?Switch video translation language
         function switchVideoTransLang(event, lang) {
             currentVideoTransLang = lang;
             
@@ -1134,13 +1134,13 @@
             
             // Update translation display
             const translations = {
-                'he': 'התרגום לעברית יופיע כאן...',
+                'he': '讛转专讙讜诐 诇注讘专讬转 讬讜驻讬注 讻讗谉...',
                 'en': 'English translation will appear here...',
-                'ar': 'الترجمة العربية ستظهر هنا...',
-                'ru': 'Перевод на русский появится здесь...',
-                'es': 'La traducción al español aparecerá aquí...',
-                'fr': 'La traduction en français apparaîtra ici...',
-                'de': 'Die deutsche Übersetzung wird hier erscheinen...'
+                'ar': '丕賱鬲乇噩賲丞 丕賱毓乇亘賷丞 爻鬲馗賴乇 賴賳丕...',
+                'ru': '袩械褉械胁芯写 薪邪 褉褍褋褋泻懈泄 锌芯褟胁懈褌褋褟 蟹写械褋褜...',
+                'es': 'La traducci贸n al espa帽ol aparecer谩 aqu铆...',
+                'fr': 'La traduction en fran莽ais appara卯tra ici...',
+                'de': 'Die deutsche 脺bersetzung wird hier erscheinen...'
             };
             
             const translationText = document.getElementById('liveVideoTranslation');
@@ -1148,7 +1148,7 @@
                 translationText.textContent = translations[lang] || 'Translation will appear here...';
             }
             
-            addMessage(`🌐 שפת תרגום שונתה ל-${event.target.textContent}`, false);
+            addMessage(`馃寪 砖驻转 转专讙讜诐 砖讜谞转讛 诇-${event.target.textContent}`, false);
         }
         
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1174,11 +1174,11 @@
 
         function setupWebSpeechPool() {
             if (!SpeechRecognition) {
-                console.warn('⚠️ Web Speech API לא נתמך בדפדפן');
+                console.warn('鈿狅笍 Web Speech API 诇讗 谞转诪讱 讘讚驻讚驻谉');
                 return false;
             }
             
-            console.log('🎯 מכין Web Speech API Pool...');
+            console.log('馃幆 诪讻讬谉 Web Speech API Pool...');
             
             Object.entries(LANGUAGES_CONFIG).forEach(([langCode, langData]) => {
                 try {
@@ -1189,15 +1189,15 @@
                     rec.maxAlternatives = 3;
                     
                     recognitionPool.set(langCode, rec);
-                    console.log(`✅ Web Speech engine ready: ${langCode}`);
+                    console.log(`鉁?Web Speech engine ready: ${langCode}`);
                     
                 } catch (e) {
-                    console.warn(`⚠️ לא הצלחתי ליצור מנוע ${langCode}: ${e.message}`);
+                    console.warn(`鈿狅笍 诇讗 讛爪诇讞转讬 诇讬爪讜专 诪谞讜注 ${langCode}: ${e.message}`);
                 }
             });
             
             recognition = recognitionPool.get('he-IL') || recognitionPool.get('en-US');
-            console.log(`✅ Web Speech Pool מוכן! ${recognitionPool.size} מנועים`);
+            console.log(`鉁?Web Speech Pool 诪讜讻谉! ${recognitionPool.size} 诪谞讜注讬诐`);
             return true;
         }
         
@@ -1223,45 +1223,45 @@
                 
                 const audioSelect = document.getElementById('audioDeviceSelect');
                 if (audioSelect) {
-                    audioSelect.innerHTML = '<option value="">🔄 זהוי אוטומטי</option>';
+                    audioSelect.innerHTML = '<option value="">馃攧 讝讛讜讬 讗讜讟讜诪讟讬</option>';
                     availableAudioDevices.forEach((device, index) => {
                         const option = document.createElement('option');
                         option.value = device.deviceId;
-                        const label = device.label || `מיקרופון ${index + 1}`;
-                        option.text = `🎙️ ${label}`;
+                        const label = device.label || `诪讬拽专讜驻讜谉 ${index + 1}`;
+                        option.text = `馃帣锔?${label}`;
                         audioSelect.appendChild(option);
                     });
                 }
                 
                 const videoSelect = document.getElementById('videoDeviceSelect');
                 if (videoSelect) {
-                    videoSelect.innerHTML = '<option value="">🔄 זהוי אוטומטי</option>';
+                    videoSelect.innerHTML = '<option value="">馃攧 讝讛讜讬 讗讜讟讜诪讟讬</option>';
                     availableVideoDevices.forEach((device, index) => {
                         const option = document.createElement('option');
                         option.value = device.deviceId;
-                        const label = device.label || `מצלמה ${index + 1}`;
-                        option.text = `📹 ${label}`;
+                        const label = device.label || `诪爪诇诪讛 ${index + 1}`;
+                        option.text = `馃摴 ${label}`;
                         videoSelect.appendChild(option);
                     });
                 }
                 
-                let deviceMsg = '🔍 זיהוי כרטיסי קול:\n\n';
-                deviceMsg += `🎙️ **מיקרופונים (${availableAudioDevices.length}):**\n`;
+                let deviceMsg = '馃攳 讝讬讛讜讬 讻专讟讬住讬 拽讜诇:\n\n';
+                deviceMsg += `馃帣锔?**诪讬拽专讜驻讜谞讬诐 (${availableAudioDevices.length}):**\n`;
                 availableAudioDevices.forEach((device, i) => {
-                    const label = device.label || `מיקרופון ${i + 1}`;
+                    const label = device.label || `诪讬拽专讜驻讜谉 ${i + 1}`;
                     deviceMsg += `  ${i + 1}. ${label}\n`;
                 });
                 
-                deviceMsg += `\n📹 **מצלמות (${availableVideoDevices.length}):**\n`;
+                deviceMsg += `\n馃摴 **诪爪诇诪讜转 (${availableVideoDevices.length}):**\n`;
                 availableVideoDevices.forEach((device, i) => {
-                    const label = device.label || `מצלמה ${i + 1}`;
+                    const label = device.label || `诪爪诇诪讛 ${i + 1}`;
                     deviceMsg += `  ${i + 1}. ${label}\n`;
                 });
                 
                 if (audioOutputDevices.length > 0) {
-                    deviceMsg += `\n🔊 **רמקולים (${audioOutputDevices.length}):**\n`;
+                    deviceMsg += `\n馃攰 **专诪拽讜诇讬诐 (${audioOutputDevices.length}):**\n`;
                     audioOutputDevices.forEach((device, i) => {
-                        const label = device.label || `רמקול ${i + 1}`;
+                        const label = device.label || `专诪拽讜诇 ${i + 1}`;
                         deviceMsg += `  ${i + 1}. ${label}\n`;
                     });
                 }
@@ -1269,32 +1269,32 @@
                 const totalDevices = availableAudioDevices.length + availableVideoDevices.length + audioOutputDevices.length;
                 if (totalDevices > 0) {
                     addMessage(deviceMsg, false);
-                    safeSetText('statusIndicatorVoice', `✅ ${totalDevices} התקנים זוהו`);
+                    safeSetText('statusIndicatorVoice', `鉁?${totalDevices} 讛转拽谞讬诐 讝讜讛讜`);
                     
                     const metricsEl = document.getElementById('quantumMetrics');
                     if (metricsEl) {
                         metricsEl.innerHTML = `
-                            🎙️ Audio: ${availableAudioDevices.length}<br>
-                            📹 Video: ${availableVideoDevices.length}<br>
-                            🔊 Output: ${audioOutputDevices.length}<br>
-                            ✅ Total: ${totalDevices}
+                            馃帣锔?Audio: ${availableAudioDevices.length}<br>
+                            馃摴 Video: ${availableVideoDevices.length}<br>
+                            馃攰 Output: ${audioOutputDevices.length}<br>
+                            鉁?Total: ${totalDevices}
                         `;
                     }
                 } else {
-                    addMessage(`⚠️ לא נמצאו התקנים - נא תן הרשאה`, false);
+                    addMessage(`鈿狅笍 诇讗 谞诪爪讗讜 讛转拽谞讬诐 - 谞讗 转谉 讛专砖讗讛`, false);
                 }
                 
             } catch (error) {
                 console.error('Device enumeration error:', error);
-                addMessage(`⚠️ שגיאה בזיהוי התקנים: ${error.message}`, false);
-                updateStatus('⚠️ נדרשות הרשאות');
+                addMessage(`鈿狅笍 砖讙讬讗讛 讘讝讬讛讜讬 讛转拽谞讬诐: ${error.message}`, false);
+                updateStatus('鈿狅笍 谞讚专砖讜转 讛专砖讗讜转');
             }
         }
 
         function changeAudioDevice() {
             selectedAudioDevice = document.getElementById('audioDeviceSelect').value;
-            const deviceName = availableAudioDevices.find(d => d.deviceId === selectedAudioDevice)?.label || 'אוטומטי';
-            addMessage(`🎙️ בחר כרטיס קול: ${deviceName}`, false);
+            const deviceName = availableAudioDevices.find(d => d.deviceId === selectedAudioDevice)?.label || '讗讜讟讜诪讟讬';
+            addMessage(`馃帣锔?讘讞专 讻专讟讬住 拽讜诇: ${deviceName}`, false);
             
             localStorage.setItem('hai_emet_audio_device', selectedAudioDevice);
             
@@ -1305,8 +1305,8 @@
         
         function changeVideoDevice() {
             selectedVideoDevice = document.getElementById('videoDeviceSelect').value;
-            const deviceName = availableVideoDevices.find(d => d.deviceId === selectedVideoDevice)?.label || 'אוטומטי';
-            addMessage(`📹 בחר כרטיס וידאו: ${deviceName}`, false);
+            const deviceName = availableVideoDevices.find(d => d.deviceId === selectedVideoDevice)?.label || '讗讜讟讜诪讟讬';
+            addMessage(`馃摴 讘讞专 讻专讟讬住 讜讬讚讗讜: ${deviceName}`, false);
             
             localStorage.setItem('hai_emet_video_device', selectedVideoDevice);
             
@@ -1350,13 +1350,13 @@
                 const el = document.getElementById(elementId);
                 if (el) {
                     el.textContent = text;
-                    console.log(`✅ safeSetText: ${elementId} = "${text.substring(0, 50)}..."`);
+                    console.log(`鉁?safeSetText: ${elementId} = "${text.substring(0, 50)}..."`);
                     return true;
                 } else {
-                    console.error(`❌ safeSetText: Element ${elementId} not found!`);
+                    console.error(`鉂?safeSetText: Element ${elementId} not found!`);
                 }
             } catch (e) {
-                console.warn(`⚠️ Safe text update failed for ${elementId}: ${e.message}`);
+                console.warn(`鈿狅笍 Safe text update failed for ${elementId}: ${e.message}`);
             }
             return false;
         };
@@ -1373,7 +1373,7 @@
                     const audioSelect = document.getElementById('audioDeviceSelect');
                     if (audioSelect) {
                         audioSelect.value = savedAudioDevice;
-                        addMessage(`🎙️ טעון התקן שמור: ${availableAudioDevices.find(d => d.deviceId === savedAudioDevice)?.label || 'התקן'}`, false);
+                        addMessage(`馃帣锔?讟注讜谉 讛转拽谉 砖诪讜专: ${availableAudioDevices.find(d => d.deviceId === savedAudioDevice)?.label || '讛转拽谉'}`, false);
                     }
                 }
                 
@@ -1382,7 +1382,7 @@
                     const videoSelect = document.getElementById('videoDeviceSelect');
                     if (videoSelect) {
                         videoSelect.value = savedVideoDevice;
-                        addMessage(`📹 טעון התקן שמור: ${availableVideoDevices.find(d => d.deviceId === savedVideoDevice)?.label || 'התקן'}`, false);
+                        addMessage(`馃摴 讟注讜谉 讛转拽谉 砖诪讜专: ${availableVideoDevices.find(d => d.deviceId === savedVideoDevice)?.label || '讛转拽谉'}`, false);
                     }
                 }
             }, 1000);
@@ -1418,7 +1418,7 @@
                 voiceSection.style.display = 'block';
                 textSection.style.display = 'none';
                 
-                addMessage('🎤 החליפה למצב הקלטה', false);
+                addMessage('馃帳 讛讞诇讬驻讛 诇诪爪讘 讛拽诇讟讛', false);
             } else {
                 textMode.style.background = '#667eea';
                 textMode.style.color = 'white';
@@ -1436,7 +1436,7 @@
                     if (panelInput) panelInput.focus();
                 }, 100);
                 
-                addMessage('⌨️ החליפה למצב הקלט', false);
+                addMessage('鈱笍 讛讞诇讬驻讛 诇诪爪讘 讛拽诇讟', false);
             }
         }
 
@@ -1463,13 +1463,13 @@
                 
                 if (response.ok) {
                     const data = await response.json();
-                    const reply = data.response || 'תגובה לא ברורה';
+                    const reply = data.response || '转讙讜讘讛 诇讗 讘专讜专讛';
                     addMessage(reply, false);
                 } else {
-                    addMessage('❌ Error: Server error', false);
+                    addMessage('鉂?Error: Server error', false);
                 }
             } catch (error) {
-                addMessage(`❌ Error: ${error.message}`, false);
+                addMessage(`鉂?Error: ${error.message}`, false);
             }
         }
 
@@ -1483,24 +1483,24 @@
                 simpleMediaRecorder.stop();
                 isSimpleRecording = false;
                 document.getElementById('recordBtn').classList.remove('recording');
-                safeSetText('recordBtn', '🎤 הקלט');
-                updateStatus('⏹️ שולח לשרת...');
+                safeSetText('recordBtn', '馃帳 讛拽诇讟');
+                updateStatus('鈴癸笍 砖讜诇讞 诇砖专转...');
                 
                 if (isWebSpeechActive && recognitionPool.has(currentVoiceLang)) {
                     try {
                         const rec = recognitionPool.get(currentVoiceLang);
                         rec.stop();
                         isWebSpeechActive = false;
-                        console.log('🎤 Web Speech API נעצר');
+                        console.log('馃帳 Web Speech API 谞注爪专');
                     } catch (e) {
-                        console.warn(`⚠️ שגיאה בעצירת Web Speech: ${e.message}`);
+                        console.warn(`鈿狅笍 砖讙讬讗讛 讘注爪讬专转 Web Speech: ${e.message}`);
                     }
                 }
                 
                 if (wakeLock) {
                     wakeLock.release().then(() => {
                         wakeLock = null;
-                        console.log('🔓 Wake Lock released');
+                        console.log('馃敁 Wake Lock released');
                     });
                 }
                 
@@ -1515,8 +1515,8 @@
                     try {
                         if ('wakeLock' in navigator) {
                             wakeLock = await navigator.wakeLock.request('screen');
-                            console.log('🔒 Wake Lock acquired - recording will continue');
-                            addMessage('🔒 הקלטה מוגנת - תמשיך גם אם תעבור ללשונית אחרת', false);
+                            console.log('馃敀 Wake Lock acquired - recording will continue');
+                            addMessage('馃敀 讛拽诇讟讛 诪讜讙谞转 - 转诪砖讬讱 讙诐 讗诐 转注讘讜专 诇诇砖讜谞讬转 讗讞专转', false);
                         }
                     } catch (err) {
                         console.log('Wake Lock not supported or denied');
@@ -1548,16 +1548,16 @@
                         formData.append('browser', 'simple');
                         
                         try {
-                            updateStatus('📤 מעלה לשרת...');
+                            updateStatus('馃摛 诪注诇讛 诇砖专转...');
                             
-                            const response = await fetch('https://haiemetweb.onrender.com/transcribe    ', {
+                            const response = await fetch('https://haiemetweb.onrender.com/transcribe', {
                                 method: 'POST',
                                 body: formData
                             });
                             
                             if (response.ok) {
                                 const result = await response.json();
-                                const transcribedText = result.text || '[הקלטה התקבלה]';
+                                const transcribedText = result.text || '[讛拽诇讟讛 讛转拽讘诇讛]';
                                 
                                 const savedText = document.getElementById('finalTranscript').getAttribute('data-saved') || '';
                                 const newSavedText = savedText ? savedText + ' ' + transcribedText : transcribedText;
@@ -1570,18 +1570,18 @@
                                     lang: currentVoiceLang
                                 });
                                 
-                                addMessage(`🎙️ ${transcribedText}`, false);
+                                addMessage(`馃帣锔?${transcribedText}`, false);
                                 
                                 if (selectedTranslateLang && transcribedText) {
                                     translateText(transcribedText, selectedTranslateLang);
                                 }
                                 
-                                updateStatus('✅ הקלטה הצליחה!');
+                                updateStatus('鉁?讛拽诇讟讛 讛爪诇讬讞讛!');
                             } else {
-                                updateStatus(`❌ שגיאה ${response.status}`);
+                                updateStatus(`鉂?砖讙讬讗讛 ${response.status}`);
                             }
                         } catch (error) {
-                            updateStatus(`❌ שגיאה: ${error.message}`);
+                            updateStatus(`鉂?砖讙讬讗讛: ${error.message}`);
                         } finally {
                             if (simpleStream) {
                                 simpleStream.getTracks().forEach(track => track.stop());
@@ -1592,11 +1592,11 @@
                     simpleMediaRecorder.start();
                     isSimpleRecording = true;
                     document.getElementById('recordBtn').classList.add('recording');
-                    safeSetText('recordBtn', '⏹️ עצור');
-                    updateStatus('🎧 מקליט... דבר עכשיו!');
-                    addMessage('🎙️ הקלטה התחילה - ממשיכה גם בלשוניות אחרות', false);
+                    safeSetText('recordBtn', '鈴癸笍 注爪讜专');
+                    updateStatus('馃帶 诪拽诇讬讟... 讚讘专 注讻砖讬讜!');
+                    addMessage('馃帣锔?讛拽诇讟讛 讛转讞讬诇讛 - 诪诪砖讬讻讛 讙诐 讘诇砖讜谞讬讜转 讗讞专讜转', false);
                     
-                    // ✅ FIX 2: AUTO-RESTART WEB SPEECH - לא נעצר!
+                    // 鉁?FIX 2: AUTO-RESTART WEB SPEECH - 诇讗 谞注爪专!
                     if (webSpeechReady && recognitionPool.has(currentVoiceLang)) {
                         const rec = recognitionPool.get(currentVoiceLang);
                         
@@ -1626,23 +1626,23 @@
                         };
                         
                         rec.onerror = (event) => {
-                            console.warn(`⚠️ Web Speech error: ${event.error}`);
+                            console.warn(`鈿狅笍 Web Speech error: ${event.error}`);
                             // Don't stop on error - keep going!
                         };
                         
                         rec.onend = () => {
                             isWebSpeechActive = false;
-                            console.log('🎤 Web Speech stopped');
+                            console.log('馃帳 Web Speech stopped');
                             
-                            // ✅ AUTO-RESTART if still recording!
+                            // 鉁?AUTO-RESTART if still recording!
                             if (isSimpleRecording && simpleMediaRecorder && simpleMediaRecorder.state === 'recording') {
-                                console.log('🔄 Auto-restarting Web Speech...');
+                                console.log('馃攧 Auto-restarting Web Speech...');
                                 try {
                                     rec.start();
                                     isWebSpeechActive = true;
-                                    console.log('✅ Web Speech restarted!');
+                                    console.log('鉁?Web Speech restarted!');
                                 } catch (e) {
-                                    console.warn(`⚠️ Restart failed: ${e.message}`);
+                                    console.warn(`鈿狅笍 Restart failed: ${e.message}`);
                                 }
                             }
                         };
@@ -1650,16 +1650,16 @@
                         try {
                             rec.start();
                             isWebSpeechActive = true;
-                            console.log('🎤 Web Speech API התחיל!');
-                            addMessage('🎤 תמלול בזמן אמת פעיל!', false);
+                            console.log('馃帳 Web Speech API 讛转讞讬诇!');
+                            addMessage('馃帳 转诪诇讜诇 讘讝诪谉 讗诪转 驻注讬诇!', false);
                         } catch (e) {
-                            console.warn(`⚠️ לא הצלחתי להפעיל Web Speech: ${e.message}`);
+                            console.warn(`鈿狅笍 诇讗 讛爪诇讞转讬 诇讛驻注讬诇 Web Speech: ${e.message}`);
                         }
                     }
                 })
                 .catch(error => {
-                    updateStatus('❌ שגיאה בהרשאות');
-                    addMessage(`⚠️ ${error.message}`, false);
+                    updateStatus('鉂?砖讙讬讗讛 讘讛专砖讗讜转');
+                    addMessage(`鈿狅笍 ${error.message}`, false);
                 });
         }
 
@@ -1686,20 +1686,20 @@
                         const rec = recognitionPool.get(currentVoiceLang);
                         rec.stop();
                         isWebSpeechActive = false;
-                        console.log('🔴 Live Web Speech API נעצר');
+                        console.log('馃敶 Live Web Speech API 谞注爪专');
                     } catch (e) {
-                        console.warn(`⚠️ שגיאה בעצירת Live Web Speech: ${e.message}`);
+                        console.warn(`鈿狅笍 砖讙讬讗讛 讘注爪讬专转 Live Web Speech: ${e.message}`);
                     }
                 }
                 
                 document.getElementById('liveStreamBtn').classList.remove('recording');
-                safeSetText('liveStreamBtn', '🔴 שידור חי');
-                updateStatus('⏹️ שידור הופסק');
-                addMessage('⏹️ שידור חי הופסק', false);
+                safeSetText('liveStreamBtn', '馃敶 砖讬讚讜专 讞讬');
+                updateStatus('鈴癸笍 砖讬讚讜专 讛讜驻住拽');
+                addMessage('鈴癸笍 砖讬讚讜专 讞讬 讛讜驻住拽', false);
                 
                 const metricsEl = document.getElementById('quantumMetrics');
                 if (metricsEl) {
-                    metricsEl.innerHTML = metricsEl.innerHTML.replace('🔴 LIVE', '⏹️ STOPPED');
+                    metricsEl.innerHTML = metricsEl.innerHTML.replace('馃敶 LIVE', '鈴癸笍 STOPPED');
                 }
                 
                 return;
@@ -1734,9 +1734,9 @@
                         formData.append('chunk_number', chunkCount);
                         
                         try {
-                            updateStatus(`🔴 שידור חי... [${chunkCount} chunks]`);
+                            updateStatus(`馃敶 砖讬讚讜专 讞讬... [${chunkCount} chunks]`);
                             
-                            const response = await fetch('https://haiemetweb.onrender.com/transcribe    ', {
+                            const response = await fetch('https://haiemetweb.onrender.com/transcribe', {
                                 method: 'POST',
                                 body: formData
                             });
@@ -1751,7 +1751,7 @@
                                     safeSetText('finalTranscript', newText);
                                     document.getElementById('finalTranscript').setAttribute('data-saved', newText);
                                     
-                                    addMessage(`🔴 [שידור חי] ${transcribedText}`, false);
+                                    addMessage(`馃敶 [砖讬讚讜专 讞讬] ${transcribedText}`, false);
                                     
                                     if (selectedTranslateLang && transcribedText.trim()) {
                                         translateText(transcribedText, selectedTranslateLang);
@@ -1760,10 +1760,10 @@
                                     const metricsEl = document.getElementById('quantumMetrics');
                                     if (metricsEl) {
                                         metricsEl.innerHTML = `
-                                            🔴 LIVE<br>
-                                            📦 Chunks: ${chunkCount}<br>
-                                            🌍 ${currentVoiceLang}<br>
-                                            🎯 Active
+                                            馃敶 LIVE<br>
+                                            馃摝 Chunks: ${chunkCount}<br>
+                                            馃實 ${currentVoiceLang}<br>
+                                            馃幆 Active
                                         `;
                                     }
                                 }
@@ -1778,9 +1778,9 @@
                 isLiveStreaming = true;
                 
                 document.getElementById('liveStreamBtn').classList.add('recording');
-                safeSetText('liveStreamBtn', '⏹️ עצור שידור');
-                updateStatus('🔴 שידור חי פעיל!');
-                addMessage('🔴 שידור חי התחיל - תמלול בזמן אמת כל 3 שניות', false);
+                safeSetText('liveStreamBtn', '鈴癸笍 注爪讜专 砖讬讚讜专');
+                updateStatus('馃敶 砖讬讚讜专 讞讬 驻注讬诇!');
+                addMessage('馃敶 砖讬讚讜专 讞讬 讛转讞讬诇 - 转诪诇讜诇 讘讝诪谉 讗诪转 讻诇 3 砖谞讬讜转', false);
                 
                 if (webSpeechReady && recognitionPool.has(currentVoiceLang)) {
                     const rec = recognitionPool.get(currentVoiceLang);
@@ -1797,7 +1797,7 @@
                         if (event.results[last].isFinal) {
                             document.getElementById('finalTranscript').setAttribute('data-saved', displayText);
                             
-                            addMessage(`🔴 [Live] ${transcript}`, false);
+                            addMessage(`馃敶 [Live] ${transcript}`, false);
                             
                             if (selectedTranslateLang && transcript.trim()) {
                                 translateText(transcript, selectedTranslateLang);
@@ -1813,43 +1813,43 @@
                     };
                     
                     rec.onerror = (event) => {
-                        console.warn(`⚠️ Live Web Speech error: ${event.error}`);
+                        console.warn(`鈿狅笍 Live Web Speech error: ${event.error}`);
                     };
                     
                     rec.onend = () => {
                         isWebSpeechActive = false;
-                        console.log('🎤 Live Web Speech stopped');
+                        console.log('馃帳 Live Web Speech stopped');
                     };
                     
                     try {
                         rec.start();
                         isWebSpeechActive = true;
-                        console.log('🔴 Live Web Speech API התחיל!');
-                        addMessage('🎤 תמלול חי ישיר פעיל!', false);
+                        console.log('馃敶 Live Web Speech API 讛转讞讬诇!');
+                        addMessage('馃帳 转诪诇讜诇 讞讬 讬砖讬专 驻注讬诇!', false);
                     } catch (e) {
-                        console.warn(`⚠️ לא הצלחתי להפעיל Live Web Speech: ${e.message}`);
+                        console.warn(`鈿狅笍 诇讗 讛爪诇讞转讬 诇讛驻注讬诇 Live Web Speech: ${e.message}`);
                     }
                 }
                 
                 const metricsEl = document.getElementById('quantumMetrics');
                 if (metricsEl) {
                     metricsEl.innerHTML = `
-                        🔴 LIVE<br>
-                        📦 Chunks: 0<br>
-                        🌍 Streaming...<br>
-                        🎯 Ready
+                        馃敶 LIVE<br>
+                        馃摝 Chunks: 0<br>
+                        馃實 Streaming...<br>
+                        馃幆 Ready
                     `;
                 }
                 
             } catch (error) {
-                updateStatus('❌ שגיאה בהרשאות');
-                addMessage(`⚠️ שידור חי נכשל: ${error.message}`, false);
+                updateStatus('鉂?砖讙讬讗讛 讘讛专砖讗讜转');
+                addMessage(`鈿狅笍 砖讬讚讜专 讞讬 谞讻砖诇: ${error.message}`, false);
                 console.error('Live stream error:', error);
             }
         }
 
         function clearTranscription() {
-            if (confirm('בטוח שרוצה למחוק את כל הטקסט?')) {
+            if (confirm('讘讟讜讞 砖专讜爪讛 诇诪讞讜拽 讗转 讻诇 讛讟拽住讟?')) {
                 safeSetText('finalTranscript', '');
                 document.getElementById('finalTranscript').setAttribute('data-saved', '');
                 transcriptionHistory = [];
@@ -1858,8 +1858,8 @@
 
         function toggleUploadAccordion(element) {
             const accordion = document.getElementById('uploadAccordion');
-            const arrow = element.textContent.includes('▶') ? '▼' : '▶';
-            element.textContent = element.textContent.replace(/[▶▼]/, arrow);
+            const arrow = element.textContent.includes('鈻?) ? '鈻? : '鈻?;
+            element.textContent = element.textContent.replace(/[鈻垛柤]/, arrow);
             accordion.style.display = accordion.style.display === 'none' ? 'block' : 'none';
         }
 
@@ -1869,15 +1869,15 @@
             
             if (recognitionPool.has(newLang)) {
                 recognition = recognitionPool.get(newLang);
-                console.log(`🌍 החלפתי מנוע ל-${newLang}`);
+                console.log(`馃實 讛讞诇驻转讬 诪谞讜注 诇-${newLang}`);
             }
             
             const langName = LANGUAGES_CONFIG[newLang]?.name || 'Unknown';
-            updateStatus(`✅ Language: ${langName}`);
-            addMessage(`🌍 שפה שונתה ל-${langName}`, false);
+            updateStatus(`鉁?Language: ${langName}`);
+            addMessage(`馃實 砖驻讛 砖讜谞转讛 诇-${langName}`, false);
         }
 
-        // ✅ FIX 1: Direct transcription without popup
+        // 鉁?FIX 1: Direct transcription without popup
         async function handleAudioUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1888,18 +1888,18 @@
                 time: getPrecisionTime(),
                 type: 'audio',
                 size: (file.size / 1024 / 1024).toFixed(2) + ' MB',
-                transcription: '⏳ מעבד אודיו...',
+                transcription: '鈴?诪注讘讚 讗讜讚讬讜...',
                 id: timestamp
             };
             
             uploadedFiles.push(fileData);
             updateFilesList();
-            addMessage(`🎵 מעלה: ${file.name}...`, false);
+            addMessage(`馃幍 诪注诇讛: ${file.name}...`, false);
             
             const audioURL = URL.createObjectURL(file);
             const audioPlayerHTML = `
                 <div id="audioPlayer_${timestamp}" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 15px; border-radius: 12px; margin: 12px 0; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
-                    <div style="font-weight: bold; margin-bottom: 10px; color: white; font-size: 1.1em;">🎵 ${file.name}</div>
+                    <div style="font-weight: bold; margin-bottom: 10px; color: white; font-size: 1.1em;">馃幍 ${file.name}</div>
                     <audio controls style="width: 100%; margin-bottom: 12px; border-radius: 8px;" id="audio_${timestamp}">
                         <source src="${audioURL}" type="${file.type}">
                     </audio>
@@ -1909,20 +1909,20 @@
                     </div>
                     
                     <div style="font-size: 0.9em; color: white; margin-bottom: 12px; font-weight: 600;" id="audioStatus_${timestamp}">
-                        🚀 מתחיל תמלול מהיר... <span id="audioPercent_${timestamp}" style="color: #FFD700;">0%</span>
+                        馃殌 诪转讞讬诇 转诪诇讜诇 诪讛讬专... <span id="audioPercent_${timestamp}" style="color: #FFD700;">0%</span>
                     </div>
                     
                     <div id="transcriptionText_${timestamp}" style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; color: white; min-height: 100px; max-height: 200px; overflow-y: auto; margin-bottom: 12px; line-height: 1.8; direction: rtl; text-align: right;">
-                        <div style="font-weight: bold; margin-bottom: 6px; color: #FFD700;">📝 תמלול בזמן אמת:</div>
-                        <div id="transcriptionContent_${timestamp}">⏳ ממתין לתמלול...</div>
+                        <div style="font-weight: bold; margin-bottom: 6px; color: #FFD700;">馃摑 转诪诇讜诇 讘讝诪谉 讗诪转:</div>
+                        <div id="transcriptionContent_${timestamp}">鈴?诪诪转讬谉 诇转诪诇讜诇...</div>
                     </div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                         <button onclick="downloadAudioTranscription(${timestamp}, 'docx')" style="background: #28a745; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                            📋 הורד DOCX
+                            馃搵 讛讜专讚 DOCX
                         </button>
                         <button onclick="downloadAudioTranscription(${timestamp}, 'txt')" style="background: #17a2b8; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                            📄 הורד TXT
+                            馃搫 讛讜专讚 TXT
                         </button>
                     </div>
                 </div>
@@ -1935,15 +1935,15 @@
                 transcriptionBox.parentNode.insertBefore(playerDiv, transcriptionBox.nextSibling);
             }
             
-            addMessage(`🚀 ${file.name} - מתחיל תמלול מהיר אוטומטי...`, false);
+            addMessage(`馃殌 ${file.name} - 诪转讞讬诇 转诪诇讜诇 诪讛讬专 讗讜讟讜诪讟讬...`, false);
             
-            // ✅ WAIT FOR DOM TO BE READY
+            // 鉁?WAIT FOR DOM TO BE READY
             setTimeout(() => {
                 startFastTranscription(timestamp, file.name, file.type, audioURL);
             }, 100);
         }
 
-        // ✅ FIX 1: POPUP WITH PROGRESS BAR
+        // 鉁?FIX 1: POPUP WITH PROGRESS BAR
         async function startFastTranscription(timestamp, filename, filetype, audioURL) {
             const audio = document.getElementById(`audio_${timestamp}`);
             if (!audio) {
@@ -1951,7 +1951,7 @@
                 return;
             }
             
-            // ✅ GET AUDIO URL FROM EXISTING ELEMENT IF NOT PROVIDED
+            // 鉁?GET AUDIO URL FROM EXISTING ELEMENT IF NOT PROVIDED
             if (!audioURL) {
                 const source = audio.querySelector('source');
                 if (source && source.src) {
@@ -1962,7 +1962,7 @@
                 }
             }
             
-            console.log('🎬 Starting fast transcription for:', filename);
+            console.log('馃幀 Starting fast transcription for:', filename);
             
             // Create beautiful popup with progress
             const popup = document.createElement('div');
@@ -1971,21 +1971,21 @@
             popup.innerHTML = `
                 <div style="text-align: center; margin-bottom: 20px;">
                     <div style="font-size: 28px; font-weight: bold; margin-bottom: 10px;">
-                        🚀 תמלול מהיר
+                        馃殌 转诪诇讜诇 诪讛讬专
                         <span id="recordingDots_${timestamp}" style="color: #FFD700; display: inline-block; width: 30px;"></span>
                     </div>
                     <div style="font-size: 14px; opacity: 0.9;">${filename}</div>
                 </div>
                 <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 10px; margin-bottom: 15px;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span>מהירות השמע:</span>
+                        <span>诪讛讬专讜转 讛砖诪注:</span>
                         <span id="speedValue_${timestamp}">2.0x</span>
                     </div>
                     <input type="range" id="speedSlider_${timestamp}" min="1" max="3" step="0.5" value="2" 
                         style="width: 100%; cursor: pointer; margin-bottom: 15px;">
                     
                     <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <span>עוצמת קול:</span>
+                        <span>注讜爪诪转 拽讜诇:</span>
                         <span id="volumeValue_${timestamp}">50%</span>
                     </div>
                     <input type="range" id="volumeSlider_${timestamp}" min="0" max="100" step="10" value="50" 
@@ -1993,7 +1993,7 @@
                     
                     <div style="margin-top: 15px;">
                         <div style="display: flex; justify-content: space-between; font-size: 12px; opacity: 0.8; margin-bottom: 5px;">
-                            <span>התקדמות</span>
+                            <span>讛转拽讚诪讜转</span>
                             <span id="percentText_${timestamp}" style="font-size: 18px; font-weight: bold; color: #FFD700;">0%</span>
                         </div>
                         <div style="background: rgba(255,255,255,0.2); height: 10px; border-radius: 5px; overflow: hidden;">
@@ -2006,16 +2006,16 @@
                     </div>
                 </div>
                 <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 8px; max-height: 250px; overflow-y: auto; font-size: 14px; line-height: 1.8; direction: rtl; text-align: right;" id="liveTranscript_${timestamp}">
-                    <div style="opacity: 0.7; font-size: 12px; margin-bottom: 5px;">📝 תמלול בזמן אמת:</div>
-                    <div id="transcriptText_${timestamp}" style="white-space: pre-wrap;">ממתין לתמלול...</div>
+                    <div style="opacity: 0.7; font-size: 12px; margin-bottom: 5px;">馃摑 转诪诇讜诇 讘讝诪谉 讗诪转:</div>
+                    <div id="transcriptText_${timestamp}" style="white-space: pre-wrap;">诪诪转讬谉 诇转诪诇讜诇...</div>
                 </div>
                 <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 15px; max-height: 150px; overflow-y: auto; font-size: 13px; line-height: 1.6; direction: rtl; text-align: right;" id="liveTranslation_${timestamp}">
-                    <div style="opacity: 0.7; font-size: 11px; margin-bottom: 5px;">🌐 תרגום:</div>
-                    <div id="translationText_${timestamp}">ממתין...</div>
+                    <div style="opacity: 0.7; font-size: 11px; margin-bottom: 5px;">馃寪 转专讙讜诐:</div>
+                    <div id="translationText_${timestamp}">诪诪转讬谉...</div>
                 </div>
                 
                 <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                    <div style="font-weight: bold; margin-bottom: 10px; color: #FFD700;">🎵 נגן אודיו</div>
+                    <div style="font-weight: bold; margin-bottom: 10px; color: #FFD700;">馃幍 谞讙谉 讗讜讚讬讜</div>
                     <audio id="popupAudio_${timestamp}" controls style="width: 100%; border-radius: 8px;">
                         <source src="${audioURL}" type="${filetype}">
                     </audio>
@@ -2023,19 +2023,19 @@
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
                     <button id="downloadDOCX_${timestamp}" style="background: #28a745; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                        📋 הורד DOCX
+                        馃搵 讛讜专讚 DOCX
                     </button>
                     <button id="downloadTXT_${timestamp}" style="background: #17a2b8; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                        📄 הורד TXT
+                        馃搫 讛讜专讚 TXT
                     </button>
                 </div>
                 
                 <div style="display: flex; gap: 10px;">
                     <button id="minimizeBtn_${timestamp}" style="flex: 1; background: #ffc107; color: #333; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px;">
-                        🔽 מזער
+                        馃斀 诪讝注专
                     </button>
                     <button id="closeBtn_${timestamp}" style="flex: 1; background: #dc3545; color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px;">
-                        ✖ סגור
+                        鉁?住讙讜专
                     </button>
                 </div>
             `;
@@ -2056,7 +2056,7 @@
             const downloadDOCXBtn = document.getElementById(`downloadDOCX_${timestamp}`);
             const popupAudio = document.getElementById(`popupAudio_${timestamp}`);
             
-            // ✅ CREATE AUDIO PLAYER FOR PLAYBACK
+            // 鉁?CREATE AUDIO PLAYER FOR PLAYBACK
             const audioPlayer = new Audio(audioURL);
             audioPlayer.volume = 0.5;
             audioPlayer.playbackRate = 2.0;
@@ -2096,7 +2096,7 @@
                     bottomPercent.textContent = progressInt + '%';
                 }
                 if (bottomStatus && progressInt < 100) {
-                    bottomStatus.innerHTML = `⏳ מתמלל... <span id="audioPercent_${timestamp}" style="color: #FFD700;">${progressInt}%</span>`;
+                    bottomStatus.innerHTML = `鈴?诪转诪诇诇... <span id="audioPercent_${timestamp}" style="color: #FFD700;">${progressInt}%</span>`;
                 }
             });
             
@@ -2112,28 +2112,28 @@
                 if (audioPlayer) audioPlayer.volume = vol / 100;
             });
             
-            // ✅ DOWNLOAD BUTTONS IN POPUP
+            // 鉁?DOWNLOAD BUTTONS IN POPUP
             downloadTXTBtn.addEventListener('click', () => {
                 const text = transcriptTextEl ? transcriptTextEl.textContent : '';
-                if (!text || text === 'ממתין...') {
-                    alert('אין תמלול עדיין');
+                if (!text || text === '诪诪转讬谉...') {
+                    alert('讗讬谉 转诪诇讜诇 注讚讬讬谉');
                     return;
                 }
                 
-                const content = `חי-אמת - תמלול אודיו\n${'='.repeat(50)}\nקובץ: ${filename}\nתאריך: ${new Date().toLocaleString('he-IL')}\n${'='.repeat(50)}\n\n${text}`;
+                const content = `讞讬-讗诪转 - 转诪诇讜诇 讗讜讚讬讜\n${'='.repeat(50)}\n拽讜讘抓: ${filename}\n转讗专讬讱: ${new Date().toLocaleString('he-IL')}\n${'='.repeat(50)}\n\n${text}`;
                 const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
                 link.download = `transcription_${filename.replace(/\.[^/.]+$/, '')}.txt`;
                 link.click();
                 URL.revokeObjectURL(link.href);
-                addMessage(`📄 הורד: ${link.download}`, false);
+                addMessage(`馃搫 讛讜专讚: ${link.download}`, false);
             });
             
             downloadDOCXBtn.addEventListener('click', () => {
                 const text = transcriptTextEl ? transcriptTextEl.textContent : '';
-                if (!text || text === 'ממתין...') {
-                    alert('אין תמלול עדיין');
+                if (!text || text === '诪诪转讬谉...') {
+                    alert('讗讬谉 转诪诇讜诇 注讚讬讬谉');
                     return;
                 }
                 
@@ -2141,16 +2141,16 @@
                     sections: [{
                         children: [
                             new docx.Paragraph({
-                                text: '🎵 חי-אמת - תמלול אודיו',
+                                text: '馃幍 讞讬-讗诪转 - 转诪诇讜诇 讗讜讚讬讜',
                                 heading: docx.HeadingLevel.HEADING_1,
                                 spacing: { after: 400 }
                             }),
                             new docx.Paragraph({
-                                text: `קובץ: ${filename}`,
+                                text: `拽讜讘抓: ${filename}`,
                                 spacing: { after: 200 }
                             }),
                             new docx.Paragraph({
-                                text: `תאריך: ${new Date().toLocaleString('he-IL')}`,
+                                text: `转讗专讬讱: ${new Date().toLocaleString('he-IL')}`,
                                 spacing: { after: 400 }
                             }),
                             new docx.Paragraph({
@@ -2167,15 +2167,15 @@
                     link.download = `transcription_${filename.replace(/\.[^/.]+$/, '')}.docx`;
                     link.click();
                     URL.revokeObjectURL(link.href);
-                    addMessage(`📋 הורד: ${link.download}`, false);
+                    addMessage(`馃搵 讛讜专讚: ${link.download}`, false);
                 });
             });
             
-            // ✅ MINIMIZE BUTTON - Hide popup and add restore button to panel
+            // 鉁?MINIMIZE BUTTON - Hide popup and add restore button to panel
             minimizeBtn.addEventListener('click', () => {
                 popup.style.display = 'none';
                 
-                // ✅ ADD RESTORE BUTTON TO PANEL
+                // 鉁?ADD RESTORE BUTTON TO PANEL
                 const audioPlayerDiv = document.getElementById(`audioPlayer_${timestamp}`);
                 if (audioPlayerDiv) {
                     // Check if restore button already exists
@@ -2184,7 +2184,7 @@
                         restoreBtn = document.createElement('button');
                         restoreBtn.id = `restoreBtn_${timestamp}`;
                         restoreBtn.style.cssText = 'width: 100%; background: #ffc107; color: #333; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 8px;';
-                        restoreBtn.textContent = '🔼 פתח חלון תמלול';
+                        restoreBtn.textContent = '馃敿 驻转讞 讞诇讜谉 转诪诇讜诇';
                         restoreBtn.addEventListener('click', () => {
                             popup.style.display = 'block';
                             restoreBtn.remove();
@@ -2193,17 +2193,17 @@
                     }
                 }
                 
-                addMessage(`🔽 ${filename} - חלון ממוזער, לחץ 🔼 לפתיחה`, false);
+                addMessage(`馃斀 ${filename} - 讞诇讜谉 诪诪讜讝注专, 诇讞抓 馃敿 诇驻转讬讞讛`, false);
             });
             
-            // ✅ CLOSE BUTTON - Manual close only
+            // 鉁?CLOSE BUTTON - Manual close only
             closeBtn.addEventListener('click', () => {
                 if (audioPlayer) {
                     audioPlayer.pause();
                     audioPlayer.currentTime = 0;
                 }
                 
-                // ✅ CREATE EXACT COPY IN PANEL
+                // 鉁?CREATE EXACT COPY IN PANEL
                 const audioPlayerDiv = document.getElementById(`audioPlayer_${timestamp}`);
                 if (audioPlayerDiv) {
                     const transcriptText = transcriptTextEl ? transcriptTextEl.textContent : '';
@@ -2212,34 +2212,34 @@
                     // Create panel version with audio player, text, and download buttons
                     const panelHTML = `
                         <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-top: 12px;">
-                            <div style="font-weight: bold; margin-bottom: 10px; color: #FFD700;">🎵 נגן אודיו</div>
+                            <div style="font-weight: bold; margin-bottom: 10px; color: #FFD700;">馃幍 谞讙谉 讗讜讚讬讜</div>
                             <audio controls style="width: 100%; margin-bottom: 12px; border-radius: 8px;">
                                 <source src="${audioURL}" type="${filetype}">
                             </audio>
                             
                             <div style="background: rgba(255,255,255,0.1); padding: 12px; border-radius: 8px; margin-bottom: 12px; max-height: 150px; overflow-y: auto; direction: rtl; text-align: right; line-height: 1.8;">
-                                <div style="font-weight: bold; margin-bottom: 6px; color: #FFD700;">📝 תמלול:</div>
+                                <div style="font-weight: bold; margin-bottom: 6px; color: #FFD700;">馃摑 转诪诇讜诇:</div>
                                 <div style="color: white;">${transcriptText}</div>
                             </div>
                             
-                            ${translationText && translationText !== 'ממתין...' ? `
+                            ${translationText && translationText !== '诪诪转讬谉...' ? `
                             <div style="background: rgba(255,255,255,0.1); padding: 12px; border-radius: 8px; margin-bottom: 12px; max-height: 150px; overflow-y: auto; direction: rtl; text-align: right; line-height: 1.8;">
-                                <div style="font-weight: bold; margin-bottom: 6px; color: #FFD700;">🌐 תרגום:</div>
+                                <div style="font-weight: bold; margin-bottom: 6px; color: #FFD700;">馃寪 转专讙讜诐:</div>
                                 <div style="color: white;">${translationText}</div>
                             </div>
                             ` : ''}
                             
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
                                 <button onclick="downloadPanelTranscription(${timestamp}, 'docx', '${filename.replace(/'/g, "\\'")}', \`${transcriptText.replace(/`/g, '\\`')}\`)" style="background: #28a745; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                                    📋 הורד DOCX
+                                    馃搵 讛讜专讚 DOCX
                                 </button>
                                 <button onclick="downloadPanelTranscription(${timestamp}, 'txt', '${filename.replace(/'/g, "\\'")}', \`${transcriptText.replace(/`/g, '\\`')}\`)" style="background: #17a2b8; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                                    📄 הורד TXT
+                                    馃搫 讛讜专讚 TXT
                                 </button>
                             </div>
                             
                             <button onclick="startFastTranscription(${timestamp}, '${filename.replace(/'/g, "\\'")}', '${filetype}')" style="background: #667eea; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%;">
-                                🔄 פתח חלון תמלול שוב
+                                馃攧 驻转讞 讞诇讜谉 转诪诇讜诇 砖讜讘
                             </button>
                         </div>
                     `;
@@ -2256,7 +2256,7 @@
                     audioPlayerDiv.appendChild(panelDiv);
                 }
                 
-                // ✅ REMOVE RESTORE BUTTON IF IT EXISTS
+                // 鉁?REMOVE RESTORE BUTTON IF IT EXISTS
                 const restoreBtn = document.getElementById(`restoreBtn_${timestamp}`);
                 if (restoreBtn) {
                     restoreBtn.remove();
@@ -2265,13 +2265,13 @@
                 document.body.removeChild(popup);
                 URL.revokeObjectURL(audioURL);
                 
-                addMessage(`✖ ${filename} - חלון נסגר, התוכן בפאנל`, false);
+                addMessage(`鉁?${filename} - 讞诇讜谉 谞住讙专, 讛转讜讻谉 讘驻讗谞诇`, false);
                 
                 const fileInput = document.getElementById('audioInput');
                 if (fileInput) fileInput.value = '';
             });
             
-            // ✅ AUTO-START TRANSCRIPTION WITH MICROPHONE (LIKE LIVE STREAMING!)
+            // 鉁?AUTO-START TRANSCRIPTION WITH MICROPHONE (LIKE LIVE STREAMING!)
             const dotsEl = document.getElementById(`recordingDots_${timestamp}`);
             let dotCount = 0;
             const dotsInterval = setInterval(() => {
@@ -2281,30 +2281,30 @@
             
             (async () => {
                 try {
-                    console.log('🎬 מתחיל תמלול בזמן אמת...');
+                    console.log('馃幀 诪转讞讬诇 转诪诇讜诇 讘讝诪谉 讗诪转...');
                     
-                    // ✅ CHECK WEB SPEECH API
+                    // 鉁?CHECK WEB SPEECH API
                     if (!webSpeechReady || !recognitionPool.has(currentVoiceLang)) {
-                        throw new Error('Web Speech API לא זמין');
+                        throw new Error('Web Speech API 诇讗 讝诪讬谉');
                     }
                     
-                    // ✅ GET MICROPHONE ACCESS (TO HEAR THE AUDIO PLAYING!)
+                    // 鉁?GET MICROPHONE ACCESS (TO HEAR THE AUDIO PLAYING!)
                     const stream = await navigator.mediaDevices.getUserMedia(getOptimizedAudioConstraints());
-                    console.log('🎤 מיקרופון מוכן לשמוע את האודיו!');
+                    console.log('馃帳 诪讬拽专讜驻讜谉 诪讜讻谉 诇砖诪讜注 讗转 讛讗讜讚讬讜!');
                     
-                    // ✅ START WEB SPEECH API
+                    // 鉁?START WEB SPEECH API
                     const rec = recognitionPool.get(currentVoiceLang);
                     
                     rec.onresult = (event) => {
                         const last = event.results.length - 1;
                         const transcript = event.results[last][0].transcript;
                         
-                        console.log('🎤 זיהוי:', transcript);
+                        console.log('馃帳 讝讬讛讜讬:', transcript);
                         
                         if (event.results[last].isFinal) {
                             transcribedText += transcript + ' ';
                             
-                            // ✅ UPDATE POPUP TRANSCRIPTION
+                            // 鉁?UPDATE POPUP TRANSCRIPTION
                             if (transcriptTextEl) {
                                 transcriptTextEl.textContent = transcribedText;
                                 transcriptTextEl.style.color = 'white';
@@ -2313,7 +2313,7 @@
                                 if (container) container.scrollTop = container.scrollHeight;
                             }
                             
-                            // ✅ UPDATE BOTTOM PANEL TRANSCRIPTION
+                            // 鉁?UPDATE BOTTOM PANEL TRANSCRIPTION
                             const bottomTranscript = document.getElementById(`transcriptionContent_${timestamp}`);
                             if (bottomTranscript) {
                                 bottomTranscript.textContent = transcribedText;
@@ -2321,10 +2321,10 @@
                                 if (transcriptionBox) transcriptionBox.scrollTop = transcriptionBox.scrollHeight;
                             }
                             
-                            // ✅ TRANSLATE IF NEEDED
+                            // 鉁?TRANSLATE IF NEEDED
                             if (selectedTranslateLang && translationTextEl) {
                                 translateText(transcript, selectedTranslateLang).then(translated => {
-                                    const currentTranslation = translationTextEl.textContent === 'ממתין...' || translationTextEl.textContent === 'בחר שפת תרגום בהגדרות' ? '' : translationTextEl.textContent;
+                                    const currentTranslation = translationTextEl.textContent === '诪诪转讬谉...' || translationTextEl.textContent === '讘讞专 砖驻转 转专讙讜诐 讘讛讙讚专讜转' ? '' : translationTextEl.textContent;
                                     translationTextEl.textContent = currentTranslation + ' ' + translated;
                                     const container = document.getElementById(`liveTranslation_${timestamp}`);
                                     if (container) container.scrollTop = container.scrollHeight;
@@ -2333,7 +2333,7 @@
                                 });
                             }
                         } else {
-                            // ✅ UPDATE BOTH FOR INTERIM RESULTS
+                            // 鉁?UPDATE BOTH FOR INTERIM RESULTS
                             if (transcriptTextEl) {
                                 transcriptTextEl.textContent = transcribedText + transcript + '...';
                             }
@@ -2352,39 +2352,39 @@
                         console.log('Web Speech ended');
                     };
                     
-                    // ✅ START WEB SPEECH + AUDIO PLAYER TOGETHER!
-                    console.log('🎤 מפעיל Web Speech...');
+                    // 鉁?START WEB SPEECH + AUDIO PLAYER TOGETHER!
+                    console.log('馃帳 诪驻注讬诇 Web Speech...');
                     rec.start();
                     
-                    console.log('▶️ מנגן אודיו...');
+                    console.log('鈻讹笍 诪谞讙谉 讗讜讚讬讜...');
                     await audioPlayer.play();
                     
-                    console.log('✅ אודיו מנוגן + מיקרופון מקליט בזמן אמת!');
-                    addMessage(`🎤 ${filename} - תמלול בזמן אמת פעיל!`, false);
+                    console.log('鉁?讗讜讚讬讜 诪谞讜讙谉 + 诪讬拽专讜驻讜谉 诪拽诇讬讟 讘讝诪谉 讗诪转!');
+                    addMessage(`馃帳 ${filename} - 转诪诇讜诇 讘讝诪谉 讗诪转 驻注讬诇!`, false);
                     
                     audioPlayer.addEventListener('ended', () => {
                         clearInterval(dotsInterval);
                         dotsEl.textContent = '';
                         
-                        // ✅ STOP WEB SPEECH
+                        // 鉁?STOP WEB SPEECH
                         if (rec) {
                             try {
                                 rec.stop();
-                                console.log('🎤 Web Speech נעצר');
+                                console.log('馃帳 Web Speech 谞注爪专');
                             } catch (e) {
                                 console.warn('Error stopping recognition:', e);
                             }
                         }
                         
-                        // ✅ STOP MICROPHONE STREAM
+                        // 鉁?STOP MICROPHONE STREAM
                         if (stream) {
                             stream.getTracks().forEach(track => {
                                 track.stop();
-                                console.log('🎤 מיקרופון נעצר');
+                                console.log('馃帳 诪讬拽专讜驻讜谉 谞注爪专');
                             });
                         }
                         
-                        // ✅ UPDATE STATUS
+                        // 鉁?UPDATE STATUS
                         const statusText = document.getElementById(`audioStatus_${timestamp}`);
                         const transcriptionDiv = document.getElementById(`transcriptionText_${timestamp}`);
                         const transcriptionContent = document.getElementById(`transcriptionContent_${timestamp}`);
@@ -2392,7 +2392,7 @@
                         
                         if (progressBar) progressBar.style.width = '100%';
                         if (statusText) {
-                            statusText.innerHTML = `✅ תמלול הושלם! <span style="color: #FFD700;">100%</span>`;
+                            statusText.innerHTML = `鉁?转诪诇讜诇 讛讜砖诇诐! <span style="color: #FFD700;">100%</span>`;
                             statusText.style.color = '#28a745';
                         }
                         if (transcriptionDiv) transcriptionDiv.style.display = 'block';
@@ -2408,18 +2408,18 @@
                             };
                             
                             const savedText = document.getElementById('finalTranscript').getAttribute('data-saved') || '';
-                            const newText = savedText ? savedText + '\n\n📄 ' + filename + ':\n' + transcribedText.trim() : '📄 ' + filename + ':\n' + transcribedText.trim();
+                            const newText = savedText ? savedText + '\n\n馃搫 ' + filename + ':\n' + transcribedText.trim() : '馃搫 ' + filename + ':\n' + transcribedText.trim();
                             safeSetText('finalTranscript', newText);
                             document.getElementById('finalTranscript').setAttribute('data-saved', newText);
                             
-                            addMessage(`✅ ${filename} - תמלול הושלם!`, false);
+                            addMessage(`鉁?${filename} - 转诪诇讜诇 讛讜砖诇诐!`, false);
                         } else {
-                            addMessage(`⚠️ ${filename} - לא זוהה טקסט. נסה להעלות את עוצמת הקול!`, false);
+                            addMessage(`鈿狅笍 ${filename} - 诇讗 讝讜讛讛 讟拽住讟. 谞住讛 诇讛注诇讜转 讗转 注讜爪诪转 讛拽讜诇!`, false);
                         }
                         
                         // Update buttons
-                        if (minimizeBtn) minimizeBtn.textContent = '🔽 מזער';
-                        closeBtn.textContent = '✅ סגור (הושלם)';
+                        if (minimizeBtn) minimizeBtn.textContent = '馃斀 诪讝注专';
+                        closeBtn.textContent = '鉁?住讙讜专 (讛讜砖诇诐)';
                         closeBtn.style.background = '#28a745';
                         
                         // Reset file input for next upload
@@ -2434,19 +2434,19 @@
                     
                     const statusText = document.getElementById(`audioStatus_${timestamp}`);
                     if (statusText) {
-                        statusText.innerHTML = '❌ שגיאה: ' + error.message;
+                        statusText.innerHTML = '鉂?砖讙讬讗讛: ' + error.message;
                         statusText.style.color = '#dc3545';
                     }
                     
-                    // ✅ UPDATE POPUP WITH ERROR
+                    // 鉁?UPDATE POPUP WITH ERROR
                     if (transcriptTextEl) {
-                        transcriptTextEl.textContent = '❌ שגיאה בתמלול: ' + error.message;
+                        transcriptTextEl.textContent = '鉂?砖讙讬讗讛 讘转诪诇讜诇: ' + error.message;
                         transcriptTextEl.style.color = '#dc3545';
                     }
                     
-                    addMessage(`❌ ${filename} - תמלול נכשל: ${error.message}`, false);
+                    addMessage(`鉂?${filename} - 转诪诇讜诇 谞讻砖诇: ${error.message}`, false);
                     
-                    closeBtn.textContent = '✖ סגור (שגיאה)';
+                    closeBtn.textContent = '鉁?住讙讜专 (砖讙讬讗讛)';
                 }
             })();
         }
@@ -2454,7 +2454,7 @@
         function downloadAudioTranscription(timestamp, format) {
             const transcriptionData = window[`audioTranscription_${timestamp}`];
             if (!transcriptionData) {
-                alert('אין תמלול זמין');
+                alert('讗讬谉 转诪诇讜诇 讝诪讬谉');
                 return;
             }
             
@@ -2462,33 +2462,33 @@
             const text = transcriptionContent ? transcriptionContent.textContent : transcriptionData.text;
             
             if (!text) {
-                alert('התמלול עדיין לא מוכן');
+                alert('讛转诪诇讜诇 注讚讬讬谉 诇讗 诪讜讻谉');
                 return;
             }
             
             if (format === 'txt') {
-                const content = `חי-אמת - תמלול אודיו\n${'='.repeat(50)}\nקובץ: ${transcriptionData.filename}\nתאריך: ${new Date().toLocaleString('he-IL')}\n${'='.repeat(50)}\n\n${text}`;
+                const content = `讞讬-讗诪转 - 转诪诇讜诇 讗讜讚讬讜\n${'='.repeat(50)}\n拽讜讘抓: ${transcriptionData.filename}\n转讗专讬讱: ${new Date().toLocaleString('he-IL')}\n${'='.repeat(50)}\n\n${text}`;
                 const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
                 link.download = `transcription_${transcriptionData.filename.replace(/\.[^/.]+$/, '')}.txt`;
                 link.click();
-                addMessage(`📄 הורד: ${link.download}`, false);
+                addMessage(`馃搫 讛讜专讚: ${link.download}`, false);
             } else if (format === 'docx') {
                 const doc = new docx.Document({
                     sections: [{
                         children: [
                             new docx.Paragraph({
-                                text: '🎵 חי-אמת - תמלול אודיו',
+                                text: '馃幍 讞讬-讗诪转 - 转诪诇讜诇 讗讜讚讬讜',
                                 heading: docx.HeadingLevel.HEADING_1,
                                 spacing: { after: 400 }
                             }),
                             new docx.Paragraph({
-                                text: `קובץ: ${transcriptionData.filename}`,
+                                text: `拽讜讘抓: ${transcriptionData.filename}`,
                                 spacing: { after: 200 }
                             }),
                             new docx.Paragraph({
-                                text: `תאריך: ${new Date().toLocaleString('he-IL')}`,
+                                text: `转讗专讬讱: ${new Date().toLocaleString('he-IL')}`,
                                 spacing: { after: 400 }
                             }),
                             new docx.Paragraph({
@@ -2504,41 +2504,41 @@
                     link.href = URL.createObjectURL(blob);
                     link.download = `transcription_${transcriptionData.filename.replace(/\.[^/.]+$/, '')}.docx`;
                     link.click();
-                    addMessage(`📋 הורד: ${link.download}`, false);
+                    addMessage(`馃搵 讛讜专讚: ${link.download}`, false);
                 });
             }
         }
         
         function downloadPanelTranscription(timestamp, format, filename, text) {
-            if (!text || text === 'ממתין...') {
-                alert('אין תמלול זמין');
+            if (!text || text === '诪诪转讬谉...') {
+                alert('讗讬谉 转诪诇讜诇 讝诪讬谉');
                 return;
             }
             
             if (format === 'txt') {
-                const content = `חי-אמת - תמלול אודיו\n${'='.repeat(50)}\nקובץ: ${filename}\nתאריך: ${new Date().toLocaleString('he-IL')}\n${'='.repeat(50)}\n\n${text}`;
+                const content = `讞讬-讗诪转 - 转诪诇讜诇 讗讜讚讬讜\n${'='.repeat(50)}\n拽讜讘抓: ${filename}\n转讗专讬讱: ${new Date().toLocaleString('he-IL')}\n${'='.repeat(50)}\n\n${text}`;
                 const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
                 link.download = `transcription_${filename.replace(/\.[^/.]+$/, '')}.txt`;
                 link.click();
                 URL.revokeObjectURL(link.href);
-                addMessage(`📄 הורד: ${link.download}`, false);
+                addMessage(`馃搫 讛讜专讚: ${link.download}`, false);
             } else if (format === 'docx') {
                 const doc = new docx.Document({
                     sections: [{
                         children: [
                             new docx.Paragraph({
-                                text: '🎵 חי-אמת - תמלול אודיו',
+                                text: '馃幍 讞讬-讗诪转 - 转诪诇讜诇 讗讜讚讬讜',
                                 heading: docx.HeadingLevel.HEADING_1,
                                 spacing: { after: 400 }
                             }),
                             new docx.Paragraph({
-                                text: `קובץ: ${filename}`,
+                                text: `拽讜讘抓: ${filename}`,
                                 spacing: { after: 200 }
                             }),
                             new docx.Paragraph({
-                                text: `תאריך: ${new Date().toLocaleString('he-IL')}`,
+                                text: `转讗专讬讱: ${new Date().toLocaleString('he-IL')}`,
                                 spacing: { after: 400 }
                             }),
                             new docx.Paragraph({
@@ -2555,7 +2555,7 @@
                     link.download = `transcription_${filename.replace(/\.[^/.]+$/, '')}.docx`;
                     link.click();
                     URL.revokeObjectURL(link.href);
-                    addMessage(`📋 הורד: ${link.download}`, false);
+                    addMessage(`馃搵 讛讜专讚: ${link.download}`, false);
                 });
             }
         }
@@ -2570,16 +2570,16 @@
                 time: getPrecisionTime(),
                 type: 'video',
                 size: (file.size / 1024 / 1024).toFixed(2) + ' MB',
-                transcription: '⏳ מעבד וידאו...'
+                transcription: '鈴?诪注讘讚 讜讬讚讗讜...'
             };
             
             uploadedFiles.push(fileData);
             updateFilesList();
-            addMessage(`🎬 מעלה: ${file.name}...`, false);
+            addMessage(`馃幀 诪注诇讛: ${file.name}...`, false);
             
             const videoURL = URL.createObjectURL(file);
             
-            // ✅ CREATE POPUP FOR VIDEO
+            // 鉁?CREATE POPUP FOR VIDEO
             const popup = document.createElement('div');
             popup.id = `videoPopup_${timestamp}`;
             popup.style.cssText = `
@@ -2600,50 +2600,50 @@
             `;
             
             const subtitleSimulation = [
-                'שלום! זה סרטון לדוגמא...',
-                'המערכת מעבדת את הוידאו בזמן אמת',
-                'כתוביות מופיעות כאן אוטומטית',
-                'תמלול מלא יופיע בסיום'
+                '砖诇讜诐! 讝讛 住专讟讜谉 诇讚讜讙诪讗...',
+                '讛诪注专讻转 诪注讘讚转 讗转 讛讜讬讚讗讜 讘讝诪谉 讗诪转',
+                '讻转讜讘讬讜转 诪讜驻讬注讜转 讻讗谉 讗讜讟讜诪讟讬转',
+                '转诪诇讜诇 诪诇讗 讬讜驻讬注 讘住讬讜诐'
             ];
             
             popup.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 style="margin: 0; font-size: 24px;">🎬 תמלול וידאו מהיר<span id="recordingDots_${timestamp}" style="color: #FFD700;"></span></h2>
+                    <h2 style="margin: 0; font-size: 24px;">馃幀 转诪诇讜诇 讜讬讚讗讜 诪讛讬专<span id="recordingDots_${timestamp}" style="color: #FFD700;"></span></h2>
                     <div style="font-size: 14px; opacity: 0.8;">${file.name}</div>
                 </div>
                 
                 <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                    <div style="font-weight: bold; margin-bottom: 10px; color: #FFD700;">📊 התקדמות</div>
+                    <div style="font-weight: bold; margin-bottom: 10px; color: #FFD700;">馃搳 讛转拽讚诪讜转</div>
                     <div style="background: rgba(255,255,255,0.2); height: 30px; border-radius: 8px; overflow: hidden; position: relative;">
                         <div id="videoPopupProgress_${timestamp}" style="background: #FFD700; height: 100%; width: 0%; transition: width 0.3s;"></div>
                         <div id="videoPercentText_${timestamp}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; font-size: 16px; color: #000;">0%</div>
                     </div>
-                    <div style="margin-top: 8px; font-size: 14px;" id="videoStatus_${timestamp}">⏳ מעבד...</div>
+                    <div style="margin-top: 8px; font-size: 14px;" id="videoStatus_${timestamp}">鈴?诪注讘讚...</div>
                 </div>
                 
                 <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                    <div style="font-weight: bold; margin-bottom: 10px; color: #FFD700;">🎥 נגן וידאו</div>
+                    <div style="font-weight: bold; margin-bottom: 10px; color: #FFD700;">馃帴 谞讙谉 讜讬讚讗讜</div>
                     <video id="popupVideo_${timestamp}" controls style="width: 100%; max-height: 400px; border-radius: 8px; background: #000;">
                         <source src="${videoURL}" type="${file.type}">
                     </video>
                 </div>
                 
                 <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 15px; max-height: 150px; overflow-y: auto; direction: rtl; text-align: right; line-height: 1.8;">
-                    <div style="font-weight: bold; margin-bottom: 6px; color: #FFD700;">📝 תמלול:</div>
-                    <div id="videoTranscriptText_${timestamp}" style="color: white;">ממתין...</div>
+                    <div style="font-weight: bold; margin-bottom: 6px; color: #FFD700;">馃摑 转诪诇讜诇:</div>
+                    <div id="videoTranscriptText_${timestamp}" style="color: white;">诪诪转讬谉...</div>
                 </div>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
                     <button id="videoDownloadTXT_${timestamp}" style="background: #28a745; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                        📄 הורד TXT
+                        馃搫 讛讜专讚 TXT
                     </button>
                     <button id="videoDownloadDOCX_${timestamp}" style="background: #17a2b8; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                        📋 הורד DOCX
+                        馃搵 讛讜专讚 DOCX
                     </button>
                 </div>
                 
                 <button id="videoCloseBtn_${timestamp}" style="width: 100%; background: #dc3545; color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px;">
-                    ✖ סגור
+                    鉁?住讙讜专
                 </button>
             `;
             
@@ -2658,7 +2658,7 @@
             const closeBtn = document.getElementById(`videoCloseBtn_${timestamp}`);
             const popupVideo = document.getElementById(`popupVideo_${timestamp}`);
             
-            // ✅ ANIMATED DOTS
+            // 鉁?ANIMATED DOTS
             const dotsEl = document.getElementById(`recordingDots_${timestamp}`);
             let dotCount = 0;
             const dotsInterval = setInterval(() => {
@@ -2666,7 +2666,7 @@
                 dotsEl.textContent = '.'.repeat(dotCount);
             }, 500);
             
-            // ✅ SIMULATE PROCESSING
+            // 鉁?SIMULATE PROCESSING
             let progress = 0;
             let currentSubIndex = 0;
             let fullTranscript = '';
@@ -2681,7 +2681,7 @@
                     percentText.textContent = progress + '%';
                 }
                 if (statusText) {
-                    statusText.textContent = `⏳ מעבד... ${progress}%`;
+                    statusText.textContent = `鈴?诪注讘讚... ${progress}%`;
                 }
                 
                 if (progress % 25 === 0 && currentSubIndex < subtitleSimulation.length) {
@@ -2697,47 +2697,47 @@
                     dotsEl.textContent = '';
                     
                     if (statusText) {
-                        statusText.textContent = '✅ תמלול הושלם!';
+                        statusText.textContent = '鉁?转诪诇讜诇 讛讜砖诇诐!';
                         statusText.style.color = '#28a745';
                     }
                     
-                    transcriptText.textContent = fullTranscript || 'תמלול מדומה: ' + subtitleSimulation.join(' | ');
+                    transcriptText.textContent = fullTranscript || '转诪诇讜诇 诪讚讜诪讛: ' + subtitleSimulation.join(' | ');
                     
                     const lastFile = uploadedFiles[uploadedFiles.length - 1];
                     if (lastFile) {
-                        lastFile.transcription = fullTranscript || 'תמלול מדומה';
+                        lastFile.transcription = fullTranscript || '转诪诇讜诇 诪讚讜诪讛';
                         updateFilesList();
                     }
                     
-                    closeBtn.textContent = '✅ סגור (הושלם)';
+                    closeBtn.textContent = '鉁?住讙讜专 (讛讜砖诇诐)';
                     closeBtn.style.background = '#28a745';
                     
-                    addMessage(`✅ ${file.name} - תמלול הושלם!`, false);
+                    addMessage(`鉁?${file.name} - 转诪诇讜诇 讛讜砖诇诐!`, false);
                 }
             }, 200);
             
-            // ✅ DOWNLOAD BUTTONS
+            // 鉁?DOWNLOAD BUTTONS
             downloadTXTBtn.addEventListener('click', () => {
                 const text = transcriptText.textContent;
-                if (!text || text === 'ממתין...') {
-                    alert('אין תמלול עדיין');
+                if (!text || text === '诪诪转讬谉...') {
+                    alert('讗讬谉 转诪诇讜诇 注讚讬讬谉');
                     return;
                 }
                 
-                const content = `חי-אמת - תמלול וידאו\n${'='.repeat(50)}\nקובץ: ${file.name}\nתאריך: ${new Date().toLocaleString('he-IL')}\n${'='.repeat(50)}\n\n${text}`;
+                const content = `讞讬-讗诪转 - 转诪诇讜诇 讜讬讚讗讜\n${'='.repeat(50)}\n拽讜讘抓: ${file.name}\n转讗专讬讱: ${new Date().toLocaleString('he-IL')}\n${'='.repeat(50)}\n\n${text}`;
                 const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
                 link.download = `video_transcription_${file.name.replace(/\.[^/.]+$/, '')}.txt`;
                 link.click();
                 URL.revokeObjectURL(link.href);
-                addMessage(`📄 הורד: ${link.download}`, false);
+                addMessage(`馃搫 讛讜专讚: ${link.download}`, false);
             });
             
             downloadDOCXBtn.addEventListener('click', () => {
                 const text = transcriptText.textContent;
-                if (!text || text === 'ממתין...') {
-                    alert('אין תמלול עדיין');
+                if (!text || text === '诪诪转讬谉...') {
+                    alert('讗讬谉 转诪诇讜诇 注讚讬讬谉');
                     return;
                 }
                 
@@ -2745,16 +2745,16 @@
                     sections: [{
                         children: [
                             new docx.Paragraph({
-                                text: '🎬 חי-אמת - תמלול וידאו',
+                                text: '馃幀 讞讬-讗诪转 - 转诪诇讜诇 讜讬讚讗讜',
                                 heading: docx.HeadingLevel.HEADING_1,
                                 spacing: { after: 400 }
                             }),
                             new docx.Paragraph({
-                                text: `קובץ: ${file.name}`,
+                                text: `拽讜讘抓: ${file.name}`,
                                 spacing: { after: 200 }
                             }),
                             new docx.Paragraph({
-                                text: `תאריך: ${new Date().toLocaleString('he-IL')}`,
+                                text: `转讗专讬讱: ${new Date().toLocaleString('he-IL')}`,
                                 spacing: { after: 400 }
                             }),
                             new docx.Paragraph({
@@ -2771,45 +2771,45 @@
                     link.download = `video_transcription_${file.name.replace(/\.[^/.]+$/, '')}.docx`;
                     link.click();
                     URL.revokeObjectURL(link.href);
-                    addMessage(`📋 הורד: ${link.download}`, false);
+                    addMessage(`馃搵 讛讜专讚: ${link.download}`, false);
                 });
             });
             
-            // ✅ CLOSE BUTTON
+            // 鉁?CLOSE BUTTON
             closeBtn.addEventListener('click', () => {
                 clearInterval(progressInterval);
                 clearInterval(dotsInterval);
                 
                 const finalTranscript = transcriptText.textContent;
                 
-                // ✅ CREATE PANEL VERSION
+                // 鉁?CREATE PANEL VERSION
                 const videoContainer = document.getElementById('videoContainer');
                 if (videoContainer) {
                     videoContainer.style.display = 'block';
                     
                     const panelHTML = `
                         <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-top: 12px;">
-                            <div style="font-weight: bold; margin-bottom: 10px; color: #FFD700;">🎥 נגן וידאו</div>
+                            <div style="font-weight: bold; margin-bottom: 10px; color: #FFD700;">馃帴 谞讙谉 讜讬讚讗讜</div>
                             <video controls style="width: 100%; max-height: 300px; margin-bottom: 12px; border-radius: 8px; background: #000;">
                                 <source src="${videoURL}" type="${file.type}">
                             </video>
                             
                             <div style="background: rgba(255,255,255,0.1); padding: 12px; border-radius: 8px; margin-bottom: 12px; max-height: 150px; overflow-y: auto; direction: rtl; text-align: right; line-height: 1.8;">
-                                <div style="font-weight: bold; margin-bottom: 6px; color: #FFD700;">📝 תמלול:</div>
+                                <div style="font-weight: bold; margin-bottom: 6px; color: #FFD700;">馃摑 转诪诇讜诇:</div>
                                 <div style="color: white;">${finalTranscript}</div>
                             </div>
                             
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
                                 <button onclick="downloadVideoTranscription(${timestamp}, 'txt', '${file.name.replace(/'/g, "\\'")}', \`${finalTranscript.replace(/`/g, '\\`')}\`)" style="background: #28a745; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                                    📄 הורד TXT
+                                    馃搫 讛讜专讚 TXT
                                 </button>
                                 <button onclick="downloadVideoTranscription(${timestamp}, 'docx', '${file.name.replace(/'/g, "\\'")}', \`${finalTranscript.replace(/`/g, '\\`')}\`)" style="background: #17a2b8; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                                    📋 הורד DOCX
+                                    馃搵 讛讜专讚 DOCX
                                 </button>
                             </div>
                             
                             <button onclick="reopenVideoPopup(${timestamp}, '${file.name.replace(/'/g, "\\'")}', '${file.type}', '${videoURL}', \`${finalTranscript.replace(/`/g, '\\`')}\`)" style="background: #667eea; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%;">
-                                🔄 פתח חלון תמלול שוב
+                                馃攧 驻转讞 讞诇讜谉 转诪诇讜诇 砖讜讘
                             </button>
                         </div>
                     `;
@@ -2827,26 +2827,26 @@
                 
                 document.body.removeChild(popup);
                 
-                addMessage(`✖ ${file.name} - חלון נסגר, התוכן בפאנל`, false);
+                addMessage(`鉁?${file.name} - 讞诇讜谉 谞住讙专, 讛转讜讻谉 讘驻讗谞诇`, false);
                 
                 const fileInput = document.getElementById('videoInput');
                 if (fileInput) fileInput.value = '';
             });
             
-            // ✅ REAL-TIME SUBTITLES DURING PLAYBACK
+            // 鉁?REAL-TIME SUBTITLES DURING PLAYBACK
             popupVideo.addEventListener('timeupdate', function() {
                 const currentTime = this.currentTime;
                 const duration = this.duration;
                 
                 if (duration > 0 && progress >= 100) {
                     if (currentTime < duration * 0.25) {
-                        transcriptText.textContent = '📺 ' + subtitleSimulation[0];
+                        transcriptText.textContent = '馃摵 ' + subtitleSimulation[0];
                     } else if (currentTime < duration * 0.5) {
-                        transcriptText.textContent = '📺 ' + subtitleSimulation[1];
+                        transcriptText.textContent = '馃摵 ' + subtitleSimulation[1];
                     } else if (currentTime < duration * 0.75) {
-                        transcriptText.textContent = '📺 ' + subtitleSimulation[2];
+                        transcriptText.textContent = '馃摵 ' + subtitleSimulation[2];
                     } else {
-                        transcriptText.textContent = '📺 ' + subtitleSimulation[3];
+                        transcriptText.textContent = '馃摵 ' + subtitleSimulation[3];
                     }
                 }
             });
@@ -2854,35 +2854,35 @@
 
         
         function downloadVideoTranscription(timestamp, format, filename, text) {
-            if (!text || text === 'ממתין...') {
-                alert('אין תמלול זמין');
+            if (!text || text === '诪诪转讬谉...') {
+                alert('讗讬谉 转诪诇讜诇 讝诪讬谉');
                 return;
             }
             
             if (format === 'txt') {
-                const content = `חי-אמת - תמלול וידאו\n${'='.repeat(50)}\nקובץ: ${filename}\nתאריך: ${new Date().toLocaleString('he-IL')}\n${'='.repeat(50)}\n\n${text}`;
+                const content = `讞讬-讗诪转 - 转诪诇讜诇 讜讬讚讗讜\n${'='.repeat(50)}\n拽讜讘抓: ${filename}\n转讗专讬讱: ${new Date().toLocaleString('he-IL')}\n${'='.repeat(50)}\n\n${text}`;
                 const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
                 link.download = `video_transcription_${filename.replace(/\.[^/.]+$/, '')}.txt`;
                 link.click();
                 URL.revokeObjectURL(link.href);
-                addMessage(`📄 הורד: ${link.download}`, false);
+                addMessage(`馃搫 讛讜专讚: ${link.download}`, false);
             } else if (format === 'docx') {
                 const doc = new docx.Document({
                     sections: [{
                         children: [
                             new docx.Paragraph({
-                                text: '🎬 חי-אמת - תמלול וידאו',
+                                text: '馃幀 讞讬-讗诪转 - 转诪诇讜诇 讜讬讚讗讜',
                                 heading: docx.HeadingLevel.HEADING_1,
                                 spacing: { after: 400 }
                             }),
                             new docx.Paragraph({
-                                text: `קובץ: ${filename}`,
+                                text: `拽讜讘抓: ${filename}`,
                                 spacing: { after: 200 }
                             }),
                             new docx.Paragraph({
-                                text: `תאריך: ${new Date().toLocaleString('he-IL')}`,
+                                text: `转讗专讬讱: ${new Date().toLocaleString('he-IL')}`,
                                 spacing: { after: 400 }
                             }),
                             new docx.Paragraph({
@@ -2899,7 +2899,7 @@
                     link.download = `video_transcription_${filename.replace(/\.[^/.]+$/, '')}.docx`;
                     link.click();
                     URL.revokeObjectURL(link.href);
-                    addMessage(`📋 הורד: ${link.download}`, false);
+                    addMessage(`馃搵 讛讜专讚: ${link.download}`, false);
                 });
             }
         }
@@ -2933,38 +2933,38 @@
             
             popup.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 style="margin: 0; font-size: 24px;">🎬 תמלול וידאו</h2>
+                    <h2 style="margin: 0; font-size: 24px;">馃幀 转诪诇讜诇 讜讬讚讗讜</h2>
                     <div style="font-size: 14px; opacity: 0.8;">${filename}</div>
                 </div>
                 
                 <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                    <div style="font-weight: bold; margin-bottom: 10px; color: #FFD700;">🎥 נגן וידאו</div>
+                    <div style="font-weight: bold; margin-bottom: 10px; color: #FFD700;">馃帴 谞讙谉 讜讬讚讗讜</div>
                     <video controls style="width: 100%; max-height: 400px; border-radius: 8px; background: #000;">
                         <source src="${videoURL}" type="${filetype}">
                     </video>
                 </div>
                 
                 <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 15px; max-height: 150px; overflow-y: auto; direction: rtl; text-align: right; line-height: 1.8;">
-                    <div style="font-weight: bold; margin-bottom: 6px; color: #FFD700;">📝 תמלול:</div>
+                    <div style="font-weight: bold; margin-bottom: 6px; color: #FFD700;">馃摑 转诪诇讜诇:</div>
                     <div style="color: white;">${savedTranscript}</div>
                 </div>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
                     <button onclick="downloadVideoTranscription(${timestamp}, 'txt', '${filename.replace(/'/g, "\\'")}', \`${savedTranscript.replace(/`/g, '\\`')}\`)" style="background: #28a745; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                        📄 הורד TXT
+                        馃搫 讛讜专讚 TXT
                     </button>
                     <button onclick="downloadVideoTranscription(${timestamp}, 'docx', '${filename.replace(/'/g, "\\'")}', \`${savedTranscript.replace(/`/g, '\\`')}\`)" style="background: #17a2b8; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                        📋 הורד DOCX
+                        馃搵 讛讜专讚 DOCX
                     </button>
                 </div>
                 
                 <button onclick="this.parentElement.parentElement.remove(); document.getElementById('videoPanel_${timestamp}').style.display = 'block';" style="width: 100%; background: #dc3545; color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px;">
-                    ✖ סגור
+                    鉁?住讙讜专
                 </button>
             `;
             
             document.body.appendChild(popup);
-            addMessage(`🔄 ${filename} - חלון נפתח מחדש`, false);
+            addMessage(`馃攧 ${filename} - 讞诇讜谉 谞驻转讞 诪讞讚砖`, false);
         }
         
         function handleTxtUpload(event) {
@@ -2986,7 +2986,7 @@
                 
                 uploadedFiles.push(fileData);
                 updateFilesList();
-                addMessage(`📄 הועלה: ${file.name} (${lines.length} שורות)`, false);
+                addMessage(`馃搫 讛讜注诇讛: ${file.name} (${lines.length} 砖讜专讜转)`, false);
             };
             reader.readAsText(file);
         }
@@ -3000,19 +3000,19 @@
                 time: getPrecisionTime(),
                 type: 'docx',
                 size: (file.size / 1024).toFixed(2) + ' KB',
-                transcription: '⏳ מעבדת DOCX...'
+                transcription: '鈴?诪注讘讚转 DOCX...'
             };
             
             uploadedFiles.push(fileData);
             updateFilesList();
-            addMessage(`📋 העלאה: ${file.name}`, false);
+            addMessage(`馃搵 讛注诇讗讛: ${file.name}`, false);
         }
 
         function updateFilesList() {
             const filesList = document.getElementById('filesList');
             
             if (uploadedFiles.length === 0) {
-                filesList.innerHTML = '<div class="empty-files">אין קבצים עדיין</div>';
+                filesList.innerHTML = '<div class="empty-files">讗讬谉 拽讘爪讬诐 注讚讬讬谉</div>';
                 return;
             }
             
@@ -3021,11 +3021,11 @@
                 const fileEl = document.createElement('div');
                 fileEl.className = 'file-item';
                 
-                let icon = '📄';
-                if (file.type === 'txt') icon = '📄';
-                if (file.type === 'docx') icon = '📋';
-                if (file.type === 'audio') icon = '🎵';
-                if (file.type === 'video') icon = '🎬';
+                let icon = '馃搫';
+                if (file.type === 'txt') icon = '馃搫';
+                if (file.type === 'docx') icon = '馃搵';
+                if (file.type === 'audio') icon = '馃幍';
+                if (file.type === 'video') icon = '馃幀';
                 
                 let details = `${file.time}s`;
                 if (file.size) details += ` | ${file.size}`;
@@ -3045,7 +3045,7 @@
         }
 
         function clearAllFiles() {
-            if (confirm('בטוח?')) {
+            if (confirm('讘讟讜讞?')) {
                 uploadedFiles = [];
                 transcriptionHistory = [];
                 updateFilesList();
@@ -3056,8 +3056,8 @@
 
         function toggleStreamAccordion(element) {
             const accordion = document.getElementById('streamAccordion');
-            const arrow = element.textContent.includes('▶') ? '▼' : '▶';
-            element.textContent = element.textContent.replace(/[▶▼]/, arrow) + ' וידאו / שדור חי';
+            const arrow = element.textContent.includes('鈻?) ? '鈻? : '鈻?;
+            element.textContent = element.textContent.replace(/[鈻垛柤]/, arrow) + ' 讜讬讚讗讜 / 砖讚讜专 讞讬';
             accordion.style.display = accordion.style.display === 'none' ? 'block' : 'none';
         }
 
@@ -3074,7 +3074,7 @@
         async function loadYouTubeVideo() {
             const url = document.getElementById('youtubeURL').value.trim();
             if (!url) {
-                alert('הכנס YouTube URL');
+                alert('讛讻谞住 YouTube URL');
                 return;
             }
             
@@ -3108,10 +3108,10 @@
                 controlsDiv.style.cssText = 'margin-top: 12px; padding: 12px; background: rgba(102, 126, 234, 0.1); border-radius: 8px;';
                 controlsDiv.innerHTML = `
                     <button onclick="fetchYouTubeCaptions('${videoId}')" style="background: #667eea; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; margin-right: 8px;">
-                        📥 הורד כתוביות
+                        馃摜 讛讜专讚 讻转讜讘讬讜转
                     </button>
                     <button onclick="captureYouTubeAudio('${videoId}')" style="background: #FF0000; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer;">
-                        🎤 הקלט אודיו מהסרטון
+                        馃帳 讛拽诇讟 讗讜讚讬讜 诪讛住专讟讜谉
                     </button>
                     <div id="ytTranscript_${videoId}" style="margin-top: 12px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; color: white; display: none; direction: rtl; text-align: right;"></div>
                 `;
@@ -3119,14 +3119,14 @@
                 
                 videoPlayerWrapper.appendChild(container);
                 
-                addMessage(`📺 YouTube: ${url.substring(0, 50)}...`, false);
-                addMessage(`💡 לחץ "📥 הורד כתוביות" אם הסרטון כולל כתוביות, או "🎤 הקלט אודיו" להקלטה ידנית`, false);
+                addMessage(`馃摵 YouTube: ${url.substring(0, 50)}...`, false);
+                addMessage(`馃挕 诇讞抓 "馃摜 讛讜专讚 讻转讜讘讬讜转" 讗诐 讛住专讟讜谉 讻讜诇诇 讻转讜讘讬讜转, 讗讜 "馃帳 讛拽诇讟 讗讜讚讬讜" 诇讛拽诇讟讛 讬讚谞讬转`, false);
             }
         }
 
         async function fetchYouTubeCaptions(videoId) {
             try {
-                addMessage('🔍 מחפש כתוביות...', false);
+                addMessage('馃攳 诪讞驻砖 讻转讜讘讬讜转...', false);
                 
                 const languages = ['he', 'iw', 'en', 'auto'];
                 let captionsFound = false;
@@ -3151,13 +3151,13 @@
                             if (fullText.trim()) {
                                 captionsFound = true;
                                 
-                                // ✅ FIX 3: ALWAYS UPDATE MAIN VIDEO TRANSCRIPT!
+                                // 鉁?FIX 3: ALWAYS UPDATE MAIN VIDEO TRANSCRIPT!
                                 const mainVideoTranscript = document.getElementById('videoTranscript');
                                 if (mainVideoTranscript) {
                                     safeSetText('videoTranscript', fullText.trim());
                                 }
                                 
-                                // ✅ Also update live translation panel
+                                // 鉁?Also update live translation panel
                                 const liveTranslation = document.getElementById('liveVideoTranslation');
                                 if (liveTranslation) {
                                     liveTranslation.textContent = fullText.trim();
@@ -3167,7 +3167,7 @@
                                 const transcriptDiv = document.getElementById(`ytTranscript_${videoId}`);
                                 if (transcriptDiv) {
                                     transcriptDiv.style.display = 'block';
-                                    transcriptDiv.innerHTML = `<strong>📝 כתוביות (${lang}):</strong><br>${fullText.trim()}`;
+                                    transcriptDiv.innerHTML = `<strong>馃摑 讻转讜讘讬讜转 (${lang}):</strong><br>${fullText.trim()}`;
                                 }
                                 
                                 // Save to history
@@ -3186,7 +3186,7 @@
                                     language: lang
                                 };
                                 
-                                addMessage(`✅ כתוביות נמצאו ומוצגות! (${lang})`, false);
+                                addMessage(`鉁?讻转讜讘讬讜转 谞诪爪讗讜 讜诪讜爪讙讜转! (${lang})`, false);
                                 
                                 // Add download buttons
                                 const controlsDiv = transcriptDiv ? transcriptDiv.parentElement : null;
@@ -3196,10 +3196,10 @@
                                     downloadDiv.style.cssText = 'margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;';
                                     downloadDiv.innerHTML = `
                                         <button onclick="downloadYouTubeCaptions('${videoId}', 'txt')" style="background: #28a745; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer;">
-                                            📄 הורד TXT
+                                            馃搫 讛讜专讚 TXT
                                         </button>
                                         <button onclick="downloadYouTubeCaptions('${videoId}', 'docx')" style="background: #17a2b8; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer;">
-                                            📋 הורד DOCX
+                                            馃搵 讛讜专讚 DOCX
                                         </button>
                                     `;
                                     controlsDiv.appendChild(downloadDiv);
@@ -3214,19 +3214,19 @@
                 }
                 
                 if (!captionsFound) {
-                    addMessage('⚠️ לא נמצאו כתוביות. נסה "🎤 הקלט אודיו" במקום.', false);
+                    addMessage('鈿狅笍 诇讗 谞诪爪讗讜 讻转讜讘讬讜转. 谞住讛 "馃帳 讛拽诇讟 讗讜讚讬讜" 讘诪拽讜诐.', false);
                 }
                 
             } catch (error) {
                 console.error('YouTube captions error:', error);
-                addMessage(`❌ שגיאה בהורדת כתוביות: ${error.message}`, false);
+                addMessage(`鉂?砖讙讬讗讛 讘讛讜专讚转 讻转讜讘讬讜转: ${error.message}`, false);
             }
         }
 
         function downloadYouTubeCaptions(videoId, format) {
             const data = window[`ytCaptions_${videoId}`];
             if (!data || !data.text) {
-                alert('אין תמלול זמין להורדה');
+                alert('讗讬谉 转诪诇讜诇 讝诪讬谉 诇讛讜专讚讛');
                 return;
             }
             
@@ -3242,7 +3242,7 @@
                 URL.revokeObjectURL(url);
             } else if (format === 'docx') {
                 if (typeof docx === 'undefined') {
-                    alert('docx.js לא טעון');
+                    alert('docx.js 诇讗 讟注讜谉');
                     return;
                 }
                 
@@ -3282,7 +3282,7 @@
                 if (data.responseStatus === 200) {
                     const translated = data.responseData.translatedText;
                     safeSetText('translatedText', translated);
-                    return translated; // ✅ Return for popup use
+                    return translated; // 鉁?Return for popup use
                 }
                 return text; // Return original if translation fails
             } catch (e) {
@@ -3347,7 +3347,7 @@
             addMessage(message, true);
             const msgInput = document.getElementById('messageInput');
             if (msgInput) msgInput.value = '';
-            updateStatus('⏳ משדרת תגובה...');
+            updateStatus('鈴?诪砖讚专转 转讙讜讘讛...');
             
             try {
                 const response = await fetch(API_URL, {
@@ -3369,7 +3369,7 @@
                     addMessage(data.reply, false);
                 }
                 
-                updateStatus('✅ בחזרה מהליבה');
+                updateStatus('鉁?讘讞讝专讛 诪讛诇讬讘讛');
                 
                 transcriptionHistory.push({
                     text: message,
@@ -3380,14 +3380,14 @@
                 });
                 
             } catch (error) {
-                addMessage('❌ שגיאה בחיבור לליבה.', false);
-                updateStatus('❌ שגיאה');
+                addMessage('鉂?砖讙讬讗讛 讘讞讬讘讜专 诇诇讬讘讛.', false);
+                updateStatus('鉂?砖讙讬讗讛');
             }
         }
 
         function saveTranscriptionTXT() {
             if (transcriptionHistory.length === 0) {
-                alert('אין טקסט לשמור');
+                alert('讗讬谉 讟拽住讟 诇砖诪讜专');
                 return;
             }
             
@@ -3395,8 +3395,8 @@
                 `${i + 1}. [${t.time}s] ${t.text}`
             ).join('\n');
             
-            const header = `חי-אמת Transcription\n`;
-            const metadata = `שפה: ${LANGUAGES_CONFIG[currentVoiceLang]?.name || 'Unknown'}\nזמן: ${new Date().toLocaleString('he-IL')}\n${'='.repeat(50)}\n`;
+            const header = `讞讬-讗诪转 Transcription\n`;
+            const metadata = `砖驻讛: ${LANGUAGES_CONFIG[currentVoiceLang]?.name || 'Unknown'}\n讝诪谉: ${new Date().toLocaleString('he-IL')}\n${'='.repeat(50)}\n`;
             const fullContent = header + metadata + content;
             
             const blob = new Blob([fullContent], { type: 'text/plain;charset=utf-8' });
@@ -3413,12 +3413,12 @@
                 size: (blob.size / 1024).toFixed(2) + ' KB'
             });
             updateFilesList();
-            addMessage(`📄 שמור: ${filename}`, false);
+            addMessage(`馃搫 砖诪讜专: ${filename}`, false);
         }
 
         function saveTranscriptionDOCX() {
             if (transcriptionHistory.length === 0) {
-                alert('אין טקסט לשמור');
+                alert('讗讬谉 讟拽住讟 诇砖诪讜专');
                 return;
             }
             
@@ -3480,13 +3480,13 @@
                         new docx.Paragraph({
                             children: [
                                 new docx.TextRun({
-                                    text: "💛 חי-אמת",
+                                    text: "馃挍 讞讬-讗诪转",
                                     bold: true,
                                     size: 48,
                                     color: "ffd700"
                                 }),
                                 new docx.TextRun({
-                                    text: " - תמלול קולי",
+                                    text: " - 转诪诇讜诇 拽讜诇讬",
                                     bold: true,
                                     size: 36,
                                     color: "667eea"
@@ -3520,7 +3520,7 @@
                                 new docx.TableRow({
                                     children: [
                                         new docx.TableCell({
-                                            children: [new docx.Paragraph({ text: "🌍 שפה:", bold: true })],
+                                            children: [new docx.Paragraph({ text: "馃實 砖驻讛:", bold: true })],
                                             shading: { fill: "667eea", color: "ffffff" }
                                         }),
                                         new docx.TableCell({
@@ -3531,7 +3531,7 @@
                                 new docx.TableRow({
                                     children: [
                                         new docx.TableCell({
-                                            children: [new docx.Paragraph({ text: "🕐 זמן:", bold: true })],
+                                            children: [new docx.Paragraph({ text: "馃晲 讝诪谉:", bold: true })],
                                             shading: { fill: "667eea", color: "ffffff" }
                                         }),
                                         new docx.TableCell({
@@ -3542,7 +3542,7 @@
                                 new docx.TableRow({
                                     children: [
                                         new docx.TableCell({
-                                            children: [new docx.Paragraph({ text: "📝 משפטים:", bold: true })],
+                                            children: [new docx.Paragraph({ text: "馃摑 诪砖驻讟讬诐:", bold: true })],
                                             shading: { fill: "667eea", color: "ffffff" }
                                         }),
                                         new docx.TableCell({
@@ -3558,7 +3558,7 @@
                         new docx.Paragraph({
                             children: [
                                 new docx.TextRun({
-                                    text: "📄 תמלול מלא",
+                                    text: "馃搫 转诪诇讜诇 诪诇讗",
                                     bold: true,
                                     size: 32,
                                     color: "667eea"
@@ -3574,7 +3574,7 @@
                         new docx.Paragraph({
                             children: [
                                 new docx.TextRun({
-                                    text: "═══════════════════════════════════",
+                                    text: "鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺?,
                                     color: "999999"
                                 })
                             ],
@@ -3583,7 +3583,7 @@
                         new docx.Paragraph({
                             children: [
                                 new docx.TextRun({
-                                    text: "🔒 TNTF | Binary: 0101-0101(0101) | חי-אמת 💛",
+                                    text: "馃敀 TNTF | Binary: 0101-0101(0101) | 讞讬-讗诪转 馃挍",
                                     italics: true,
                                     size: 18,
                                     color: "667eea"
@@ -3599,7 +3599,7 @@
             docx.Packer.toBlob(doc).then(blob => {
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
-                const filename = `חי-אמת_תמלול_${Date.now()}.docx`;
+                const filename = `讞讬-讗诪转_转诪诇讜诇_${Date.now()}.docx`;
                 link.download = filename;
                 link.click();
                 
@@ -3610,7 +3610,7 @@
                     size: (blob.size / 1024).toFixed(2) + ' KB'
                 });
                 updateFilesList();
-                addMessage(`📋 שמור: ${filename}`, false);
+                addMessage(`馃搵 砖诪讜专: ${filename}`, false);
             });
         }
 
@@ -3621,7 +3621,7 @@
             }
         });
 
-        console.log('✅ Hai-Emet VOICE System Ready!');
+        console.log('鉁?Hai-Emet VOICE System Ready!');
         console.log('Binary: ' + BINARY_SIG);
     </script>
 </body>
